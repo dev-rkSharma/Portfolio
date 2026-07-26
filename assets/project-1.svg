@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="600" height="340" role="img" aria-label="Project screenshot placeholder">
+  <rect width="600" height="340" fill="#2E333B"/>
+  <rect x="0.5" y="0.5" width="599" height="339" fill="none" stroke="#3D434D"/>
+  <g stroke="#C778DD" stroke-width="1.5" fill="none" opacity="0.8">
+    <rect x="232" y="118" width="70" height="70"/>
+    <rect x="268" y="152" width="70" height="70"/>
+  </g>
+  <text x="300" y="255" text-anchor="middle" font-family="'Fira Code', monospace" font-size="15" fill="#ABB2BF">
+    assets/project-1.png
+  </text>
+</svg>

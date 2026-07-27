@@ -1,11 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="600" height="340" role="img" aria-label="Project screenshot placeholder">
-  <rect width="600" height="340" fill="#2E333B"/>
-  <rect x="0.5" y="0.5" width="599" height="339" fill="none" stroke="#3D434D"/>
-  <g stroke="#C778DD" stroke-width="1.5" fill="none" opacity="0.8">
-    <rect x="232" y="118" width="70" height="70"/>
-    <rect x="268" y="152" width="70" height="70"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="600" height="340" role="img" aria-label="Abstract timeseries dashboard with two trend lines over a gridded chart">
+  <defs>
+    <linearGradient id="p2-fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#C778DD" stop-opacity="0.32" />
+      <stop offset="100%" stop-color="#C778DD" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <rect width="600" height="340" fill="#2E333B" />
+  <rect x="0.5" y="0.5" width="599" height="339" fill="none" stroke="#3D434D" />
+
+  <!-- chart grid -->
+  <g stroke="#ABB2BF" stroke-opacity="0.16">
+    <line x1="46" y1="66" x2="46" y2="278" stroke-opacity="0.4" />
+    <line x1="46" y1="278" x2="560" y2="278" stroke-opacity="0.4" />
+    <line x1="46" y1="66" x2="560" y2="66" />
+    <line x1="46" y1="116" x2="560" y2="116" />
+    <line x1="46" y1="166" x2="560" y2="166" />
+    <line x1="46" y1="216" x2="560" y2="216" />
+    <line x1="140" y1="66" x2="140" y2="278" />
+    <line x1="248" y1="66" x2="248" y2="278" />
+    <line x1="356" y1="66" x2="356" y2="278" />
+    <line x1="464" y1="66" x2="464" y2="278" />
   </g>
-  <text x="300" y="255" text-anchor="middle" font-family="'Fira Code', monospace" font-size="15" fill="#ABB2BF">
-    assets/project-2.png
-  </text>
+
+  <!-- primary series: area + line -->
+  <path d="M46 240 L 110 224 L 172 236 L 234 190 L 296 202 L 358 150 L 420 168 L 482 110 L 544 128 L 544 278 L 46 278 Z"
+        fill="url(#p2-fill)" stroke="none" />
+  <path d="M46 240 L 110 224 L 172 236 L 234 190 L 296 202 L 358 150 L 420 168 L 482 110 L 544 128"
+        fill="none" stroke="#C778DD" stroke-width="2.25" stroke-linejoin="round" />
+  <g fill="#C778DD">
+    <circle cx="110" cy="224" r="3.25" />
+    <circle cx="234" cy="190" r="3.25" />
+    <circle cx="358" cy="150" r="3.25" />
+    <circle cx="482" cy="110" r="3.25" />
+  </g>
+
+  <!-- secondary series: dashed comparison line -->
+  <path d="M46 258 L 110 254 L 172 260 L 234 246 L 296 250 L 358 232 L 420 240 L 482 218 L 544 226"
+        fill="none" stroke="#ABB2BF" stroke-width="1.5" stroke-dasharray="5 4" opacity="0.65" />
+
+  <!-- legend -->
+  <g font-family="'Fira Code', monospace" font-size="12" fill="#ABB2BF">
+    <rect x="46" y="34" width="10" height="10" fill="#C778DD" />
+    <text x="62" y="43">series&#160;a</text>
+    <line x1="150" y1="39" x2="164" y2="39" stroke="#ABB2BF" stroke-width="1.5" stroke-dasharray="5 4" opacity="0.65" />
+    <text x="170" y="43" opacity="0.85">series&#160;b</text>
+  </g>
 </svg>

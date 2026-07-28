@@ -89,8 +89,12 @@
 
         var link = linkFor[best.target.id];
         if (!link) return;
-        navLinks.forEach(function (l) { l.classList.remove("is-active"); });
+        navLinks.forEach(function (l) {
+          l.classList.remove("is-active");
+          l.removeAttribute("aria-current");
+        });
         link.classList.add("is-active");
+        link.setAttribute("aria-current", "location");
       },
       { rootMargin: "-45% 0px -50% 0px", threshold: 0 }
     );
@@ -128,7 +132,7 @@
   var quoteText = document.getElementById("quote-text");
   var quoteAuthor = document.getElementById("quote-author");
 
-  if (quoteText && quoteAuthor && QUOTES.length > 1) {
+  if (quoteText && quoteAuthor && QUOTES.length > 1 && !reduceMotion) {
     var idx = 0;
 
     setInterval(function () {
@@ -137,12 +141,6 @@
 
       idx = (idx + 1) % QUOTES.length;
       var q = QUOTES[idx];
-
-      if (reduceMotion) {
-        quoteText.textContent = q.text;
-        quoteAuthor.textContent = q.author;
-        return;
-      }
 
       var box = quoteText.closest(".quote");
       box.style.transition = "opacity 300ms ease";

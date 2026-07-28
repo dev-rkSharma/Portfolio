@@ -62,9 +62,11 @@
 
     <nav class="nav" id="nav" aria-label="Main">
       <ul class="nav__list">
-        <li><a class="nav__link is-active" href="#home"><span class="hash">#</span>home</a></li>
+        <li><a class="nav__link is-active" href="#home" aria-current="location"><span class="hash">#</span>home</a></li>
         <li><a class="nav__link" href="#projects"><span class="hash">#</span>works</a></li>
+        <li><a class="nav__link" href="#skills"><span class="hash">#</span>skills</a></li>
         <li><a class="nav__link" href="#experience"><span class="hash">#</span>experience</a></li>
+        <li><a class="nav__link" href="#badges"><span class="hash">#</span>badges</a></li>
         <li><a class="nav__link" href="#about-me"><span class="hash">#</span>about-me</a></li>
         <li><a class="nav__link" href="#contacts"><span class="hash">#</span>contacts</a></li>
       </ul>
@@ -96,7 +98,7 @@
           He builds scalable data solutions where ontology, pipelines and
           geospatial analytics meet measurable business impact
         </p>
-        <a class="btn btn--primary" href="#contacts">Contact me!!</a>
+        <a class="btn btn--primary" href="#contacts">Get in touch</a>
       </div>
 
       <div class="hero__visual">
@@ -119,8 +121,8 @@
     <div class="container">
       <div class="stats">
         <div class="stat">
-          <p class="stat__num">5</p>
-          <p class="stat__label">Foundry Certifications</p>
+          <p class="stat__num">3</p>
+          <p class="stat__label">Foundry Credentials</p>
         </div>
         <div class="stat">
           <p class="stat__num">6</p>
@@ -221,36 +223,83 @@
       <div class="skills">
         <div class="skills__decor" aria-hidden="true">
           <span class="decor decor--dots skills__dots-a"></span>
-          <span class="decor decor--square skills__square-a"></span>
+          <span class="decor decor--square skills__square-a">
+            <svg viewBox="0 0 16 16"><rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor"/><rect x="6" y="6" width="9.5" height="9.5" fill="currentColor"/></svg>
+          </span>
           <span class="decor decor--dots skills__dots-b"></span>
-          <span class="decor decor--square skills__square-b"></span>
-          <span class="decor decor--square skills__square-c"></span>
+          <span class="decor decor--square skills__square-b">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>
+          </span>
+          <span class="decor decor--square skills__square-c">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="9" width="5" height="6"/><rect x="9.5" y="9" width="5" height="6"/><rect x="17" y="9" width="5" height="6"/><path d="M7 12h2.5M14.5 12H17"/></svg>
+          </span>
+          <span class="decor decor--square skills__square-d">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c2-7 4-10 7-10s3 5 6 5 4-3 5-6"/><circle cx="20.3" cy="6.4" r="0.7" fill="currentColor" stroke="none"/></svg>
+          </span>
+          <span class="decor decor--square skills__square-e">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="7" ry="2.5"/><path d="M5 5v14c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V5"/><path d="M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>
+          </span>
         </div>
 
         <!-- Everything below is taken straight from your CV. -->
         <div class="skills__grid">
           <div class="skill-box">
-            <h3 class="skill-box__head">Palantir Foundry</h3>
+            <h3 class="skill-box__head">
+              <svg class="skill-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <circle cx="12" cy="4.5" r="2"/><circle cx="5" cy="17" r="2"/><circle cx="19" cy="17" r="2"/>
+                <path d="M12 6.5 6.3 15.3M12 6.5l5.7 8.8M7 17h10"/>
+              </svg>
+              Palantir Foundry
+            </h3>
             <p class="skill-box__body">Ontology Pipeline&nbsp;Builder Workshop AIP Quiver IST</p>
           </div>
           <div class="skill-box">
-            <h3 class="skill-box__head">Data Engineering</h3>
+            <h3 class="skill-box__head">
+              <svg class="skill-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <rect x="2" y="9" width="5" height="6"/><rect x="9.5" y="9" width="5" height="6"/><rect x="17" y="9" width="5" height="6"/>
+                <path d="M7 12h2.5M14.5 12H17"/>
+              </svg>
+              Data Engineering
+            </h3>
             <p class="skill-box__body">Data&nbsp;Modeling Pipeline&nbsp;Engineering ETL Timeseries Process&nbsp;Mining</p>
           </div>
           <div class="skill-box">
-            <h3 class="skill-box__head">Analytics</h3>
+            <h3 class="skill-box__head">
+              <svg class="skill-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path d="M3 20V4M3 20h18"/>
+                <path d="M7 16v-4M11 16V8M15 16v-6M19 16v-2"/>
+              </svg>
+              Analytics
+            </h3>
             <p class="skill-box__body">Geospatial&nbsp;Analytics Data&nbsp;Visualization Advanced&nbsp;Analytics</p>
           </div>
           <div class="skill-box">
-            <h3 class="skill-box__head">Governance</h3>
+            <h3 class="skill-box__head">
+              <svg class="skill-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/>
+                <path d="M9 12.5l2 2 4-4.5"/>
+              </svg>
+              Governance
+            </h3>
             <p class="skill-box__body">Data&nbsp;Governance Access&nbsp;Controls Compliance API&nbsp;Integrations</p>
           </div>
           <div class="skill-box">
-            <h3 class="skill-box__head">Programming</h3>
+            <h3 class="skill-box__head">
+              <svg class="skill-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path d="M8 6 3 12l5 6M16 6l5 6-5 6M14 4l-4 16"/>
+              </svg>
+              Programming
+            </h3>
             <p class="skill-box__body">Python SQL JavaScript TypeScript React Node.js</p>
           </div>
           <div class="skill-box">
-            <h3 class="skill-box__head">Languages</h3>
+            <h3 class="skill-box__head">
+              <svg class="skill-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M3 12h18M12 3c2.5 2.5 4 5.7 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.7-4-9s1.5-6.5 4-9z"/>
+              </svg>
+              Languages
+            </h3>
             <p class="skill-box__body">English&nbsp;(Professional) Hindi&nbsp;(Native)</p>
           </div>
         </div>
@@ -345,11 +394,135 @@
         <div>
           <h3 class="subhead"><span class="hash">#</span>certifications</h3>
           <ul class="certs">
-            <li><span class="certs__dot" aria-hidden="true"></span>Certified Palantir Foundry Application Developer Professional</li>
-            <li><span class="certs__dot" aria-hidden="true"></span>Introduction to Foundry &amp; AIP for Enterprise Organizations</li>
-            <li><span class="certs__dot" aria-hidden="true"></span>Scoping Use Cases in Foundry &amp; AIP</li>
-            <li><span class="certs__dot" aria-hidden="true"></span>Deep Dive: Data Governance Tools in Foundry</li>
-            <li><span class="certs__dot" aria-hidden="true"></span>Deep Dive: Building Your First Pipeline</li>
+            <li><span class="certs__dot" aria-hidden="true"></span><a href="https://verify.skilljar.com/c/iqjrtpi248z9" target="_blank" rel="noopener">Certified Palantir Foundry Application Developer Professional</a></li>
+            <li><span class="certs__dot" aria-hidden="true"></span><a href="https://verify.skilljar.com/c/zka2jmnxfj8r" target="_blank" rel="noopener">Certified Palantir Foundry Aware</a></li>
+            <li><span class="certs__dot" aria-hidden="true"></span><a href="https://verify.skilljar.com/c/p792rr4y8it7" target="_blank" rel="noopener">Certified Palantir Foundry Data Engineer</a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= BADGES ========================= -->
+  <section class="section" id="badges">
+    <div class="container">
+
+      <div class="section-head">
+        <h2 class="section-title"><span class="hash">#</span>badges</h2>
+        <span class="section-head__rule" aria-hidden="true"></span>
+      </div>
+
+      <div class="badge-groups">
+
+        <div class="badge-group">
+          <h3 class="badge-group__head">
+            <svg class="badge-group__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+            Speedrun
+          </h3>
+          <ul class="certs">
+            <li>
+              <span class="certs__dot" aria-hidden="true"></span>
+              <span class="badge-item">
+                <a href="https://verify.skilljar.com/c/neinye7kddza" target="_blank" rel="noopener">Mining Your First Business Process</a>
+                <span class="badge-date">Jul 2025</span>
+              </span>
+            </li>
+            <li>
+              <span class="certs__dot" aria-hidden="true"></span>
+              <span class="badge-item">
+                <a href="https://verify.skilljar.com/c/2ujx2sk5szd9" target="_blank" rel="noopener">Your First Ontology Function</a>
+                <span class="badge-date">Jun 2025</span>
+              </span>
+            </li>
+            <li>
+              <span class="certs__dot" aria-hidden="true"></span>
+              <span class="badge-item">
+                <a href="https://verify.skilljar.com/c/y7495gsyec8m" target="_blank" rel="noopener">Your First AIP Workflow</a>
+                <span class="badge-date">Jan 2025</span>
+              </span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="badge-group">
+          <h3 class="badge-group__head">
+            <svg class="badge-group__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg>
+            Deep Dive
+          </h3>
+          <ul class="certs">
+            <li>
+              <span class="certs__dot" aria-hidden="true"></span>
+              <span class="badge-item">
+                <a href="https://verify.skilljar.com/c/y7ytntcfxmmv" target="_blank" rel="noopener">Data Analysis in Quiver</a>
+                <span class="badge-date">Jul 2025</span>
+              </span>
+            </li>
+            <li>
+              <span class="certs__dot" aria-hidden="true"></span>
+              <span class="badge-item">
+                <a href="https://verify.skilljar.com/c/pdwckq8sg85o" target="_blank" rel="noopener">Data Protection Tools in Foundry</a>
+                <span class="badge-date">Apr 2025</span>
+              </span>
+            </li>
+            <li>
+              <span class="certs__dot" aria-hidden="true"></span>
+              <span class="badge-item">
+                <a href="https://verify.skilljar.com/c/xf2dza4h993n" target="_blank" rel="noopener">Creating Your First Data Connection</a>
+                <span class="badge-date">Jan 2025</span>
+              </span>
+            </li>
+            <li>
+              <span class="certs__dot" aria-hidden="true"></span>
+              <span class="badge-item">
+                <a href="https://verify.skilljar.com/c/ef5ew9u6ot6j" target="_blank" rel="noopener">Building Your First Pipeline</a>
+                <span class="badge-date">Jan 2025</span>
+              </span>
+            </li>
+            <li>
+              <span class="certs__dot" aria-hidden="true"></span>
+              <span class="badge-item">
+                <a href="https://verify.skilljar.com/c/v76gatkr35te" target="_blank" rel="noopener">Data Analysis in Contour</a>
+                <span class="badge-date">Jan 2025</span>
+              </span>
+            </li>
+            <li>
+              <span class="certs__dot" aria-hidden="true"></span>
+              <span class="badge-item">
+                <a href="https://verify.skilljar.com/c/awairahfrb5x" target="_blank" rel="noopener">Building Your First Application</a>
+                <span class="badge-date">Jan 2025</span>
+              </span>
+            </li>
+            <li>
+              <span class="certs__dot" aria-hidden="true"></span>
+              <span class="badge-item">
+                <a href="https://verify.skilljar.com/c/t7w8tru9ofy6" target="_blank" rel="noopener">Creating Your First Ontology [v0]</a>
+                <span class="badge-date">Jan 2025</span>
+              </span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="badge-group">
+          <h3 class="badge-group__head">
+            <svg class="badge-group__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="M2 13l10 5 10-5"/></svg>
+            Foundational
+          </h3>
+          <ul class="certs">
+            <li>
+              <span class="certs__dot" aria-hidden="true"></span>
+              <span class="badge-item">
+                <a href="https://verify.skilljar.com/c/sgfaqg9tbnt7" target="_blank" rel="noopener">Scoping Use Cases for Foundry &amp; AIP</a>
+                <span class="badge-date">Jan 2025</span>
+              </span>
+            </li>
+            <li>
+              <span class="certs__dot" aria-hidden="true"></span>
+              <span class="badge-item">
+                <a href="https://verify.skilljar.com/c/a5dv4q37an6g" target="_blank" rel="noopener">Introduction to Foundry &amp; AIP for Enterprise Organizations</a>
+                <span class="badge-date">Jan 2025</span>
+              </span>
+            </li>
           </ul>
         </div>
 
@@ -368,7 +541,7 @@
 
       <div class="about">
         <div class="about__copy">
-          <p>Hello, i&rsquo;m Roushan!</p>
+          <p>Hello, I&rsquo;m Roushan!</p>
           <p>
             I&rsquo;m a Certified Palantir Foundry Developer based in India, with
             hands-on expertise across Ontology modeling, Pipeline Builder,

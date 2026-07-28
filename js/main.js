@@ -11,6 +11,7 @@
      and the quote in index.html stays exactly as written.
      -------------------------------------------------------------------- */
   var QUOTES = [
+    { text: "In God we trust, all others must bring data.", author: "W. Edwards Deming" },
     { text: "With great power comes great electricity bill", author: "Dr. Who" }
   ];
 

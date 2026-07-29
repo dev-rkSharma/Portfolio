@@ -51,6 +51,9 @@ html {
   /* offset anchor targets so the sticky header doesn't cover headings */
   scroll-padding-top: calc(var(--header-h) + 1rem);
   -webkit-text-size-adjust: 100%;
+  /* overflow-x lives here, not on body — body needs overflow:visible so
+     .header's position:sticky keeps working on iOS Safari */
+  overflow-x: hidden;
 }
 
 body {
@@ -61,7 +64,6 @@ body {
   line-height: 1.6;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
 }
 
 img, svg { display: block; max-width: 100%; }

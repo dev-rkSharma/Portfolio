@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="600" height="340" role="img" aria-label="Diagram of legal and real-time data sources feeding validated pipelines into an automated Workshop report">
+  <defs>
+    <pattern id="p4-dots" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle cx="1.1" cy="1.1" r="1.1" fill="#ABB2BF" />
+    </pattern>
+    <marker id="p4-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L8 4 L0 8 Z" fill="#C778DD" />
+    </marker>
+  </defs>
+
+  <rect width="600" height="340" fill="#2E333B" />
+  <rect width="600" height="340" fill="url(#p4-dots)" opacity="0.12" />
+  <rect x="0.5" y="0.5" width="599" height="339" fill="none" stroke="#3D434D" />
+
+  <!-- source: legal / operational data -->
+  <g stroke="#ABB2BF" stroke-opacity="0.55" fill="none">
+    <rect x="42" y="90" width="96" height="60" />
+  </g>
+  <g stroke="#ABB2BF" stroke-opacity="0.35">
+    <line x1="58" y1="110" x2="122" y2="110" />
+    <line x1="58" y1="124" x2="106" y2="124" />
+    <line x1="58" y1="138" x2="114" y2="138" />
+  </g>
+
+  <!-- source: real-time API stream -->
+  <g stroke="#ABB2BF" stroke-opacity="0.55" fill="none">
+    <rect x="42" y="190" width="96" height="60" />
+  </g>
+  <path d="M56 220 l10 -14 l8 20 l10 -26 l8 16 l10 -8" stroke="#C778DD" stroke-width="1.5" fill="none" opacity="0.85" />
+
+  <!-- convergence lines into pipeline node -->
+  <g stroke="#C778DD" stroke-width="1.5" fill="none" opacity="0.85" marker-end="url(#p4-arrow)">
+    <path d="M138 120 C 200 120, 220 150, 262 168" />
+    <path d="M138 220 C 200 220, 220 190, 262 172" />
+  </g>
+
+  <!-- pipeline node: echoes the site's logo mark -->
+  <g transform="translate(262,150)">
+    <rect x="0.5" y="0.5" width="42" height="42" fill="none" stroke="#C778DD" />
+    <rect x="26" y="26" width="45" height="45" fill="#C778DD" />
+  </g>
+
+  <!-- arrow from pipeline to workshop output -->
+  <path d="M334 178 L 388 164" stroke="#C778DD" stroke-width="1.5" opacity="0.85" marker-end="url(#p4-arrow)" fill="none" />
+
+  <!-- output: workshop app / report list -->
+  <g>
+    <rect x="398" y="58" width="160" height="224" fill="none" stroke="#ABB2BF" stroke-opacity="0.55" />
+    <rect x="414" y="76" width="128" height="9" fill="#ABB2BF" opacity="0.2" />
+    <g stroke="#ABB2BF" stroke-opacity="0.4">
+      <line x1="414" y1="108" x2="542" y2="108" />
+      <line x1="414" y1="138" x2="542" y2="138" />
+      <line x1="414" y1="168" x2="542" y2="168" />
+      <line x1="414" y1="198" x2="542" y2="198" />
+      <line x1="414" y1="228" x2="542" y2="228" />
+    </g>
+    <g fill="#C778DD" opacity="0.85">
+      <rect x="414" y="96" width="10" height="10" />
+      <rect x="414" y="126" width="10" height="10" />
+      <rect x="414" y="156" width="10" height="10" />
+      <rect x="414" y="186" width="10" height="10" />
+      <rect x="414" y="216" width="10" height="10" />
+    </g>
+  </g>
+</svg>

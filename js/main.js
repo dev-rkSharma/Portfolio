@@ -11,7 +11,6 @@
      and the quote in index.html stays exactly as written.
      -------------------------------------------------------------------- */
   var QUOTES = [
-    { text: "In God we trust, all others must bring data.", author: "W. Edwards Deming" },
     { text: "With great power comes great electricity bill", author: "Dr. Who" }
   ];
 
@@ -157,4 +156,48 @@
   /* ---------- 5. Footer year ------------------------------------------ */
   var year = document.getElementById("year");
   if (year) year.textContent = String(new Date().getFullYear());
+
+  /* ---------- 6. Stat counters ----------------------------------------- */
+  var statNums = document.querySelectorAll(".stat__num");
+
+  function animateCount(el) {
+    var match = el.textContent.trim().match(/^(\d+)(.*)$/);
+    if (!match) return;
+
+    var target = parseInt(match[1], 10);
+    var suffix = match[2];
+
+    if (reduceMotion) {
+      el.textContent = target + suffix;
+      return;
+    }
+
+    var duration = 900;
+    var start = null;
+
+    el.textContent = "0" + suffix;
+
+    function step(timestamp) {
+      if (start === null) start = timestamp;
+      var progress = Math.min((timestamp - start) / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(eased * target) + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  if (statNums.length && "IntersectionObserver" in window) {
+    var statsObserver = new IntersectionObserver(
+      function (entries, obs) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          animateCount(entry.target);
+          obs.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.4 }
+    );
+    statNums.forEach(function (el) { statsObserver.observe(el); });
+  }
 })();

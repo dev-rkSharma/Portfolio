@@ -173,6 +173,9 @@ p { text-wrap: pretty; }
 
 .btn--sm { padding: 0.375rem 0.75rem; font-size: var(--fs-sm); }
 
+.btn span[aria-hidden] { display: inline-block; transition: translate var(--t-fast); }
+.btn:hover span[aria-hidden] { translate: 4px 0; }
+
 /* ---------- 6. LEFT RAIL ------------------------------------------------ */
 .rail {
   position: fixed;
@@ -237,17 +240,36 @@ p { text-wrap: pretty; }
   font-weight: 600;
   font-size: 1.125rem;
 }
-.logo__mark { width: 1rem; height: 1rem; color: var(--white); flex: none; }
-.logo:hover .logo__mark { color: var(--accent); }
+.logo__mark { width: 1rem; height: 1rem; color: var(--white); flex: none; transition: color var(--t-fast), rotate var(--t); }
+.logo:hover .logo__mark { color: var(--accent); rotate: 90deg; }
 
 .nav__list {
   display: flex;
   align-items: center;
   gap: clamp(1rem, 0.2rem + 2.4vw, 2rem);
 }
-.nav__link { color: var(--text); font-weight: 500; }
+.nav__link {
+  position: relative;
+  padding-bottom: 0.3rem;
+  color: var(--text);
+  font-weight: 500;
+}
+.nav__link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--accent);
+  scale: 0 1;
+  transform-origin: left;
+  transition: scale var(--t);
+}
 .nav__link:hover        { color: var(--white); }
 .nav__link.is-active    { color: var(--white); }
+.nav__link:hover::after,
+.nav__link.is-active::after { scale: 1 1; }
 
 /* socials only appear inside the mobile menu */
 .nav__socials { display: none; }
@@ -291,7 +313,12 @@ p { text-wrap: pretty; }
   max-width: 34ch;
 }
 
-.hero__copy .btn { margin-top: 1.5rem; }
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
 
 .hero__visual {
   position: relative;
@@ -440,6 +467,14 @@ p { text-wrap: pretty; }
   white-space: nowrap;
 }
 .section-head__link:hover { color: var(--accent); }
+.section-head__link span[aria-hidden] { display: inline-block; transition: translate var(--t-fast); }
+.section-head__link:hover span[aria-hidden] { translate: 4px 0; }
+
+.page-lede {
+  max-width: 60ch;
+  margin-top: -1rem;
+  color: var(--text);
+}
 
 /* ---------- 11. PROJECT CARDS ------------------------------------------ */
 .cards {
@@ -479,6 +514,9 @@ p { text-wrap: pretty; }
 }
 .card__title { font-size: var(--fs-h3); }
 .card__desc  { flex: 1; font-size: var(--fs-sm); }
+.card__contribution { font-size: var(--fs-sm); }
+.card__contribution strong { color: var(--white); font-weight: 600; }
+.card__nda { font-size: 0.75rem; color: var(--text); opacity: 0.7; font-style: italic; }
 .card__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
 
 /* ---------- 12. SKILLS ------------------------------------------------- */
@@ -666,8 +704,8 @@ p { text-wrap: pretty; }
   max-width: 52ch;
 }
 
-.about__visual { position: relative; display: flex; justify-content: center; }
-.about__visual img { position: relative; z-index: 1; max-width: 22.5rem; }
+.about__visual { position: relative; display: flex; justify-content: center; min-width: 0; }
+.about__visual img { position: relative; z-index: 1; width: 100%; max-width: 22.5rem; }
 
 .about__underline {
   position: absolute;
@@ -712,6 +750,22 @@ p { text-wrap: pretty; }
 .contacts__list svg { width: 1.25rem; height: 1.25rem; fill: var(--text); flex: none; }
 .contacts__list a:hover { color: var(--white); }
 .contacts__list a:hover svg { fill: var(--accent); }
+
+.media-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+.media-row a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--border);
+  padding: 0.625rem 1rem;
+}
+.media-row svg { width: 1.25rem; height: 1.25rem; fill: var(--text); flex: none; }
+.media-row a:hover { color: var(--white); border-color: var(--accent); }
+.media-row a:hover svg { fill: var(--accent); }
 
 /* ---------- 15. FOOTER ------------------------------------------------ */
 .footer {
@@ -870,8 +924,79 @@ p { text-wrap: pretty; }
 }
 .reveal.is-visible { opacity: 1; translate: 0 0; }
 
+/* stagger children within a revealed section — cards, skill boxes, badge
+   groups and timeline entries fade in one after another instead of as one
+   flat block. Scoped to .reveal so it never fights the above-the-fold
+   keyframe entrance below (which has no .reveal ancestor). */
+.reveal .card,
+.reveal .skill-box,
+.reveal .badge-group,
+.reveal .timeline .entry {
+  opacity: 0;
+  translate: 0 12px;
+  transition: opacity 500ms ease, translate 500ms ease, border-color var(--t-fast);
+}
+.reveal.is-visible .card,
+.reveal.is-visible .skill-box,
+.reveal.is-visible .badge-group,
+.reveal.is-visible .timeline .entry {
+  opacity: 1;
+  translate: 0 0;
+}
+.reveal .card:nth-child(2), .reveal .skill-box:nth-child(2), .reveal .badge-group:nth-child(2), .reveal .timeline .entry:nth-child(2) { transition-delay: 90ms; }
+.reveal .card:nth-child(3), .reveal .skill-box:nth-child(3), .reveal .badge-group:nth-child(3), .reveal .timeline .entry:nth-child(3) { transition-delay: 180ms; }
+.reveal .card:nth-child(4), .reveal .skill-box:nth-child(4) { transition-delay: 270ms; }
+.reveal .card:nth-child(5), .reveal .skill-box:nth-child(5) { transition-delay: 360ms; }
+.reveal .skill-box:nth-child(6) { transition-delay: 450ms; }
+
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; translate: 0 0; }
+  .reveal .card,
+  .reveal .skill-box,
+  .reveal .badge-group,
+  .reveal .timeline .entry { opacity: 1; translate: 0 0; }
+}
+
+/* ---------- Above-the-fold entrance (page load, not scroll-triggered) --- */
+/* First section of every page animates in on load via CSS keyframes rather
+   than IntersectionObserver, so there's no flash-of-invisible-content risk
+   for content that's already in the viewport when the page opens. */
+@keyframes fade-up {
+  from { opacity: 0; translate: 0 16px; }
+  to   { opacity: 1; translate: 0 0; }
+}
+
+main > .section:first-of-type .hero__copy,
+main > .section:first-of-type .hero__visual,
+main > .section:first-of-type .section-head,
+main > .section:first-of-type .page-lede,
+main > .section:first-of-type .about__copy,
+main > .section:first-of-type .about__visual,
+main > .section:first-of-type .contacts__text,
+main > .section:first-of-type .contacts__box,
+main > .section:first-of-type .media-row,
+main > .section:first-of-type .subhead {
+  animation: fade-up 650ms ease both;
+}
+main > .section:first-of-type .hero__visual,
+main > .section:first-of-type .page-lede,
+main > .section:first-of-type .about__visual,
+main > .section:first-of-type .contacts__box,
+main > .section:first-of-type .media-row {
+  animation-delay: 140ms;
+}
+
+main > .section:first-of-type .cards .card {
+  animation: fade-up 550ms ease both;
+  animation-delay: 220ms;
+}
+main > .section:first-of-type .cards .card:nth-child(2) { animation-delay: 300ms; }
+main > .section:first-of-type .cards .card:nth-child(3) { animation-delay: 380ms; }
+main > .section:first-of-type .cards .card:nth-child(4) { animation-delay: 460ms; }
+main > .section:first-of-type .cards .card:nth-child(5) { animation-delay: 540ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  main > .section:first-of-type * { animation: none !important; }
 }
 
 /* ---------- Print ------------------------------------------------------- */

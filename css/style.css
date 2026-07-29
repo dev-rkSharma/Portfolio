@@ -220,6 +220,17 @@ p { text-wrap: pretty; }
   position: sticky;
   top: 0;
   z-index: 30;
+}
+
+/* frosted-glass backdrop lives on a pseudo-element, not on .header itself:
+   backdrop-filter on .header would make .header the containing block for
+   its position:fixed descendant (.nav's mobile overlay), shrinking that
+   overlay to .header's own ~80px height instead of the full viewport */
+.header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background: rgba(40, 44, 51, 0.88);              /* fallback */
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(8px);

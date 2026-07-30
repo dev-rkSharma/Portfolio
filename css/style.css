@@ -12,27 +12,42 @@
   --accent:        #C778DD;
   --accent-soft:   rgba(199, 120, 221, 0.15);
   --text:          #ABB2BF;
+  --text-dim:      #949CA8;   /* 5.06:1 on --bg, 4.59:1 on --bg-raised — WCAG AA */
   --white:         #FFFFFF;
-  --border:        #ABB2BF;
-  --border-dim:    rgba(171, 178, 191, 0.35);
+
+  /* border ramp — four steps, one hue family, each with a single job */
+  --border-dim:    #32383F;   /* quietest hairlines + internal divisions */
+  --border:        #3D434D;   /* default frames: cards, boxes, panels */
+  --border-mid:    #757D8A;   /* interactive control outlines ONLY (WCAG 1.4.11) */
+  --border-strong: #ABB2BF;   /* hover / active states only */
 
   /* type */
-  --mono: "Fira Code", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --fs-h1:    clamp(1.75rem, 1.1rem + 2.4vw, 2.5rem);   /* 28 → 40 */
-  --fs-h2:    clamp(1.5rem,  1.1rem + 1.6vw, 2rem);     /* 24 → 32 */
-  --fs-h3:    clamp(1.25rem, 1.05rem + 0.8vw, 1.5rem);  /* 20 → 24 */
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --fs-display: clamp(2rem, 1.2rem + 3vw, 3rem);           /* 32 → 48, hero h1 only */
+  --fs-h1:    clamp(1.75rem, 1.2rem + 2vw, 2.5rem);        /* 28 → 40, subpage h1 */
+  --fs-h2:    clamp(1.375rem, 1.05rem + 1.4vw, 1.75rem);   /* 22 → 28, section titles */
+  --fs-h3:    1.25rem;                                     /* content titles only */
+  --fs-label: 0.875rem;                                    /* small caps-ish UI labels */
   --fs-body:  1rem;
   --fs-sm:    0.875rem;
 
-  /* space */
-  --gap:        1rem;
-  --gutter:     clamp(1rem, 0.5rem + 2.5vw, 2rem);
-  --section-y:  clamp(3.5rem, 2rem + 6vw, 6.5rem);
+  /* space — one rhythm, no ad hoc clamps in the rules below */
+  --gap:              1rem;
+  --gutter:           clamp(1rem, 0.5rem + 2.5vw, 2rem);
+  --section-y:        clamp(3.5rem, 2rem + 6vw, 6.5rem);  /* default section rhythm */
+  --section-y-tight:  clamp(2rem, 1.5rem + 2vw, 3rem);    /* hero / stats */
+  --stack-lg:         clamp(2.5rem, 2rem + 2vw, 3.5rem);  /* gap before a subhead */
+  --header-clear:     clamp(6rem, 4rem + 4vw, 8rem);      /* clears the sticky header */
 
   /* layout */
   --container: 1200px;
   --rail-w:    3.75rem;   /* 60px */
   --header-h:  5rem;
+
+  /* measure — line length for prose, in ch of the current font */
+  --measure:        64ch;
+  --measure-narrow: 48ch;
 
   /* motion */
   --t-fast: 140ms ease;
@@ -108,7 +123,28 @@ p { text-wrap: pretty; }
 
 .section { padding-block: var(--section-y); }
 
+/* first section of a subpage — extra top padding so the sticky header
+   never crowds the page title */
+.section--first { padding-top: var(--header-clear); }
+
+/* vertical rhythm utility — the gap before a subhead or a major block */
+.stack-lg { margin-top: var(--stack-lg); }
+
 .hash { color: var(--accent); }
+
+/* off-screen but still announced — used by the injected copy-button status
+   region in js/main.js */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
 
 .skip-link {
   position: absolute;
@@ -124,7 +160,22 @@ p { text-wrap: pretty; }
 }
 .skip-link:focus-visible { translate: -50% 0; }
 
-/* ---------- 4. DECOR (dot grids + outlined squares) ---------------------- */
+/* ---------- 3b. SVG SPRITE ----------------------------------------------- */
+/* One <svg><symbol> sprite per page holds the logo mark + social icons; every
+   icon on the page is a <use> of it. Do NOT use display:none here — that stops
+   <use> resolving in some browsers. */
+.sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* ---------- 4. DECOR (dot grids) ---------------------------------------- */
+/* NOTE: the two-square brand glyph is deliberately absent from this section.
+   Decoration is the dot grid only; the glyph is reserved for the header/footer
+   logo, the favicon and the og-image. Anything that needs to *say* something
+   is a real diagram in assets/*.svg (see .section-figure), not floating boxes. */
 .decor {
   position: absolute;
   pointer-events: none;
@@ -138,26 +189,13 @@ p { text-wrap: pretty; }
   opacity: 0.55;
 }
 
-.decor--square {
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.decor--square svg {
-  width: 55%;
-  height: 55%;
-  color: var(--border);
-  opacity: 0.7;
-}
-
 /* ---------- 5. BUTTONS -------------------------------------------------- */
 .btn {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-mid);
   color: var(--white);
   font-family: inherit;
   font-size: var(--fs-body);
@@ -167,16 +205,60 @@ p { text-wrap: pretty; }
   transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast);
 }
 .btn:hover,
-.btn:focus-visible { background: var(--border-dim); }
+.btn:focus-visible { background: var(--bg-raised); border-color: var(--border-strong); }
 
 .btn--primary { border-color: var(--accent); }
 .btn--primary:hover,
-.btn--primary:focus-visible { background: var(--accent-soft); }
-
-.btn--sm { padding: 0.375rem 0.75rem; font-size: var(--fs-sm); }
+.btn--primary:focus-visible { background: var(--accent-soft); border-color: var(--accent); }
 
 .btn span[aria-hidden] { display: inline-block; transition: translate var(--t-fast); }
 .btn:hover span[aria-hidden] { translate: 4px 0; }
+
+/* ---------- 5b. COPY BUTTON --------------------------------------------- */
+/* Injected by js/main.js next to each email address (footer + contacts list),
+   never present in the markup — it only exists where the clipboard actually
+   works. --border-mid at rest because it's an interactive control outline
+   (WCAG 1.4.11), --border-strong on hover, accent only once it has fired. */
+.copy-btn {
+  flex: none;
+  padding: 0.0625rem 0.5rem;
+  border: 1px solid var(--border-mid);
+  background: transparent;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  cursor: pointer;
+  transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+.copy-btn:hover,
+.copy-btn:focus-visible {
+  color: var(--white);
+  border-color: var(--border-strong);
+  background: var(--bg-raised);
+}
+.copy-btn.is-copied {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* wrapper js/main.js puts around the footer address so the button sits beside
+   it instead of on its own line */
+.email-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+/* the contacts-page row is an <li> holding a flex <a>; give it the same
+   treatment once it has a button to hold */
+.contacts__list li.has-copy {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
 
 /* ---------- 6. LEFT RAIL ------------------------------------------------ */
 .rail {
@@ -198,7 +280,7 @@ p { text-wrap: pretty; }
   top: 0;
   height: calc(50% - 5.5rem);
   width: 1px;
-  background: var(--border);
+  background: var(--border-dim);
 }
 
 .rail__list {
@@ -220,7 +302,15 @@ p { text-wrap: pretty; }
   position: sticky;
   top: 0;
   z-index: 30;
+  /* the border is always in the layout, only its colour changes — otherwise
+     gaining it on scroll would shove the whole page down by 1px */
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--t);
 }
+
+/* js/main.js toggles .is-scrolled past ~24px of scroll. --border, not --accent:
+   this is structure (the header separating from the content), not emphasis. */
+.header.is-scrolled { border-bottom-color: var(--border); }
 
 /* frosted-glass backdrop lives on a pseudo-element, not on .header itself:
    backdrop-filter on .header would make .header the containing block for
@@ -253,8 +343,16 @@ p { text-wrap: pretty; }
   font-weight: 600;
   font-size: 1.125rem;
 }
-.logo__mark { width: 1rem; height: 1rem; color: var(--white); flex: none; transition: color var(--t-fast), rotate var(--t); }
-.logo:hover .logo__mark { color: var(--accent); rotate: 90deg; }
+/* The two-square mark is ALWAYS accent — it is the brand mark, and it is the
+   only place this glyph is allowed to appear (header, footer, favicon,
+   og-image). Hover moves it, it never recolours. */
+.logo__mark { width: 1rem; height: 1rem; color: var(--accent); flex: none; transition: rotate var(--t); }
+.logo:hover .logo__mark { rotate: 90deg; }
+/* One wordmark string everywhere: "Roushan Kumar", header and footer, all
+   pages. It fits at 320px next to the burger, so there is no shortened
+   variant — if one is ever needed it must be done here in CSS, not by
+   hardcoding a second string in the markup. */
+.logo__text { white-space: nowrap; }
 
 .nav__list {
   display: flex;
@@ -309,7 +407,7 @@ p { text-wrap: pretty; }
 }
 
 /* ---------- 8. HERO ---------------------------------------------------- */
-.hero { padding-top: clamp(2rem, 1rem + 4vw, 4rem); }
+.hero { padding-top: var(--section-y-tight); }
 
 .hero__grid {
   display: grid;
@@ -318,12 +416,18 @@ p { text-wrap: pretty; }
   gap: clamp(2rem, 1rem + 4vw, 4rem);
 }
 
-.hero__title { font-size: var(--fs-h1); }
+.hero__title {
+  font-size: var(--fs-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
 .hero__title em { color: var(--accent); font-style: normal; }
 
 .hero__text {
   margin-top: 1.5rem;
-  max-width: 34ch;
+  max-width: var(--measure-narrow);
+  font-family: var(--sans);
+  line-height: 1.65;
 }
 
 .btn-row {
@@ -348,12 +452,11 @@ p { text-wrap: pretty; }
   object-fit: contain;
 }
 
-.hero__square {
-  width: 10rem;
-  height: 10rem;
+.hero__dots-a {
+  width: 144px;
+  height: 144px;
   top: 12%;
-  left: -1rem;
-  border-color: var(--accent);
+  left: 0;
 }
 .hero__dots {
   width: 90px;
@@ -383,73 +486,31 @@ p { text-wrap: pretty; }
 }
 
 /* ---------- 8b. STATS --------------------------------------------------- */
-.stats-section { padding-block: clamp(1.5rem, 1rem + 2vw, 2.5rem); }
+.stats-section { padding-block: var(--section-y-tight); }
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   border: 1px solid var(--border);
 }
 
 .stat {
   padding: clamp(1.25rem, 0.9rem + 1vw, 1.75rem) 1rem;
   text-align: center;
-  border-left: 1px solid var(--border);
+  border-left: 1px solid var(--border-dim);
 }
 .stat:first-child { border-left: none; }
 
 .stat__num {
-  font-size: var(--fs-h1);
-  font-weight: 700;
-  color: var(--accent);
+  font-size: var(--fs-h3);
+  font-weight: 500;
+  color: var(--white);
   line-height: 1;
 }
 .stat__label {
   margin-top: 0.5rem;
   font-size: var(--fs-sm);
 }
-
-/* ---------- 9. QUOTE --------------------------------------------------- */
-.quote-section { padding-block: clamp(2rem, 1rem + 4vw, 4rem); }
-
-.quote {
-  position: relative;
-  max-width: 55rem;
-  margin-inline: auto;
-  padding-bottom: 2.5rem;
-}
-
-.quote__box {
-  border: 1px solid var(--border);
-  padding: clamp(1.25rem, 0.75rem + 2vw, 2rem);
-}
-.quote__box p {
-  color: var(--white);
-  font-size: var(--fs-h3);
-  font-weight: 500;
-}
-
-.quote__author {
-  position: absolute;
-  right: clamp(1rem, 4%, 3rem);
-  bottom: 0;
-  padding: 0.5rem 1.25rem;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--white);
-  font-size: var(--fs-body);
-}
-
-.quote__mark {
-  position: absolute;
-  color: var(--white);
-  font-size: 2.5rem;
-  line-height: 1;
-  background: var(--bg);
-  padding-inline: 0.375rem;
-}
-.quote__mark--open  { top: -1rem;  left: 1.5rem; }
-.quote__mark--close { bottom: 1.5rem; right: 2.25rem; }
 
 /* ---------- 10. SECTION HEADING ---------------------------------------- */
 .section-head {
@@ -461,10 +522,13 @@ p { text-wrap: pretty; }
 
 .section-title {
   font-size: var(--fs-h2);
+  font-weight: 600;
+  letter-spacing: -0.01em;
   white-space: nowrap;
 }
 
-.section-head__rule {
+.section-head__rule,
+.page-head__rule {
   flex: 1 1 auto;
   max-width: 32%;
   height: 1px;
@@ -483,11 +547,38 @@ p { text-wrap: pretty; }
 .section-head__link span[aria-hidden] { display: inline-block; transition: translate var(--t-fast); }
 .section-head__link:hover span[aria-hidden] { translate: 4px 0; }
 
-.page-lede {
-  max-width: 60ch;
-  margin-top: -1rem;
-  color: var(--text);
+/* ---------- 10b. PAGE HEAD (subpage titles) ---------------------------- */
+/* A subpage title is the top of its own document, not a mid-page section
+   heading — it sits one step up the type scale so subpages never read as a
+   scrolled fragment of the homepage. .section-title stays reserved for
+   genuine mid-page section headings. */
+.page-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
+
+.page-head__title {
+  font-size: var(--fs-h1);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+}
+
+.page-lede {
+  max-width: var(--measure);
+  margin-top: 1rem;
+  margin-bottom: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  color: var(--text);
+  font-family: var(--sans);
+  line-height: 1.65;
+}
+
+/* centred variant — used by 404 */
+.section--centered { text-align: center; }
+.section--centered .page-head { justify-content: center; }
+.section--centered .page-lede { margin-inline: auto; }
+.section--centered .btn-row { justify-content: center; }
 
 /* ---------- 11. PROJECT CARDS ------------------------------------------ */
 .cards {
@@ -510,12 +601,23 @@ p { text-wrap: pretty; }
   background: var(--bg-raised);
 }
 .card__media img { width: 100%; height: 100%; object-fit: cover; }
+/* js/main.js swaps the <img> for the same SVG inlined, so it can draw the
+   accent data path — the inlined <svg> has to fill the same box */
+.card__media svg { display: block; width: 100%; height: 100%; }
 
+/* tech tags are a real list of chips — one bordered box per tag, so multi-word
+   tags ("Pipeline Builder") can't be misread as two separate tags */
 .card__tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
   padding: 0.5rem 0.75rem;
-  border-block: 1px solid var(--border);
+  border-block: 1px solid var(--border-dim);
   font-size: var(--fs-sm);
-  word-spacing: 0.25rem;
+}
+.card__tech li {
+  padding: 0.0625rem 0.5rem;
+  border: 1px solid var(--border-dim);
 }
 
 .card__body {
@@ -525,17 +627,27 @@ p { text-wrap: pretty; }
   padding: 1rem;
   flex: 1;
 }
-.card__title { font-size: var(--fs-h3); }
-.card__desc  { flex: 1; font-size: var(--fs-sm); }
-.card__contribution { font-size: var(--fs-sm); }
+.card__title { font-size: var(--fs-h3); font-weight: 500; }
+.card__desc  { flex: 1; font-size: var(--fs-body); font-family: var(--sans); line-height: 1.65; }
+.card__contribution { font-size: var(--fs-body); font-family: var(--sans); line-height: 1.65; }
 .card__contribution strong { color: var(--white); font-weight: 600; }
-.card__nda { font-size: 0.75rem; color: var(--text); opacity: 0.7; font-style: italic; }
-.card__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.card__nda { font-size: 0.75rem; color: var(--text-dim); font-style: italic; }
 
 /* ---------- 12. SKILLS ------------------------------------------------- */
-.skills { position: relative; }
+/* A section-level diagram, same treatment as .card__media: bordered panel, the
+   SVG carries its own 600x340 artwork so nothing here needs to know about it. */
+.section-figure {
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+  background: var(--bg-raised);
+}
+.section-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
 
-.skills__decor { display: none; }        /* shown ≥ 900px, see media query */
+.skills { position: relative; }
 
 .skills__grid {
   display: grid;
@@ -553,15 +665,16 @@ p { text-wrap: pretty; }
   align-items: center;
   gap: 0.5rem;
   padding: 0.375rem 0.75rem;
-  border-bottom: 1px solid var(--border);
-  font-size: var(--fs-body);
+  border-bottom: 1px solid var(--border-dim);
+  font-size: var(--fs-label);
   font-weight: 600;
+  letter-spacing: 0.06em;
 }
 .skill-box__icon {
   width: 1.1rem;
   height: 1.1rem;
   flex: none;
-  color: var(--accent);
+  color: var(--white);
 }
 
 /* ---------- 12b. CERTIFICATIONS ----------------------------------------- */
@@ -581,7 +694,7 @@ p { text-wrap: pretty; }
   width: 6px;
   height: 6px;
   margin-top: 0.55em;
-  background: var(--accent);
+  background: var(--text-dim);
   flex: none;
 }
 .certs a:hover { color: var(--accent); text-decoration: underline; }
@@ -601,17 +714,18 @@ p { text-wrap: pretty; }
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: var(--fs-body);
+  font-size: var(--fs-label);
   font-weight: 600;
+  letter-spacing: 0.06em;
   padding-bottom: 0.75rem;
   margin-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-dim);
 }
 .badge-group__icon {
   width: 1.1rem;
   height: 1.1rem;
   flex: none;
-  color: var(--accent);
+  color: var(--white);
 }
 .badge-group .certs { margin-top: 0; }
 .badge-item {
@@ -620,13 +734,57 @@ p { text-wrap: pretty; }
 }
 .badge-date {
   font-size: 0.75rem;
-  color: var(--text);
-  opacity: 0.7;
+  color: var(--text-dim);
   margin-top: 0.125rem;
 }
+
+/* "show all" disclosure — keeps the long tail of introductory course
+   completions available without letting badge volume dilute the three real
+   certifications above. Styled to read as one more badge-group box. */
+.badge-more {
+  margin-top: 1.5rem;
+  border: 1px solid var(--border-dim);
+}
+.badge-more__summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  cursor: pointer;
+  list-style: none;
+  transition: color var(--t-fast);
+}
+.badge-more__summary::-webkit-details-marker { display: none; }
+.badge-more__summary::before {
+  content: "+";
+  font-family: var(--mono);
+  color: var(--accent);
+  flex: none;
+}
+.badge-more[open] .badge-more__summary::before { content: "\2212"; }
+.badge-more__summary:hover { color: var(--white); }
+.badge-more__summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.badge-more__body {
+  padding: 0 1rem 1rem;
+  border-top: 1px solid var(--border-dim);
+}
+.badge-more__body .certs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 0.75rem 1.5rem;
+  margin-top: 1rem;
+}
+
 .skill-box__body {
   padding: 0.5rem 0.75rem;
-  font-size: var(--fs-sm);
+  font-size: var(--fs-body);
   word-spacing: 0.25rem;
 }
 
@@ -635,7 +793,7 @@ p { text-wrap: pretty; }
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  border-left: 1px solid var(--border);
+  border-left: 1px solid var(--border-dim);
   padding-left: 1.5rem;
   margin-left: 0.25rem;
 }
@@ -648,10 +806,10 @@ p { text-wrap: pretty; }
   top: 0.4em;
   width: 8px;
   height: 8px;
-  background: var(--accent);
+  background: var(--text-dim);
 }
 
-.entry__role { font-size: var(--fs-h3); margin-bottom: 0.5rem; }
+.entry__role { font-size: var(--fs-h3); font-weight: 500; margin-bottom: 0.5rem; }
 
 .entry__meta {
   display: flex;
@@ -664,7 +822,12 @@ p { text-wrap: pretty; }
 .entry__date { color: var(--text); }
 
 .entry__body { margin-top: 0.875rem; }
-.entry__body > p { max-width: 60ch; font-size: var(--fs-sm); }
+.entry__body p {
+  max-width: var(--measure);
+  font-size: var(--fs-sm);
+  font-family: var(--sans);
+  line-height: 1.65;
+}
 
 .entry__list {
   display: flex;
@@ -684,7 +847,7 @@ p { text-wrap: pretty; }
   top: 0.55em;
   width: 6px;
   height: 6px;
-  background: var(--accent);
+  background: var(--text-dim);
 }
 
 .two-col {
@@ -695,10 +858,11 @@ p { text-wrap: pretty; }
 }
 
 .subhead {
-  font-size: var(--fs-h3);
+  font-size: var(--fs-h2);
+  letter-spacing: -0.01em;
   margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-dim);
 }
 
 /* ---------- 13. ABOUT ------------------------------------------------- */
@@ -714,7 +878,11 @@ p { text-wrap: pretty; }
   flex-direction: column;
   gap: 1.5rem;
   align-items: flex-start;
-  max-width: 52ch;
+  max-width: var(--measure);
+}
+.about__copy p {
+  font-family: var(--sans);
+  line-height: 1.65;
 }
 
 .about__visual { position: relative; display: flex; justify-content: center; min-width: 0; }
@@ -726,7 +894,7 @@ p { text-wrap: pretty; }
   left: 8%;
   right: 8%;
   height: 1px;
-  background: var(--accent);
+  background: var(--border-dim);
   z-index: 2;
 }
 
@@ -741,7 +909,11 @@ p { text-wrap: pretty; }
   gap: clamp(2rem, 1rem + 4vw, 4rem);
 }
 
-.contacts__text { max-width: 46ch; }
+.contacts__text {
+  max-width: var(--measure);
+  font-family: var(--sans);
+  line-height: 1.65;
+}
 
 .contacts__box {
   border: 1px solid var(--border);
@@ -749,8 +921,9 @@ p { text-wrap: pretty; }
   min-width: min(100%, 17rem);
 }
 .contacts__head {
-  font-size: var(--fs-body);
+  font-size: var(--fs-label);
   font-weight: 600;
+  letter-spacing: 0.06em;
   margin-bottom: 1rem;
 }
 .contacts__list { display: flex; flex-direction: column; gap: 0.875rem; }
@@ -773,7 +946,7 @@ p { text-wrap: pretty; }
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-mid);
   padding: 0.625rem 1rem;
 }
 .media-row svg { width: 1.25rem; height: 1.25rem; fill: var(--text); flex: none; }
@@ -801,7 +974,12 @@ p { text-wrap: pretty; }
 .footer__email:hover { color: var(--accent); }
 .footer__tagline { font-size: var(--fs-sm); }
 
-.footer__head { font-size: var(--fs-h3); margin-bottom: 0.75rem; }
+.footer__head {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.75rem;
+}
 .footer__socials { display: flex; gap: 1rem; }
 .footer__socials svg { width: 1.5rem; height: 1.5rem; fill: var(--text); transition: fill var(--t-fast); }
 .footer__socials a:hover svg { fill: var(--accent); }
@@ -821,22 +999,9 @@ p { text-wrap: pretty; }
 @media (min-width: 900px) {
   body { padding-left: var(--rail-w); }
 
-  .skills__decor { display: block; }
-  .skills {
-    display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    gap: 2rem;
-    align-items: center;
-  }
-  .skills__decor { position: relative; min-height: 22rem; }
-  .skills__dots-a   { width: 84px;  height: 84px;  top: 12%;  left: 4%; }
-  .skills__square-a { width: 6.5rem; height: 6.5rem; top: 0;   left: 42%; }
-  .skills__dots-b   { width: 84px;  height: 84px;  bottom: 22%; left: 40%; }
-  .skills__square-b { width: 8.5rem; height: 8.5rem; bottom: 8%; left: 2%; border-color: var(--accent); }
-  .skills__square-b svg { color: var(--accent); opacity: 1; }
-  .skills__square-c { width: 4rem;  height: 4rem;  bottom: 18%; right: 6%; }
-  .skills__square-d { width: 3.25rem; height: 3.25rem; top: 8%; right: 8%; }
-  .skills__square-e { width: 3.5rem;  height: 3.5rem;  top: 40%; left: 18%; }
+  /* the skills diagram is artwork, not a full-bleed banner — cap it so it
+     doesn't tower over the boxes it introduces */
+  .section-figure { max-width: 37.5rem; }
 
   .skills__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
@@ -895,15 +1060,18 @@ p { text-wrap: pretty; }
 
   .hero__grid { text-align: left; }
   .hero__visual { order: -1; max-width: 22rem; margin-inline: auto; }
-  .hero__square { width: 7rem; height: 7rem; }
+  .hero__dots-a { width: 108px; height: 108px; }
 
   .about__visual { order: -1; max-width: 18rem; margin-inline: auto; }
 
   .section-head__rule { max-width: 20%; }
 
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .stat:nth-child(even) { border-left: none; }
-  .stat:nth-child(n+3) { border-top: 1px solid var(--border); }
+  /* two columns, so the dividers to strip are the ones on whatever lands in
+     column 1 — odd items — otherwise the first cell of each row draws a border
+     on top of the container's own left edge */
+  .stat:nth-child(odd) { border-left: none; }
+  .stat:nth-child(n+3) { border-top: 1px solid var(--border-dim); }
 }
 
 /* ≤ 560px — tighten everything up */
@@ -914,14 +1082,7 @@ p { text-wrap: pretty; }
 
   .stats { grid-template-columns: 1fr; }
   .stat { border-left: none !important; }
-  .stat:not(:first-child) { border-top: 1px solid var(--border); }
-
-  .quote__box p { font-size: var(--fs-body); }
-  .quote__author { position: static; display: inline-block; margin-top: -1px; }
-  .quote { padding-bottom: 0; }
-  .quote__mark--close { display: none; }
-
-  .card__actions .btn { flex: 1 1 auto; justify-content: center; }
+  .stat:not(:first-child) { border-top: 1px solid var(--border-dim); }
 
   .footer__inner { flex-direction: column; gap: 2rem; }
   .footer__copy { margin-top: 2rem; }
@@ -940,14 +1101,28 @@ p { text-wrap: pretty; }
 /* stagger children within a revealed section — cards, skill boxes, badge
    groups and timeline entries fade in one after another instead of as one
    flat block. Scoped to .reveal so it never fights the above-the-fold
-   keyframe entrance below (which has no .reveal ancestor). */
+   keyframe entrance below (which has no .reveal ancestor).
+
+   The position in the stagger comes from --i, which js/main.js sets inline on
+   each child of .cards / .skills__grid / .badge-groups / .timeline. That
+   replaces a hardcoded nth-child(2..6) delay ladder that silently lost its
+   last step whenever a section gained a child. The var() fallback of 0 means
+   the delay is 0ms if the JS never runs — including under reduced motion,
+   where main.js skips the reveal pass entirely (the global reduced-motion
+   block neutralises transition-duration but NOT transition-delay, so a
+   leftover delay would show up as a stall). */
 .reveal .card,
 .reveal .skill-box,
 .reveal .badge-group,
 .reveal .timeline .entry {
   opacity: 0;
   translate: 0 12px;
-  transition: opacity 500ms ease, translate 500ms ease, border-color var(--t-fast);
+  /* per-property delays, so the stagger never slows the hover feedback:
+     border-color stays on --t-fast no matter how late in the stagger */
+  transition:
+    opacity 500ms ease calc(var(--i, 0) * 90ms),
+    translate 500ms ease calc(var(--i, 0) * 90ms),
+    border-color var(--t-fast);
 }
 .reveal.is-visible .card,
 .reveal.is-visible .skill-box,
@@ -956,11 +1131,11 @@ p { text-wrap: pretty; }
   opacity: 1;
   translate: 0 0;
 }
-.reveal .card:nth-child(2), .reveal .skill-box:nth-child(2), .reveal .badge-group:nth-child(2), .reveal .timeline .entry:nth-child(2) { transition-delay: 90ms; }
-.reveal .card:nth-child(3), .reveal .skill-box:nth-child(3), .reveal .badge-group:nth-child(3), .reveal .timeline .entry:nth-child(3) { transition-delay: 180ms; }
-.reveal .card:nth-child(4), .reveal .skill-box:nth-child(4) { transition-delay: 270ms; }
-.reveal .card:nth-child(5), .reveal .skill-box:nth-child(5) { transition-delay: 360ms; }
-.reveal .skill-box:nth-child(6) { transition-delay: 450ms; }
+/* once revealed, the lift on hover is immediate rather than inheriting this
+   element's place in the stagger */
+.reveal.is-visible .card:hover {
+  transition: border-color var(--t-fast), translate var(--t);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; translate: 0 0; }
@@ -982,6 +1157,7 @@ p { text-wrap: pretty; }
 main > .section:first-of-type .hero__copy,
 main > .section:first-of-type .hero__visual,
 main > .section:first-of-type .section-head,
+main > .section:first-of-type .page-head,
 main > .section:first-of-type .page-lede,
 main > .section:first-of-type .about__copy,
 main > .section:first-of-type .about__visual,
@@ -999,14 +1175,12 @@ main > .section:first-of-type .media-row {
   animation-delay: 140ms;
 }
 
+/* same --i mechanism as the scroll reveal above, so this ladder also scales to
+   any number of cards instead of stopping dead at the fifth */
 main > .section:first-of-type .cards .card {
   animation: fade-up 550ms ease both;
-  animation-delay: 220ms;
+  animation-delay: calc(220ms + var(--i, 0) * 80ms);
 }
-main > .section:first-of-type .cards .card:nth-child(2) { animation-delay: 300ms; }
-main > .section:first-of-type .cards .card:nth-child(3) { animation-delay: 380ms; }
-main > .section:first-of-type .cards .card:nth-child(4) { animation-delay: 460ms; }
-main > .section:first-of-type .cards .card:nth-child(5) { animation-delay: 540ms; }
 
 @media (prefers-reduced-motion: reduce) {
   main > .section:first-of-type * { animation: none !important; }
@@ -1014,8 +1188,9 @@ main > .section:first-of-type .cards .card:nth-child(5) { animation-delay: 540ms
 
 /* ---------- Print ------------------------------------------------------- */
 @media print {
-  .rail, .header, .burger, .decor, .footer__socials { display: none !important; }
+  .rail, .header, .burger, .decor, .footer__socials,
+  .copy-btn, .sr-only { display: none !important; }
   body { padding-left: 0; background: #fff; color: #000; }
   h1, h2, h3, .btn { color: #000; }
-  .card, .skill-box, .quote__box, .contacts__box { border-color: #000; }
+  .card, .skill-box, .contacts__box { border-color: #000; }
 }

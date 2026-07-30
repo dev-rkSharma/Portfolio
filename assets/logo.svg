@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Roushan Kumar">
   <rect width="32" height="32" fill="#282C33"/>
-  <rect x="5.5" y="5.5" width="16" height="16" fill="none" stroke="#C778DD" stroke-width="2"/>
-  <rect x="14" y="14" width="13" height="13" fill="#C778DD"/>
+  <!-- Same geometry as the inline .logo__mark (16x16 viewBox), scaled x2. -->
+  <rect x="1" y="1" width="18" height="18" fill="none" stroke="#C778DD" stroke-width="2"/>
+  <rect x="12" y="12" width="19" height="19" fill="#C778DD"/>
 </svg>

@@ -26,10 +26,10 @@
   <g stroke="#ABB2BF" stroke-opacity="0.55" fill="none">
     <rect x="42" y="190" width="96" height="60" />
   </g>
-  <path d="M56 220 l10 -14 l8 20 l10 -26 l8 16 l10 -8" stroke="#C778DD" stroke-width="1.5" fill="none" opacity="0.85" />
+  <path class="data-path" d="M56 220 l10 -14 l8 20 l10 -26 l8 16 l10 -8" stroke="#C778DD" stroke-width="1.5" fill="none" opacity="0.85" />
 
   <!-- convergence lines into pipeline node -->
-  <g stroke="#C778DD" stroke-width="1.5" fill="none" opacity="0.85" marker-end="url(#p4-arrow)">
+  <g class="data-path" stroke="#C778DD" stroke-width="1.5" fill="none" opacity="0.85" marker-end="url(#p4-arrow)">
     <path d="M138 120 C 200 120, 220 150, 262 168" />
     <path d="M138 220 C 200 220, 220 190, 262 172" />
   </g>
@@ -41,7 +41,7 @@
   </g>
 
   <!-- arrow from pipeline to workshop output -->
-  <path d="M334 178 L 388 164" stroke="#C778DD" stroke-width="1.5" opacity="0.85" marker-end="url(#p4-arrow)" fill="none" />
+  <path class="data-path" d="M334 178 L 388 164" stroke="#C778DD" stroke-width="1.5" opacity="0.85" marker-end="url(#p4-arrow)" fill="none" />
 
   <!-- output: workshop app / report list -->
   <g>

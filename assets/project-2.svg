@@ -26,7 +26,7 @@
   <!-- primary series: area + line -->
   <path d="M46 240 L 110 224 L 172 236 L 234 190 L 296 202 L 358 150 L 420 168 L 482 110 L 544 128 L 544 278 L 46 278 Z"
         fill="url(#p2-fill)" stroke="none" />
-  <path d="M46 240 L 110 224 L 172 236 L 234 190 L 296 202 L 358 150 L 420 168 L 482 110 L 544 128"
+  <path class="data-path" d="M46 240 L 110 224 L 172 236 L 234 190 L 296 202 L 358 150 L 420 168 L 482 110 L 544 128"
         fill="none" stroke="#C778DD" stroke-width="2.25" stroke-linejoin="round" />
   <g fill="#C778DD">
     <circle cx="110" cy="224" r="3.25" />

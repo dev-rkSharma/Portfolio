@@ -28,7 +28,7 @@
   </g>
 
   <!-- convergence lines into the pipeline node -->
-  <g stroke="#C778DD" stroke-width="1.5" fill="none" opacity="0.85" marker-end="url(#p1-arrow)">
+  <g class="data-path" stroke="#C778DD" stroke-width="1.5" fill="none" opacity="0.85" marker-end="url(#p1-arrow)">
     <path d="M138 89 C 200 89, 220 120, 262 158" />
     <path d="M138 170 L 258 170" />
     <path d="M138 251 C 200 251, 220 220, 262 182" />
@@ -41,7 +41,7 @@
   </g>
 
   <!-- arrow from pipeline to report -->
-  <path d="M334 168 L 388 154" stroke="#C778DD" stroke-width="1.5" opacity="0.85" marker-end="url(#p1-arrow)" fill="none" />
+  <path class="data-path" d="M334 168 L 388 154" stroke="#C778DD" stroke-width="1.5" opacity="0.85" marker-end="url(#p1-arrow)" fill="none" />
 
   <!-- output report panel -->
   <g>

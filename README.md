@@ -9,7 +9,7 @@ no npm install, no framework. Drops straight onto GitHub Pages.
 site/
 ├── index.html          all content lives here (look for "EDIT:" comments)
 ├── css/style.css       design tokens at the top, then layout, then responsive
-├── js/main.js          mobile menu, active nav, scroll reveal, quote rotation
+├── js/main.js          mobile menu, active nav, scroll reveal, copy-to-clipboard
 └── assets/             images + favicon
 ```
 
@@ -29,7 +29,6 @@ Open `index.html` and search for `EDIT` — there are 14 spots. In order:
 | `.hero__title` | headline. Words wrapped in `<em>` render purple |
 | `.hero__text` | one-line pitch |
 | `.status` | what you're working on right now |
-| `.quote` | your favourite quote |
 | `.card` ×3 | one per project — duplicate or delete the whole `<article>` |
 | `.skill-box` ×5 | your skill groups |
 | `.about__copy` | your bio |
@@ -118,8 +117,14 @@ Add a file named `CNAME` next to `index.html` containing just your domain
   drop it in `assets/fonts/`, and replace the `<link>` with an `@font-face` rule.
 - **Design tokens** are the CSS custom properties at the top of `style.css`.
   Change `--accent` and the whole site re-themes.
-- **Adding a rotating quote carousel**: add entries to the `QUOTES` array in
-  `js/main.js`. With one entry it stays static.
+- **Reveal stagger**: `js/main.js` writes a `--i` index onto each child of
+  `.cards`, `.skills__grid`, `.badge-groups` and `.timeline`; the CSS turns that
+  into `transition-delay: calc(var(--i, 0) * 90ms)`. Add or remove children
+  freely — the ladder re-numbers itself.
+- **Project diagram line-draw**: the accent path in `assets/project-*.svg` is
+  marked `class="data-path"`. On reveal, `js/main.js` inlines the SVG and
+  animates `stroke-dashoffset` so the path draws itself in. To opt a new
+  diagram in, put that class on its accent stroke (or the `<g>` wrapping them).
 - **Accessibility**: skip link, focus-visible outlines, `aria-label`s on icon-only
   links, and `prefers-reduced-motion` respected throughout.
 
@@ -130,4 +135,4 @@ Add a file named `CNAME` next to `index.html` containing just your domain
 | ≥ 900px | full desktop: left social rail, decorative shapes, 3-col grids |
 | < 900px | rail hidden, hamburger → full-screen menu |
 | < 820px | single-column hero / about / contacts, image moves above text |
-| < 560px | quote attribution inlines, buttons go full-width, footer stacks |
+| < 560px | stats strip stacks, buttons go full-width, footer stacks |

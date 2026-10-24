@@ -52,6 +52,7 @@
 <link rel="stylesheet" href="css/style.css" />
 <link rel="stylesheet" href="css/fx.css" />
 <link rel="stylesheet" href="css/extras.css" />
+<link rel="stylesheet" href="css/modern.css" />
 </head>
 <body>
 
@@ -108,12 +109,12 @@
     <nav class="nav" id="nav" aria-label="Main">
       <ul class="nav__list">
         <li><a class="nav__link is-active" href="#home" aria-current="location"><span class="hash" aria-hidden="true">#</span>home</a></li>
-        <li><a class="nav__link" href="projects.html"><span class="hash" aria-hidden="true">#</span>projects</a></li>
+        <li><a class="nav__link" href="projects.html" data-spy="projects"><span class="hash" aria-hidden="true">#</span>projects</a></li>
         <li><a class="nav__link" href="#skills"><span class="hash" aria-hidden="true">#</span>skills</a></li>
         <li><a class="nav__link" href="#experience"><span class="hash" aria-hidden="true">#</span>experience</a></li>
         <li><a class="nav__link" href="#badges"><span class="hash" aria-hidden="true">#</span>badges</a></li>
-        <li><a class="nav__link" href="about.html"><span class="hash" aria-hidden="true">#</span>about-me</a></li>
-        <li><a class="nav__link" href="contacts.html"><span class="hash" aria-hidden="true">#</span>contacts</a></li>
+        <li><a class="nav__link" href="about.html" data-spy="about-me"><span class="hash" aria-hidden="true">#</span>about-me</a></li>
+        <li><a class="nav__link" href="contacts.html" data-spy="contacts"><span class="hash" aria-hidden="true">#</span>contacts</a></li>
       </ul>
       <ul class="nav__socials" aria-label="Social links">
         <li><a href="https://www.linkedin.com/in/roushan-kumar" target="_blank" rel="noopener" aria-label="LinkedIn"><svg aria-hidden="true"><use href="#i-linkedin"/></svg></a></li>
@@ -656,7 +657,7 @@
     <div class="container">
 
       <div class="section-head">
-        <h2 class="section-title"><span class="hash" aria-hidden="true">#</span>about-me</h2>
+        <h2 class="section-title"><span class="hash" aria-hidden="true">#</span>about me</h2>
         <span class="section-head__rule" aria-hidden="true"></span>
       </div>
 
@@ -698,12 +699,14 @@
 
       <!-- Single CTA only — the addresses, LinkedIn and full media list live on
            contacts.html (also linked from the nav). Don't duplicate them here. -->
-      <p class="contacts__text">
-        I&rsquo;m open to opportunities in Palantir Foundry development, data
-        engineering and analytics.
-      </p>
-      <div class="btn-row">
-        <a class="btn" href="contacts.html">Get in touch <span aria-hidden="true">&#8594;</span></a>
+      <div class="contact-cta">
+        <p class="contacts__text">
+          I&rsquo;m open to opportunities in Palantir Foundry development, data
+          engineering and analytics.
+        </p>
+        <div class="btn-row">
+          <a class="btn btn--primary" href="contacts.html">Get in touch <span aria-hidden="true">&#8594;</span></a>
+        </div>
       </div>
     </div>
   </section>
@@ -738,5 +741,6 @@
 <script src="js/icons.js" defer></script>
 <script src="js/fx.js" defer></script>
 <script src="js/extras.js" defer></script>
+<script src="js/modern.js" defer></script>
 </body>
 </html>

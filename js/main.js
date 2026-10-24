@@ -52,10 +52,12 @@
   /* ---------- 2. Active nav link on scroll ----------------------------- */
   var navLinks = Array.prototype.slice.call(document.querySelectorAll(".nav__link"));
 
-  // map "#projects" -> the <a>, so we can highlight from the section id
+  // map "#skills" -> the <a>, so we can highlight from the section id; links
+  // that go to a separate page name their homepage section in data-spy
   var linkFor = {};
   navLinks.forEach(function (link) {
-    var id = (link.getAttribute("href") || "").replace("#", "");
+    var href = link.getAttribute("href") || "";
+    var id = link.getAttribute("data-spy") || (href.charAt(0) === "#" ? href.slice(1) : "");
     if (id) linkFor[id] = link;
   });
 
@@ -63,32 +65,41 @@
     .map(function (id) { return document.getElementById(id); })
     .filter(Boolean);
 
-  if ("IntersectionObserver" in window && watched.length) {
-    var spy = new IntersectionObserver(
-      function (entries) {
-        // pick the entry closest to the top of the viewport that is intersecting
-        var best = null;
-        entries.forEach(function (entry) {
-          if (!entry.isIntersecting) return;
-          if (!best || entry.boundingClientRect.top < best.boundingClientRect.top) {
-            best = entry;
-          }
-        });
-        if (!best) return;
-
-        var link = linkFor[best.target.id];
-        if (!link) return;
-        navLinks.forEach(function (l) {
-          l.classList.remove("is-active");
-          l.removeAttribute("aria-current");
-        });
+  // The active section is the last one whose top has crossed 40% of the
+  // viewport; at the very bottom of the page the last section wins, so short
+  // closing sections (contacts) still light up.
+  if (watched.length) {
+    var currentLink = null;
+    var spyQueued = false;
+    var updateSpy = function () {
+      spyQueued = false;
+      var line = window.innerHeight * 0.4;
+      var current = null;
+      watched.forEach(function (section) {
+        if (section.getBoundingClientRect().top <= line) current = section;
+      });
+      var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+      if (atBottom) current = watched[watched.length - 1];
+      var link = current ? linkFor[current.id] : null;
+      if (link === currentLink) return;
+      currentLink = link;
+      navLinks.forEach(function (l) {
+        l.classList.remove("is-active");
+        l.removeAttribute("aria-current");
+      });
+      if (link) {
         link.classList.add("is-active");
         link.setAttribute("aria-current", "location");
-      },
-      { rootMargin: "-45% 0px -50% 0px", threshold: 0 }
-    );
-
-    watched.forEach(function (section) { spy.observe(section); });
+      }
+    };
+    var queueSpy = function () {
+      if (spyQueued) return;
+      spyQueued = true;
+      requestAnimationFrame(updateSpy);
+    };
+    window.addEventListener("scroll", queueSpy, { passive: true });
+    window.addEventListener("resize", queueSpy);
+    updateSpy();
   }
 
   /* ---------- 3. Sticky header: scrolled state ------------------------- */

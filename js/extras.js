@@ -429,7 +429,7 @@
       if (!title) return;
       // short label: the title up to its first "&", e.g. "Timeseries Analytics"
       var short = title.textContent.split("&")[0].trim();
-      var proj = addNode({ kind: "proj", label: short, hue: "255,255,255", r: 8, card: card });
+      var proj = addNode({ kind: "proj", label: short, hue: "180,154,255", r: 8, card: card });
       $all(".card__tech li", card).forEach(function (li) {
         var t = li.textContent.trim().toLowerCase();
         nodes.forEach(function (n) {
@@ -444,12 +444,21 @@
     var GW = 0, GH = 0;
     var sizeGraph = function () {
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
-      GW = wrap.clientWidth; GH = GW < 700 ? 540 : Math.max(Math.min(GW * 0.6, 560), 420);
+      GW = wrap.clientWidth; GH = GW < 700 ? 540 : Math.max(Math.min(GW * 0.62, 620), 440);
       cv.style.height = GH + "px";
       cv.width = Math.round(GW * dpr); cv.height = Math.round(GH * dpr);
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
     sizeGraph();
+    // label widths, for the overlap pass in step() and the edge flip in draw()
+    var labelText = function (n) { return n.label.length > 30 ? n.label.slice(0, 29) + "…" : n.label; };
+    var measure = function () {
+      nodes.forEach(function (n) {
+        g.font = (n.kind !== "leaf" ? "600 12px" : "11px") + " 'IBM Plex Mono', monospace";
+        n.lw = g.measureText(labelText(n)).width;
+      });
+    };
+    measure();
     // seed: hubs on a ring, leaves around their hub, projects in the middle
     var hubs = nodes.filter(function (n) { return n.kind === "hub"; });
     hubs.forEach(function (h, i) {
@@ -481,7 +490,25 @@
         f = (d - l.len) * 0.02;
         l.a.vx += dx / d * f; l.a.vy += dy / d * f; l.b.vx -= dx / d * f; l.b.vy -= dy / d * f;
       });
-      energy = 0;
+      // keep node+label boxes from overlapping (leaf labels are hidden on narrow screens)
+      var spill = 0, boxOf = function (n) {
+        var w = GW < 700 && n.kind === "leaf" ? 0 : n.lw + 6, flip = n.x + n.r + w > GW - 8;
+        return { l: flip ? n.x - n.r - w : n.x - n.r, r: flip ? n.x + n.r : n.x + n.r + w, t: n.y - Math.max(n.r, 8), b: n.y + Math.max(n.r, 8) };
+      };
+      for (i = 0; i < nodes.length; i++) {
+        a = nodes[i]; var ba = boxOf(a);
+        for (j = i + 1; j < nodes.length; j++) {
+          b = nodes[j]; var bb = boxOf(b);
+          var ox = Math.min(ba.r, bb.r) - Math.max(ba.l, bb.l), oy = Math.min(ba.b, bb.b) - Math.max(ba.t, bb.t);
+          if (ox <= 0 || oy <= 0) continue;
+          // separate along the cheaper axis — usually vertical, labels are wide
+          var push = ox < oy * 3 ? 0 : 1, sgn;
+          if (push) { sgn = b.y >= a.y ? 1 : -1; f = (oy + 2) * 0.25 * sgn; if (a !== dragging) a.y -= f; if (b !== dragging) b.y += f; }
+          else { sgn = b.x >= a.x ? 1 : -1; f = (ox + 2) * 0.25 * sgn; if (a !== dragging) a.x -= f; if (b !== dragging) b.x += f; }
+          spill += Math.abs(f);
+        }
+      }
+      energy = spill * 0.05;
       nodes.forEach(function (n) {
         n.vx += (GW / 2 - n.x) * 0.0007; n.vy += (GH / 2 - n.y) * 0.0016;   // gravity (wide, not tall)
         if (n === dragging) { n.vx = n.vy = 0; return; }
@@ -518,11 +545,13 @@
           halo.addColorStop(0, "rgba(" + n.hue + "," + (0.28 * al) + ")"); halo.addColorStop(1, "rgba(" + n.hue + ",0)");
           g.fillStyle = halo; g.beginPath(); g.arc(n.x, n.y, n.r * 3, 0, Math.PI * 2); g.fill();
         }
-        g.fillStyle = n.kind === "proj" ? "rgba(40,44,51," + al + ")" : "rgba(" + n.hue + "," + al + ")";
+        g.fillStyle = n.kind === "proj" ? "rgba(26,22,40," + al + ")" : "rgba(" + n.hue + "," + al + ")";
         g.strokeStyle = "rgba(" + n.hue + "," + al + ")";
         g.lineWidth = n.kind === "proj" ? 2 : 1;
         g.beginPath();
-        if (n.kind === "proj") { g.rect(n.x - n.r, n.y - n.r, n.r * 2, n.r * 2); } else { g.arc(n.x, n.y, n.r, 0, Math.PI * 2); }
+        if (n.kind === "proj") {   // projects are diamonds
+          g.moveTo(n.x, n.y - n.r * 1.25); g.lineTo(n.x + n.r * 1.25, n.y); g.lineTo(n.x, n.y + n.r * 1.25); g.lineTo(n.x - n.r * 1.25, n.y); g.closePath();
+        } else { g.arc(n.x, n.y, n.r, 0, Math.PI * 2); }
         if (n.icon) {
           // icon badge: dark disc, hue ring, logo/line icon inside
           g.fillStyle = "rgba(30,33,39," + al + ")";
@@ -545,7 +574,7 @@
         g.font = (big ? "600 12px" : "11px") + " 'IBM Plex Mono', monospace";
         g.textBaseline = "middle";
         g.fillStyle = "rgba(" + (n.kind === "leaf" ? "171,178,191" : "255,255,255") + "," + (on ? (n.kind === "leaf" ? 0.85 : 1) : 0.25) + ")";
-        var label = n.label.length > 30 ? n.label.slice(0, 29) + "…" : n.label;
+        var label = labelText(n);
         // near the right edge the label goes on the node's left so it isn't clipped
         var flip = n.x + n.r + 6 + g.measureText(label).width > GW - 8;
         g.textAlign = flip ? "right" : "left";
@@ -605,7 +634,7 @@
       new IntersectionObserver(function (en) { inView = en[0].isIntersecting; if (inView) { draw(); wake(); } }).observe(wrap);
     } else { inView = true; wake(); }
     window.addEventListener("resize", function () { sizeGraph(); wake(); draw(); });
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { measure(); wake(); draw(); });
     draw();
   }
 })();

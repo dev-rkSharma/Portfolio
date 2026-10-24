@@ -416,7 +416,9 @@
       var head = box.querySelector(".skill-box__head");
       var hub = addNode({ kind: "hub", label: head.textContent.trim(), hue: HUE[bi % HUE.length], r: 15 });
       $all("li", box).forEach(function (li) {
-        var leaf = addNode({ kind: "leaf", label: li.textContent.trim(), hue: hub.hue, r: 5, chip: li });
+        var ti = window.TechIcons && window.Path2D && window.TechIcons.get(li.textContent);
+        var leaf = addNode({ kind: "leaf", label: li.textContent.trim(), hue: hub.hue, r: ti ? 10 : 5, chip: li,
+                             icon: ti ? { brand: !!ti.brand, color: ti.color, paths: ti.d.map(function (d) { return new Path2D(d); }) } : null });
         byKey[leaf.label.toLowerCase()] = leaf;
         addLink(hub, leaf, 78);
       });
@@ -520,7 +522,22 @@
         g.lineWidth = n.kind === "proj" ? 2 : 1;
         g.beginPath();
         if (n.kind === "proj") { g.rect(n.x - n.r, n.y - n.r, n.r * 2, n.r * 2); } else { g.arc(n.x, n.y, n.r, 0, Math.PI * 2); }
-        g.fill(); g.stroke();
+        if (n.icon) {
+          // icon badge: dark disc, hue ring, logo/line icon inside
+          g.fillStyle = "rgba(30,33,39," + al + ")";
+          g.fill(); g.stroke();
+          g.save();
+          g.globalAlpha = al;
+          g.translate(n.x - n.r * 0.68, n.y - n.r * 0.68);
+          g.scale(n.r * 1.36 / 24, n.r * 1.36 / 24);
+          n.icon.paths.forEach(function (p2) {
+            if (n.icon.brand) { g.fillStyle = n.icon.color; g.fill(p2); }
+            else { g.strokeStyle = "rgb(" + n.hue + ")"; g.lineWidth = 2; g.lineCap = "round"; g.lineJoin = "round"; g.stroke(p2); }
+          });
+          g.restore();
+        } else {
+          g.fill(); g.stroke();
+        }
         // labels — on narrow screens leaf labels only show when highlighted
         if (n.kind === "leaf" && GW < 700 && !(hover && on)) return;
         var big = n.kind !== "leaf";

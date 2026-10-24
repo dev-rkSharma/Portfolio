@@ -110,13 +110,35 @@
       }
     });
 
-    // icons: a small outlined glyph box is enough at dot resolution
+    // small icons: redraw their real shapes (paths, circles, rects) so tech
+    // logos and line icons survive as recognisable dot glyphs
     $all("svg", root).forEach(function (n) {
       var r = n.getBoundingClientRect();
-      if (r.width > 48 || (opts.media && opts.media.get(n))) return;
-      o.strokeStyle = getComputedStyle(n).color;
-      o.lineWidth = 1.5;
-      boxPath(o, r.left - cb.left + 2, r.top - cb.top + 2, r.width - 4, r.height - 4, 2); o.stroke();
+      if (!r.width || r.width > 48 || (opts.media && opts.media.get(n))) return;
+      var vb = (n.getAttribute("viewBox") || "0 0 24 24").split(/[\s,]+/).map(Number);
+      var k = r.width / (vb[2] || 24);
+      o.save();
+      o.translate(r.left - cb.left - vb[0] * k, r.top - cb.top - vb[1] * k);
+      o.scale(k, k);
+      $all("path, circle, rect", n).forEach(function (shape) {
+        var cs = getComputedStyle(shape), path;
+        if (shape.tagName === "path") {
+          path = new Path2D(shape.getAttribute("d") || "");
+        } else {
+          path = new Path2D();
+          var a = function (name) { return parseFloat(shape.getAttribute(name)) || 0; };
+          if (shape.tagName === "circle") path.arc(a("cx"), a("cy"), a("r"), 0, Math.PI * 2);
+          else path.rect(a("x"), a("y"), a("width"), a("height"));
+        }
+        if (cs.fill && cs.fill !== "none" && !isClear(cs.fill)) { o.fillStyle = cs.fill; o.fill(path); }
+        if (cs.stroke && cs.stroke !== "none" && !isClear(cs.stroke)) {
+          o.strokeStyle = cs.stroke;
+          o.lineWidth = Math.max(parseFloat(cs.strokeWidth) || 1, 1.6);
+          o.lineCap = "round"; o.lineJoin = "round";
+          o.stroke(path);
+        }
+      });
+      o.restore();
     });
 
     // bullets (they're ::before pseudo-elements, so not in the DOM)

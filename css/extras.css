@@ -257,6 +257,23 @@
   background: var(--accent-soft);
 }
 
+/* ---------- 6. TECH ICONS (js/icons.js) -------------------------------- */
+.has-ti {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+.ti {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+  transition: transform var(--t);
+}
+.ti--line { color: var(--accent); }
+.has-ti:hover .ti { transform: scale(1.18) rotate(-6deg); }
+.marquee__item .ti { width: 1.25em; height: 1.25em; }
+.marquee__item:nth-child(3n + 2) .ti--line { color: var(--accent-2); }
+
 /* ---------- REDUCED MOTION / PRINT -------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   .term__win, .t-line, .cs::backdrop { animation: none !important; }

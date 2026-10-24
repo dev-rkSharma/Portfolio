@@ -104,6 +104,7 @@
     $all("img, svg", root).forEach(function (n) {
       var r = n.getBoundingClientRect();
       if (!r.width || !r.height) return;
+      if (opts.noImages) return;
       var src = n.tagName === "IMG" ? (n.complete ? n : null) : (opts.media && opts.media.get(n));
       if (src) {
         try { o.drawImage(src, r.left - cb.left, r.top - cb.top, r.width, r.height); } catch (e) { /* tainted/broken: skip */ }
@@ -178,7 +179,14 @@
       }
     }
 
-    var data = o.getImageData(0, 0, w, h).data;
+    var data;
+    try {
+      data = o.getImageData(0, 0, w, h).data;
+    } catch (e) {
+      // a drawn image tainted the canvas (e.g. file:// preview) — redo without images
+      if (opts.noImages) return [];
+      return rasterizeBox(root, ox, oy, Object.assign({}, opts, { noImages: true }));
+    }
     var step = 3, pts;
     do {
       pts = [];

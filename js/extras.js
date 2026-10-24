@@ -202,6 +202,7 @@
       ["2026-now", "Palantir Applied Engineer", "Vanyar"]
     ],
     projects: [
+      "AI-Generated Quarterly Reporting Platform",
       "Operational Reporting Automation",
       "Timeseries Analytics & Quiver Dashboards",
       "Agentic AI Assistants & LLM Pipelines"

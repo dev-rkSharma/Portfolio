@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="600" height="340" role="img" aria-label="Abstract diagram: source data and uploaded PDFs flow through a pipeline into an ontology, which feeds a dashboard with a chart, a map and AI suggestions, and an admin report whose AI-drafted sections pass a human approval check before publishing to the dashboard">
+  <defs>
+    <pattern id="p7-dots" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle cx="1.1" cy="1.1" r="1.1" fill="#ABB2BF" />
+    </pattern>
+    <marker id="p7-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L8 4 L0 8 Z" fill="#C778DD" />
+    </marker>
+    <marker id="p7-arrow-g" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L8 4 L0 8 Z" fill="#98C379" />
+    </marker>
+  </defs>
+
+  <rect width="600" height="340" fill="#2E333B" />
+  <rect x="450" y="190" width="150" height="150" fill="url(#p7-dots)" opacity="0.14" />
+  <rect x="0.5" y="0.5" width="599" height="339" fill="none" stroke="#3D434D" />
+
+  <!-- sources: a data table + an uploaded PDF -->
+  <g stroke="#ABB2BF" stroke-opacity="0.55" fill="none">
+    <rect x="26" y="78" width="70" height="52" />
+    <path d="M26 95 h70 M26 112 h70 M50 78 v52" stroke-opacity="0.3" />
+    <path d="M26 196 h50 l20 20 v52 h-70z" />
+    <path d="M76 196 v20 h20" />
+  </g>
+  <text x="61" y="252" font-family="'IBM Plex Mono', monospace" font-size="12" font-weight="600" fill="#E06C75" text-anchor="middle">PDF</text>
+  <g font-family="'IBM Plex Mono', monospace" font-size="10" fill="#ABB2BF" text-anchor="middle" opacity="0.8">
+    <text x="61" y="146">data</text>
+    <text x="61" y="286">extract</text>
+  </g>
+
+  <!-- sources -> pipeline -->
+  <g class="data-path" stroke="#C778DD" stroke-width="1.5" opacity="0.8" fill="none" marker-end="url(#p7-arrow)">
+    <path d="M96 104 C 118 104, 122 150, 138 158" />
+    <path d="M96 236 C 118 236, 122 190, 138 182" />
+  </g>
+
+  <!-- pipeline -->
+  <rect x="140" y="148" width="62" height="44" fill="#282C33" stroke="#ABB2BF" stroke-opacity="0.7" />
+  <path d="M150 170 h10 M168 162 h12 v16 h-12z M180 170 h12" stroke="#ABB2BF" fill="none" stroke-width="1.5" />
+  <text x="171" y="208" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#ABB2BF" text-anchor="middle" opacity="0.8">pipeline</text>
+
+  <path class="data-path" d="M202 170 L 240 170" stroke="#C778DD" stroke-width="1.5" opacity="0.85" marker-end="url(#p7-arrow)" fill="none" />
+
+  <!-- ontology: highlighted node -->
+  <circle cx="268" cy="170" r="26" fill="#282C33" stroke="#C778DD" stroke-width="2" />
+  <g fill="none" stroke="#C778DD" stroke-width="1.5">
+    <circle cx="268" cy="160" r="3.5" /><circle cx="259" cy="177" r="3.5" /><circle cx="277" cy="177" r="3.5" />
+    <path d="M266 163 l-5 11 M270 163 l5 11 M262.5 177 h11" />
+  </g>
+  <text x="268" y="212" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#ABB2BF" text-anchor="middle" opacity="0.8">ontology</text>
+
+  <!-- ontology -> dashboard / admin -->
+  <g class="data-path" stroke="#C778DD" stroke-width="1.5" opacity="0.8" fill="none" marker-end="url(#p7-arrow)">
+    <path d="M290 156 C 318 120, 330 92, 352 86" />
+    <path d="M290 184 C 318 220, 330 246, 352 252" />
+  </g>
+
+  <!-- dashboard: chart + map + AI suggestion -->
+  <rect x="354" y="26" width="220" height="128" fill="#282C33" stroke="#ABB2BF" stroke-opacity="0.6" />
+  <rect x="354" y="26" width="220" height="16" fill="#ABB2BF" fill-opacity="0.08" />
+  <text x="364" y="38" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#ABB2BF" opacity="0.8">dashboard</text>
+  <!-- chart -->
+  <path d="M366 132 v-70 M366 132 h80" stroke="#ABB2BF" stroke-opacity="0.4" fill="none" />
+  <path d="M370 120 l14 -14 12 8 14 -22 14 6 12 -18" stroke="#61AFEF" stroke-width="1.8" fill="none" />
+  <!-- map -->
+  <rect x="456" y="54" width="60" height="78" fill="none" stroke="#ABB2BF" stroke-opacity="0.35" />
+  <path d="M456 80 C 470 72, 482 92, 516 84 M456 108 C 474 100, 490 118, 516 110" stroke="#ABB2BF" stroke-opacity="0.25" fill="none" />
+  <path d="M486 102 s-9 -8 -9 -15 a9 9 0 0 1 18 0 c0 7 -9 15 -9 15z" fill="#C778DD" />
+  <circle cx="486" cy="87" r="3" fill="#282C33" />
+  <!-- AI suggestion -->
+  <rect x="524" y="54" width="42" height="78" fill="none" stroke="#C778DD" stroke-opacity="0.5" stroke-dasharray="3 3" />
+  <path d="M545 66 l2.4 5.6 5.6 2.4 -5.6 2.4 -2.4 5.6 -2.4 -5.6 -5.6 -2.4 5.6 -2.4z" fill="#C778DD" />
+  <path d="M531 96 h28 M531 106 h22 M531 116 h26" stroke="#ABB2BF" stroke-opacity="0.45" />
+
+  <!-- admin report: AI-drafted sections + rules -->
+  <rect x="354" y="188" width="150" height="126" fill="#282C33" stroke="#ABB2BF" stroke-opacity="0.6" />
+  <rect x="354" y="188" width="150" height="16" fill="#ABB2BF" fill-opacity="0.08" />
+  <text x="364" y="200" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#ABB2BF" opacity="0.8">admin · Q-report</text>
+  <g stroke="#ABB2BF" stroke-opacity="0.45">
+    <path d="M384 220 h104 M384 230 h84" />
+    <path d="M384 252 h104 M384 262 h70" />
+    <path d="M384 284 h96 M384 294 h60" />
+  </g>
+  <g fill="#C778DD">
+    <path d="M370 219 l2 4.6 4.6 2 -4.6 2 -2 4.6 -2 -4.6 -4.6 -2 4.6 -2z" />
+    <path d="M370 251 l2 4.6 4.6 2 -4.6 2 -2 4.6 -2 -4.6 -4.6 -2 4.6 -2z" />
+    <path d="M370 283 l2 4.6 4.6 2 -4.6 2 -2 4.6 -2 -4.6 -4.6 -2 4.6 -2z" />
+  </g>
+
+  <!-- human approval -> publish to dashboard -->
+  <circle cx="540" cy="250" r="18" fill="#282C33" stroke="#98C379" stroke-width="2" />
+  <path d="M532 250 l6 6 11 -12" stroke="#98C379" stroke-width="2" fill="none" />
+  <text x="540" y="284" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#98C379" text-anchor="middle">approve</text>
+  <path class="data-path" d="M504 250 L 518 250" stroke="#98C379" stroke-width="1.5" fill="none" marker-end="url(#p7-arrow-g)" />
+  <path class="data-path" d="M540 232 L 540 160" stroke="#98C379" stroke-width="1.5" stroke-dasharray="4 4" fill="none" marker-end="url(#p7-arrow-g)" />
+  <text x="548" y="200" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#98C379" opacity="0.85">publish</text>
+</svg>

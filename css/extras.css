@@ -1,0 +1,268 @@
+/* ==========================================================================
+   Portfolio — extras (pairs with js/extras.js)
+   "now" widget · nav pill · case-study modal · terminal · skills graph
+   ========================================================================== */
+
+/* ---------- 1. NOW WIDGET (hero) ---------------------------------------- */
+.now {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+  margin-top: 1.5rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(46, 51, 59, 0.55);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.now__label {
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.now strong { color: var(--white); font-weight: 500; }
+.now__sep { color: var(--border-mid); }
+.now__time { font-variant-numeric: tabular-nums; color: var(--text); }
+
+/* ---------- 2. NAV SLIDING PILL ----------------------------------------- */
+@media (min-width: 900px) {
+  .nav__list { position: relative; }
+  .nav__pill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    border-radius: 999px;
+    background: linear-gradient(110deg, rgba(199, 120, 221, 0.16), rgba(97, 175, 239, 0.12));
+    box-shadow: inset 0 0 0 1px rgba(199, 120, 221, 0.35), 0 0 20px -4px rgba(199, 120, 221, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 420ms cubic-bezier(.2, .7, .2, 1), width 420ms cubic-bezier(.2, .7, .2, 1),
+                height 420ms cubic-bezier(.2, .7, .2, 1), opacity 200ms ease;
+  }
+  /* the pill replaces the underline */
+  body.has-nav-pill .nav__link::after { display: none; }
+  .nav__link { position: relative; z-index: 1; }
+}
+@media (max-width: 899px) { .nav__pill { display: none; } }
+
+/* ---------- 3. CASE-STUDY MODAL ----------------------------------------- */
+.card.is-openable { cursor: pointer; }
+.card.is-openable:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.card.is-openable .card__title::after {
+  content: " \2197";
+  color: var(--accent);
+  opacity: 0;
+  transition: opacity var(--t-fast);
+}
+.card.is-openable:hover .card__title::after,
+.card.is-openable:focus-visible .card__title::after { opacity: 1; }
+
+.cs {
+  width: min(56rem, calc(100% - 2rem));
+  max-height: calc(100vh - 3rem);
+  max-height: calc(100svh - 3rem);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  overflow: visible;
+}
+.cs::backdrop {
+  background: rgba(20, 22, 26, 0.72);
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+  animation: cs-fade 300ms ease both;
+}
+.cs.is-closing::backdrop { animation: cs-fade 300ms ease reverse both; }
+@keyframes cs-fade { from { opacity: 0; } }
+
+.cs__panel {
+  position: relative;
+  max-height: calc(100vh - 3rem);
+  max-height: calc(100svh - 3rem);
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #2A2E35;
+  box-shadow: 0 40px 120px -30px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(199, 120, 221, 0.12);
+  transform-origin: 0 0;
+}
+.cs__close {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  padding: 0;
+  border: 1px solid var(--border-mid);
+  border-radius: 50%;
+  background: rgba(30, 33, 39, 0.8);
+  color: var(--white);
+  cursor: pointer;
+  transition: border-color var(--t-fast), color var(--t-fast), rotate var(--t);
+}
+.cs__close:hover { border-color: var(--accent); color: var(--accent); rotate: 90deg; }
+.cs__close svg { width: 1rem; height: 1rem; }
+
+.cs__media {
+  aspect-ratio: 16 / 7;
+  overflow: hidden;
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--border-dim);
+}
+.cs__media img,
+.cs__media svg { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+.cs__body { padding: clamp(1.25rem, 1rem + 2vw, 2.25rem); }
+.cs__eyebrow { font-size: 0.8rem; color: var(--text-dim); letter-spacing: 0.08em; }
+.cs__title {
+  margin-top: 0.4rem;
+  font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.25rem);
+  font-weight: 600;
+}
+.cs__tech { margin-top: 1rem; padding: 0; border: 0; }
+.cs__text { margin-top: 1.25rem; display: flex; flex-direction: column; gap: 1rem; max-width: 70ch; }
+.cs__desc,
+.cs__contribution { font-family: var(--sans); line-height: 1.7; }
+.cs__desc { font-size: 1.05rem; color: var(--white); }
+.cs__contribution strong { color: var(--white); }
+.cs__nda { font-size: 0.8rem; font-style: italic; color: var(--text-dim); }
+
+/* lit by the skills graph */
+.card.is-graph-lit { border-color: var(--accent); box-shadow: var(--glow); }
+
+/* ---------- 4. TERMINAL ------------------------------------------------- */
+.term {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem;
+}
+.term[hidden] { display: none; }
+.term__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 22, 26, 0.55);
+  -webkit-backdrop-filter: blur(4px);
+          backdrop-filter: blur(4px);
+}
+.term__win {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(48rem, 100%);
+  height: min(28rem, 70vh);
+  margin-bottom: 4vh;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(22, 24, 29, 0.96);
+  box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(97, 175, 239, 0.12);
+  font-family: var(--mono);
+  font-size: 0.875rem;
+  animation: term-in 280ms cubic-bezier(.2, .7, .2, 1) both;
+  overflow: hidden;
+}
+@keyframes term-in { from { opacity: 0; transform: translateY(24px) scale(0.98); } }
+.term__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--border-dim);
+  background: rgba(46, 51, 59, 0.6);
+}
+.term__dots { display: flex; gap: 6px; }
+.term__dots i { width: 11px; height: 11px; border-radius: 50%; background: #E06C75; }
+.term__dots i:nth-child(2) { background: #E5C07B; }
+.term__dots i:nth-child(3) { background: #98C379; }
+.term__title { flex: 1; text-align: center; font-size: 0.75rem; color: var(--text-dim); }
+.term__x {
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--border-mid);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-dim);
+  font: 0.7rem var(--mono);
+  cursor: pointer;
+}
+.term__x:hover { color: var(--white); border-color: var(--border-strong); }
+.term__out {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.9rem 1rem 0.4rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text);
+}
+.t-line { line-height: 1.6; animation: t-line 200ms ease both; }
+@keyframes t-line { from { opacity: 0; transform: translateX(-4px); } }
+.t-echo { margin-top: 0.5rem; color: var(--white); }
+.t-prompt { color: #98C379; }
+.t-cmd { color: var(--accent-2); }
+.t-key { color: var(--accent); }
+.t-hl { color: var(--white); font-weight: 600; }
+.t-dim { color: var(--text-dim); }
+.t-ok { color: #98C379; }
+.t-err { color: #E06C75; }
+.term__out a { color: var(--accent-3); text-decoration: underline; text-underline-offset: 3px; }
+.term__row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem 0.9rem;
+}
+.term__in {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--white);
+  font: inherit;
+  caret-color: var(--accent);
+}
+.term__in:focus { outline: none; }
+
+/* ---------- 5. SKILLS GRAPH --------------------------------------------- */
+.section-figure.has-graph { max-width: none; }
+.section-figure.has-graph > img { display: none; }
+.sgraph { position: relative; }
+.sgraph__canvas {
+  display: block;
+  width: 100%;
+  touch-action: pan-y;
+}
+.sgraph__hint {
+  position: absolute;
+  left: 1rem;
+  bottom: 0.75rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  pointer-events: none;
+}
+.skill-box__body li.is-graph-lit {
+  color: var(--white);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* ---------- REDUCED MOTION / PRINT -------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .term__win, .t-line, .cs::backdrop { animation: none !important; }
+  .nav__pill { transition: none; }
+}
+@media print {
+  .now, .term, .cs, .sgraph { display: none !important; }
+  .section-figure.has-graph > img { display: block; }
+}

@@ -283,6 +283,52 @@
     }
   }
 
+  /* ---------- 5b. Agent trace rotation --------------------------------- */
+  /* Decorative readout in the hero, styled as an AIP agent working through a
+     request. Static on the first step for prefers-reduced-motion — same
+     convention as the stat counters below, which just render the end value. */
+  var AGENT_STEPS = [
+    "receive_request()",
+    "call_llm(summarize)",
+    "ai_analyst.recommend()",
+    "respond() ✓"
+  ];
+  var agentTraceText = document.querySelector(".agent-trace__text");
+
+  /* typed out character by character, held, then backspaced before the next
+     step — reads as a live agent console rather than a slideshow */
+  var TYPE_MS = 45, ERASE_MS = 22, HOLD_MS = 1300, GAP_MS = 250;
+
+  if (agentTraceText && !reduceMotion) {
+    var agentStepIndex = 0;
+    var agentChars = AGENT_STEPS[0].length;
+
+    function typeStep() {
+      var target = AGENT_STEPS[agentStepIndex];
+      if (agentChars < target.length) {
+        agentChars += 1;
+        agentTraceText.textContent = target.slice(0, agentChars);
+        window.setTimeout(typeStep, TYPE_MS);
+      } else {
+        window.setTimeout(eraseStep, HOLD_MS);
+      }
+    }
+
+    function eraseStep() {
+      var current = AGENT_STEPS[agentStepIndex];
+      if (agentChars > 0) {
+        agentChars -= 1;
+        agentTraceText.textContent = current.slice(0, agentChars) || "\u200B";
+        window.setTimeout(eraseStep, ERASE_MS);
+      } else {
+        agentStepIndex = (agentStepIndex + 1) % AGENT_STEPS.length;
+        window.setTimeout(typeStep, GAP_MS);
+      }
+    }
+
+    window.setTimeout(eraseStep, HOLD_MS);
+  }
+
   /* ---------- 6. Footer year ------------------------------------------ */
   var year = document.getElementById("year");
   if (year) year.textContent = String(new Date().getFullYear());
@@ -344,6 +390,12 @@
   var COPY_REVERT_MS = 1200;
   var liveRegion = null;
 
+  var COPY_ICONS = {
+    copy: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+    check: '<polyline points="20 6 9 17 4 12"/>',
+    failed: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'
+  };
+
   function clipboardReady() {
     return !!(navigator.clipboard && window.isSecureContext);
   }
@@ -392,14 +444,19 @@
     btn.type = "button";
     btn.className = "copy-btn";
 
-    var label = document.createElement("span");
-    label.className = "copy-btn__text";
-    label.setAttribute("aria-hidden", "true");
-    label.textContent = "copy";
-    btn.appendChild(label);
+    var icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    icon.setAttribute("class", "copy-btn__icon");
+    icon.setAttribute("viewBox", "0 0 24 24");
+    icon.setAttribute("aria-hidden", "true");
+    icon.setAttribute("fill", "none");
+    icon.setAttribute("stroke", "currentColor");
+    icon.setAttribute("stroke-width", "1.8");
+    icon.setAttribute("stroke-linecap", "round");
+    icon.setAttribute("stroke-linejoin", "round");
+    btn.appendChild(icon);
 
-    function setState(text, name) {
-      label.textContent = text;
+    function setState(iconName, name) {
+      icon.innerHTML = COPY_ICONS[iconName];
       btn.title = name;
       btn.setAttribute("aria-label", name);
     }
@@ -410,7 +467,7 @@
     btn.addEventListener("click", function () {
       writeClipboard(email).then(function () {
         btn.classList.add("is-copied");
-        setState("copied", "Email address copied");
+        setState("check", "Email address copied");
         announce("Email address copied to clipboard");
       }).catch(function () {
         btn.classList.remove("is-copied");
@@ -452,4 +509,183 @@
       listEmail.parentNode.appendChild(makeCopyButton(addressOf(listEmail)));
     }
   }
+
+  /* ---------- 9. Console easter egg ------------------------------------ */
+  if (window.console && console.log) {
+    console.log(
+      "%c  #  Roushan Kumar %c— Palantir Foundry developer, data engineer\n\n" +
+      "%c  Poking around in devtools? Let's talk:\n" +
+      "%c  github.com/dev-rkSharma\n" +
+      "%c  linkedin.com/in/roushan-kumar",
+      "color:#C778DD;font-family:monospace;font-size:14px;font-weight:600;",
+      "color:#ABB2BF;font-family:monospace;font-size:12px;",
+      "color:#ABB2BF;font-family:monospace;font-size:12px;",
+      "color:#949CA8;font-family:monospace;font-size:12px;",
+      "color:#949CA8;font-family:monospace;font-size:12px;"
+    );
+  }
+
+  /* ---------- 10. Command palette (Ctrl/Cmd+K) -------------------------- */
+  /* Injected wholesale — no markup lives in any of the 5 HTML files.
+     Section anchors (#skills etc.) only exist on index.html, so from any
+     other page they're qualified as index.html#id instead. */
+  var HOME_PAGE = "index.html";
+  var onHomePage = /(^|\/)(index\.html)?$/.test(window.location.pathname);
+
+  function destFor(hash) {
+    return onHomePage ? hash : HOME_PAGE + hash;
+  }
+
+  var COMMANDS = [
+    { label: "Home", hint: "Page", href: onHomePage ? "#home" : HOME_PAGE },
+    { label: "Projects", hint: "Page", href: "projects.html" },
+    { label: "Skills", hint: "Section", href: destFor("#skills") },
+    { label: "Experience", hint: "Section", href: destFor("#experience") },
+    { label: "Badges", hint: "Section", href: destFor("#badges") },
+    { label: "About", hint: "Page", href: "about.html" },
+    { label: "Contacts", hint: "Page", href: "contacts.html" },
+    { label: "Download Résumé", hint: "PDF", href: "assets/Roushan-Kumar-Resume.pdf", download: true },
+    { label: "GitHub", hint: "External", href: "https://github.com/dev-rkSharma", external: true },
+    { label: "LinkedIn", hint: "External", href: "https://www.linkedin.com/in/roushan-kumar", external: true },
+    { label: "Email", hint: "Mailto", href: "mailto:dev.rksharma1892@gmail.com" },
+    { label: "Terminal", hint: "Press `", action: "fx:terminal" }
+  ];
+
+  var cmdk = null, cmdkInput = null, cmdkList = null, cmdkTrigger = null;
+  var cmdkMatches = [];
+  var cmdkSelected = 0;
+  var cmdkOpenedFrom = null;
+
+  function buildPalette() {
+    cmdkTrigger = document.createElement("button");
+    cmdkTrigger.type = "button";
+    cmdkTrigger.className = "cmdk-trigger";
+    cmdkTrigger.setAttribute("aria-haspopup", "dialog");
+    cmdkTrigger.innerHTML =
+      '<span class="hash" aria-hidden="true">#</span>' +
+      '<span class="cmdk-trigger__label">search</span>' +
+      "<kbd>" + (isMac() ? "⌘K" : "Ctrl K") + "</kbd>";
+    cmdkTrigger.addEventListener("click", function () { openPalette(cmdkTrigger); });
+    document.body.appendChild(cmdkTrigger);
+
+    cmdk = document.createElement("div");
+    cmdk.className = "cmdk";
+    cmdk.id = "cmdk";
+    cmdk.hidden = true;
+    cmdk.innerHTML =
+      '<div class="cmdk__backdrop"></div>' +
+      '<div class="cmdk__panel" role="dialog" aria-modal="true" aria-label="Command palette">' +
+      '  <div class="cmdk__input-row">' +
+      '    <span class="hash" aria-hidden="true">#</span>' +
+      '    <input class="cmdk__input" type="text" placeholder="jump to…" ' +
+      '           aria-label="Search commands" autocomplete="off" spellcheck="false">' +
+      "    <kbd>esc</kbd>" +
+      "  </div>" +
+      '  <ul class="cmdk__list" role="listbox"></ul>' +
+      "</div>";
+    document.body.appendChild(cmdk);
+
+    cmdkInput = cmdk.querySelector(".cmdk__input");
+    cmdkList = cmdk.querySelector(".cmdk__list");
+
+    cmdk.querySelector(".cmdk__backdrop").addEventListener("click", function () { closePalette(); });
+    cmdkInput.addEventListener("input", function () { renderMatches(cmdkInput.value); });
+    cmdkInput.addEventListener("keydown", handlePaletteKeydown);
+    cmdkList.addEventListener("click", function (e) {
+      var item = e.target.closest(".cmdk__item");
+      if (item) activateCommand(cmdkMatches[Number(item.dataset.index)]);
+    });
+  }
+
+  function isMac() {
+    return /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || "");
+  }
+
+  function renderMatches(query) {
+    var q = query.trim().toLowerCase();
+    cmdkMatches = !q
+      ? COMMANDS
+      : COMMANDS.filter(function (c) { return c.label.toLowerCase().indexOf(q) !== -1; });
+    cmdkSelected = 0;
+
+    if (!cmdkMatches.length) {
+      cmdkList.innerHTML = '<li class="cmdk__empty">No matches</li>';
+      return;
+    }
+
+    cmdkList.innerHTML = cmdkMatches.map(function (c, i) {
+      return '<li class="cmdk__item" role="option" data-index="' + i + '" ' +
+        'aria-selected="' + (i === cmdkSelected ? "true" : "false") + '">' +
+        '<span class="cmdk__item-label">' + c.label + "</span>" +
+        '<span class="cmdk__item-hint">' + c.hint + "</span></li>";
+    }).join("");
+  }
+
+  function moveSelection(delta) {
+    if (!cmdkMatches.length) return;
+    cmdkSelected = (cmdkSelected + delta + cmdkMatches.length) % cmdkMatches.length;
+    Array.prototype.forEach.call(cmdkList.children, function (li, i) {
+      li.setAttribute("aria-selected", String(i === cmdkSelected));
+    });
+    var active = cmdkList.children[cmdkSelected];
+    if (active) active.scrollIntoView({ block: "nearest" });
+  }
+
+  function activateCommand(command) {
+    if (!command) return;
+    closePalette();
+    if (command.action) {
+      // handled elsewhere (js/extras.js listens for these)
+      document.dispatchEvent(new CustomEvent(command.action));
+    } else if (command.external) {
+      window.open(command.href, "_blank", "noopener");
+    } else if (command.download) {
+      var a = document.createElement("a");
+      a.href = command.href;
+      a.download = "";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } else {
+      window.location.href = command.href;
+    }
+  }
+
+  function handlePaletteKeydown(e) {
+    if (e.key === "Escape") { e.preventDefault(); closePalette(); return; }
+    if (e.key === "ArrowDown") { e.preventDefault(); moveSelection(1); return; }
+    if (e.key === "ArrowUp") { e.preventDefault(); moveSelection(-1); return; }
+    if (e.key === "Enter") { e.preventDefault(); activateCommand(cmdkMatches[cmdkSelected]); }
+  }
+
+  function openPalette(opener) {
+    if (!cmdk) buildPalette();
+    cmdkOpenedFrom = opener || document.activeElement;
+    cmdk.hidden = false;
+    cmdkInput.value = "";
+    renderMatches("");
+    document.body.classList.add("is-locked");
+    window.setTimeout(function () { cmdkInput.focus(); }, 0);
+  }
+
+  function closePalette() {
+    if (!cmdk || cmdk.hidden) return;
+    cmdk.hidden = true;
+    document.body.classList.remove("is-locked");
+    if (cmdkOpenedFrom && typeof cmdkOpenedFrom.focus === "function") cmdkOpenedFrom.focus();
+  }
+
+  function isPaletteOpen() {
+    return !!cmdk && !cmdk.hidden;
+  }
+
+  buildPalette();
+
+  document.addEventListener("keydown", function (e) {
+    var key = (e.key || "").toLowerCase();
+    if ((e.metaKey || e.ctrlKey) && key === "k") {
+      e.preventDefault();
+      isPaletteOpen() ? closePalette() : openPalette(null);
+    }
+  });
 })();

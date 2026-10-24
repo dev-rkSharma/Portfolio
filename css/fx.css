@@ -1,0 +1,1161 @@
+/* ==========================================================================
+   Portfolio — modern effects layer
+   Loaded AFTER style.css on every page. style.css owns layout and tokens;
+   this file softens the flat terminal look (radius, glow, gradients) and
+   styles everything js/fx.js injects: aurora backdrop, cursor glow + ring,
+   scroll progress, spotlight borders, tilt, magnetic buttons, split hero
+   title, marquee. Dark-only by design.
+
+   Every moving part is switched off under prefers-reduced-motion (bottom of
+   this file), and the pointer-driven effects only exist on fine pointers.
+   ========================================================================== */
+
+:root {
+  --accent-2:   #61AFEF;   /* One Dark blue — pairs with the existing purple */
+  --accent-3:   #56B6C2;   /* One Dark cyan */
+  --grad:       linear-gradient(110deg, var(--accent) 0%, var(--accent-2) 55%, var(--accent-3) 100%);
+  --glow:       0 0 0 1px rgba(199, 120, 221, 0.25), 0 18px 50px -18px rgba(199, 120, 221, 0.45);
+  --radius:     14px;
+  --radius-sm:  8px;
+  --ease-out:   cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+::selection { background: rgba(199, 120, 221, 0.35); color: var(--white); }
+
+/* thin gradient scrollbar */
+html { scrollbar-color: #4a3f55 transparent; scrollbar-width: thin; }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--accent), var(--accent-2));
+  border: 3px solid var(--bg);
+  border-radius: 999px;
+}
+
+/* ---------- 1. AURORA BACKDROP + GRAIN ---------------------------------- */
+/* Fixed, behind everything, never intercepts input. Pure gradients — no
+   filter: blur(), which is expensive over a full viewport. */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  pointer-events: none;
+  z-index: -1;
+}
+body::before {
+  inset: -20vmax;
+  background:
+    radial-gradient(38vmax 30vmax at 18% 22%, rgba(199, 120, 221, 0.16), transparent 70%),
+    radial-gradient(34vmax 28vmax at 82% 18%, rgba(97, 175, 239, 0.12), transparent 70%),
+    radial-gradient(40vmax 30vmax at 60% 88%, rgba(86, 182, 194, 0.09), transparent 70%);
+  animation: aurora 28s ease-in-out infinite alternate;
+}
+/* faint engineering grid, fading out from the top of the page */
+body::after {
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(171, 178, 191, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(171, 178, 191, 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 75%);
+          mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 75%);
+}
+@keyframes aurora {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%  { transform: translate3d(4vmax, -3vmax, 0) rotate(8deg); }
+  100% { transform: translate3d(-3vmax, 3vmax, 0) rotate(-6deg); }
+}
+
+/* lighter header glass so the aurora reads through it instead of a flat band */
+.header::before { background: color-mix(in srgb, var(--bg) 62%, transparent); }
+
+/* ---------- 2. SCROLL PROGRESS ----------------------------------------- */
+.fx-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 2px;
+  z-index: 80;
+  background: var(--grad);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--p, 0));
+  box-shadow: 0 0 12px rgba(199, 120, 221, 0.6);
+  pointer-events: none;
+}
+
+/* ---------- 3. CURSOR GLOW + RING (fine pointers only) ------------------ */
+.fx-glow,
+.fx-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+.fx-glow {
+  z-index: -1;
+  width: 640px;
+  height: 640px;
+  margin: -320px 0 0 -320px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(199, 120, 221, 0.13), rgba(97, 175, 239, 0.05) 55%, transparent);
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+.fx-ring {
+  z-index: 90;
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border: 1.5px solid rgba(199, 120, 221, 0.7);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 250ms ease, width 250ms var(--ease-out), height 250ms var(--ease-out),
+              margin 250ms var(--ease-out), background-color 250ms ease, border-color 250ms ease;
+}
+body.fx-has-pointer .fx-glow,
+body.fx-has-pointer .fx-ring { opacity: 1; }
+.fx-ring.is-hover {
+  width: 58px;
+  height: 58px;
+  margin: -29px 0 0 -29px;
+  background-color: rgba(199, 120, 221, 0.1);
+  border-color: rgba(97, 175, 239, 0.8);
+}
+.fx-ring.is-down { width: 24px; height: 24px; margin: -12px 0 0 -12px; }
+
+/* ---------- 3b. PIXEL HOVER ------------------------------------------- */
+/* js/fx.js draws the hover pixel dust on this viewport-sized layer */
+.fx-pixels {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+/* ---------- 4. SOFTENED SURFACES --------------------------------------- */
+.card,
+.skill-box,
+.badge-group,
+.badge-more,
+.stats,
+.contacts__box,
+.section-figure,
+.cmdk__panel {
+  border-radius: var(--radius);
+  background-color: rgba(46, 51, 59, 0.45);
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
+}
+.section-figure { overflow: hidden; }
+.card__media { border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0; }
+.card__media img,
+.card__media svg { transition: transform 700ms var(--ease-out); }
+.card:hover .card__media img,
+.card:hover .card__media svg { transform: scale(1.06); }
+
+.card:hover,
+.skill-box:hover,
+.badge-group:hover { box-shadow: var(--glow); }
+.card,
+.skill-box,
+.badge-group { transition: border-color var(--t-fast), translate var(--t), box-shadow 300ms ease; }
+
+.status,
+.agent-trace,
+.media-row a,
+.cmdk-trigger,
+.copy-btn,
+kbd { border-radius: var(--radius-sm); }
+.cmdk__item { border-radius: var(--radius-sm); }
+.cmdk__backdrop { -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+
+/* chips: pills that light up */
+.card__tech li,
+.skill-box__body li {
+  border-radius: 999px;
+  transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast), translate var(--t-fast);
+}
+.card__tech li:hover,
+.skill-box__body li:hover {
+  color: var(--white);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  translate: 0 -2px;
+}
+
+/* ---------- 5. SPOTLIGHT BORDER ---------------------------------------- */
+/* js/fx.js adds .fx-spot and keeps --mx/--my at the pointer position (px,
+   relative to the element). The ::after is masked down to a 1px ring so the
+   border itself appears to catch the light. */
+.fx-spot { position: relative; isolation: isolate; }
+.fx-spot::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: 2;
+  padding: 1px;
+  border-radius: inherit;
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%),
+              var(--accent), var(--accent-2) 45%, transparent 75%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+.fx-spot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%),
+              rgba(199, 120, 221, 0.09), transparent 45%);
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+.fx-spot:hover::after,
+.fx-spot:hover::before { opacity: 1; }
+
+/* ---------- 6. TILT ---------------------------------------------------- */
+/* transform (not translate) so it composes with the existing hover lift and
+   the reveal stagger, which both animate the individual translate property */
+.fx-tilt { transform-style: preserve-3d; will-change: transform; }
+
+/* ---------- 7. BUTTONS ------------------------------------------------- */
+.btn {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 999px;
+  padding: 0.65rem 1.35rem;
+  transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast),
+              box-shadow 300ms ease, transform 300ms var(--ease-out);
+}
+/* shine sweep */
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.18) 50%, transparent 65%);
+  translate: -120% 0;
+  transition: translate 700ms var(--ease-out);
+}
+.btn:hover::before { translate: 120% 0; }
+.btn:hover { box-shadow: 0 10px 30px -12px rgba(199, 120, 221, 0.55); }
+
+.btn--primary {
+  border-color: transparent;
+  color: #1E2127;
+  background: var(--grad);
+  background-size: 200% 100%;
+  font-weight: 600;
+  animation: grad-pan 8s ease-in-out infinite alternate;
+}
+.btn--primary:hover,
+.btn--primary:focus-visible {
+  color: #1E2127;
+  border-color: transparent;
+  background: var(--grad);
+  background-size: 200% 100%;
+  box-shadow: 0 12px 36px -10px rgba(199, 120, 221, 0.75);
+}
+@keyframes grad-pan {
+  from { background-position: 0% 50%; }
+  to   { background-position: 100% 50%; }
+}
+
+/* ---------- 8. HERO ---------------------------------------------------- */
+.hero { position: relative; }
+
+/* "available" eyebrow pill above the headline (markup in index.html) */
+.hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  padding: 0.35rem 0.9rem 0.35rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(46, 51, 59, 0.6);
+  font-size: var(--fs-sm);
+  color: var(--text);
+}
+.hero__eyebrow-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #98C379;
+  flex: none;
+}
+.hero__eyebrow-dot::after,
+.status__dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: ping 1.8s var(--ease-out) infinite;
+}
+@keyframes ping {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+.status__dot { position: relative; border-radius: 3px; }
+
+.hero__title em,
+.page-head__title em {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3), var(--accent-2), var(--accent));
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  animation: shimmer 9s linear infinite;
+}
+@keyframes shimmer { to { background-position: 300% 0; } }
+
+/* js/fx.js splits the headline into .fx-word spans with --w = word index */
+.fx-word {
+  display: inline-block;
+  opacity: 0;
+  translate: 0 0.55em;
+  filter: blur(8px);
+  animation: word-in 800ms var(--ease-out) forwards;
+  animation-delay: calc(120ms + var(--w, 0) * 55ms);
+}
+/* once split, the <em> stops painting its own gradient and each word carries
+   it instead — inline-block children can't share one background-clip:text */
+em.fx-split { background: none; animation: none; }
+em .fx-word {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3), var(--accent-2), var(--accent));
+  background-size: 300% 100%;
+  color: transparent;
+  -webkit-background-clip: text;
+          background-clip: text;
+  animation: word-in 800ms var(--ease-out) forwards, shimmer 9s linear infinite;
+  animation-delay: calc(120ms + var(--w, 0) * 55ms), 0s;
+}
+@keyframes word-in { to { opacity: 1; translate: 0 0; filter: blur(0); } }
+
+/* dot intro (js/fx.js 2b): the headline is hidden while dots assemble its
+   shape, then fades in; the per-word blur entrance is skipped in that mode */
+.hero__title.fx-dot-intro { opacity: 0; }
+.hero__title.fx-dot-intro.is-formed { opacity: 1; transition: opacity 450ms ease; }
+.hero__title.fx-dot-intro .fx-word { animation: none; opacity: 1; translate: none; filter: none; }
+.hero__title.fx-dot-intro em .fx-word { animation: shimmer 9s linear infinite; }
+.fx-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  transition: opacity 400ms ease;
+}
+
+/* glowing halo + slow float behind the portrait */
+.hero__visual::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 8%;
+  left: 50%;
+  width: 78%;
+  aspect-ratio: 1;
+  translate: -50% 0;
+  border-radius: 50%;
+  background:
+    conic-gradient(from 0deg, rgba(199, 120, 221, 0.55), rgba(97, 175, 239, 0.45),
+                   rgba(86, 182, 194, 0.35), rgba(199, 120, 221, 0.55));
+  -webkit-mask: radial-gradient(closest-side, #000 35%, transparent 100%);
+          mask: radial-gradient(closest-side, #000 35%, transparent 100%);
+  opacity: 0.55;
+  animation: spin 22s linear infinite;
+}
+@keyframes spin { to { rotate: 360deg; } }
+
+.hero__img {
+  animation: float 7s ease-in-out infinite;
+  filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.45));
+}
+@keyframes float {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -10px; }
+}
+
+/* scroll cue at the bottom of the hero (injected by js/fx.js, index only) */
+.fx-scroll-cue {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+}
+.fx-scroll-cue a {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.fx-scroll-cue a:hover { color: var(--white); }
+.fx-scroll-cue__mouse {
+  position: relative;
+  width: 22px;
+  height: 34px;
+  border: 1.5px solid var(--border-mid);
+  border-radius: 12px;
+}
+.fx-scroll-cue__mouse::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 3px;
+  height: 7px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: var(--accent);
+  animation: wheel 1.8s ease-in-out infinite;
+}
+@keyframes wheel {
+  0%   { opacity: 0; translate: 0 0; }
+  30%  { opacity: 1; }
+  100% { opacity: 0; translate: 0 12px; }
+}
+
+/* ---------- 9. MARQUEE ------------------------------------------------- */
+.marquee {
+  position: relative;
+  overflow: hidden;
+  padding-block: 1.1rem;
+  border-block: 1px solid var(--border-dim);
+  background: rgba(46, 51, 59, 0.35);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+.marquee__track {
+  display: flex;
+  width: max-content;
+  gap: 2.5rem;
+  animation: marquee 38s linear infinite;
+}
+.marquee:hover .marquee__track { animation-play-state: paused; }
+.marquee__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 2.5rem;
+  white-space: nowrap;
+  font-size: clamp(1rem, 0.85rem + 0.6vw, 1.35rem);
+  font-weight: 500;
+  color: var(--text);
+}
+.marquee__item::after {
+  content: "\2726";
+  color: var(--accent);
+  font-size: 0.8em;
+}
+.marquee__item:nth-child(3n + 2) { color: var(--white); }
+@keyframes marquee { to { transform: translateX(calc(-50% - 1.25rem)); } }
+
+/* ---------- 10. SECTION HEADS ------------------------------------------ */
+.section-head__rule,
+.page-head__rule {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2) 60%, transparent);
+  height: 2px;
+  border-radius: 2px;
+}
+.reveal .section-head__rule {
+  scale: 0 1;
+  transform-origin: left;
+  transition: scale 1s var(--ease-out) 250ms;
+}
+.reveal.is-visible .section-head__rule { scale: 1 1; }
+
+/* ---------- 11. STATS -------------------------------------------------- */
+.stat__num {
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  font-weight: 600;
+  background: var(--grad);
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+}
+
+/* ---------- 12. JOURNEY (experience + education) ----------------------- */
+/* A winding, dotted trail through zig-zagging stops. Layout is plain CSS
+   grid — card | road gap | card — with each stop's node pushed to alternate
+   edges of the gap. js/fx.js measures those nodes and draws the trail as an
+   inline SVG (.roadmap__svg), moves the traveler along it with scroll, and
+   flags stops .is-in (card arrives), .is-passed (traveler went by) and
+   .is-active (the stop you're at). Without JS: a straight dotted centre line
+   and every card visible. */
+
+/* trip header: odometer-style stats + walkthrough button */
+.trip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  margin-bottom: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+}
+.trip__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.trip__stats li {
+  padding: 0.45rem 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(46, 51, 59, 0.55);
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+.trip__stats strong {
+  margin-right: 0.3rem;
+  font-weight: 600;
+  background: var(--grad);
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+}
+.trip__tour svg { width: 0.9rem; height: 0.9rem; }
+.trip__tour[aria-pressed="true"] { animation: none; background: var(--bg-raised); color: var(--white); border-color: var(--accent); }
+
+.roadmap {
+  --road-gap: clamp(9rem, 4rem + 10vw, 14rem);
+  --node: 58px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 0.75rem + 2.5vw, 3rem);
+  padding: 3.5rem 0 1rem;
+  list-style: none;
+}
+
+/* no-JS / pre-layout fallback trail */
+.roadmap::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 4px;
+  translate: -50% 0;
+  background: radial-gradient(circle, rgba(171, 178, 191, 0.45) 1.6px, transparent 2px) 0 0 / 4px 14px repeat-y;
+}
+.roadmap.has-trail::before { display: none; }
+
+.roadmap__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 0;
+}
+.roadmap__road  { fill: none; stroke: rgba(171, 178, 191, 0.04); stroke-width: 34; stroke-linecap: round; }
+.roadmap__dots  { fill: none; stroke: rgba(171, 178, 191, 0.38); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 0 14; }
+.roadmap__done  { fill: none; stroke: url(#roadmap-grad); stroke-width: 4; stroke-linecap: round;
+                  filter: drop-shadow(0 0 6px rgba(199, 120, 221, 0.7)); }
+.roadmap__start { fill: var(--bg); stroke: var(--accent); stroke-width: 2; }
+.roadmap__start-label { fill: var(--text-dim); font: 600 11px var(--mono); letter-spacing: 0.2em; }
+
+/* traveler: a glowing nav arrow that rotates with the trail's direction */
+.roadmap__traveler {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  width: 38px;
+  height: 38px;
+  margin: -19px 0 0 -19px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, var(--accent-2) 40%, var(--accent) 100%);
+  color: #1E2127;
+  box-shadow: 0 0 0 6px rgba(97, 175, 239, 0.18), 0 0 30px 6px rgba(199, 120, 221, 0.55);
+  pointer-events: none;
+  will-change: transform;
+}
+.roadmap__traveler svg { width: 18px; height: 18px; }
+.roadmap__traveler::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--accent-2);
+  animation: node-ping 1.8s var(--ease-out) infinite;
+}
+/* odometer chip riding alongside the traveler */
+.roadmap__odo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(30, 33, 39, 0.9);
+  color: var(--white);
+  font-size: 0.72rem;
+  white-space: nowrap;
+  pointer-events: none;
+  will-change: transform;
+}
+.roadmap__odo b { color: var(--accent); font-weight: 600; }
+
+/* --- one stop -------------------------------------------------------- */
+.milestone {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--road-gap) minmax(0, 1fr);
+  align-items: start;
+}
+.milestone__node,
+.milestone__card { grid-row: 1; }
+
+.milestone__node {
+  grid-column: 2;
+  justify-self: start;
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: var(--node);
+  height: var(--node);
+  margin-top: 1rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, #3a3f48, #23272d);
+  border: 2px solid var(--accent);
+  color: var(--white);
+  box-shadow: 0 0 0 6px rgba(199, 120, 221, 0.12), 0 0 26px rgba(199, 120, 221, 0.4);
+  transition: border-color 400ms ease, box-shadow 400ms ease, background 400ms ease,
+              color 400ms ease, scale 500ms var(--ease-out);
+}
+.milestone:nth-of-type(even) .milestone__node { justify-self: end; }
+.milestone__year { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.03em; }
+
+.milestone__card {
+  position: relative;
+  grid-column: 1;
+  padding: 1.15rem 1.3rem 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: linear-gradient(160deg, rgba(56, 61, 70, 0.6), rgba(40, 44, 51, 0.6));
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+  transition: opacity 800ms var(--ease-out), translate 800ms var(--ease-out), scale 800ms var(--ease-out),
+              filter 800ms var(--ease-out), border-color 300ms ease, box-shadow 400ms ease;
+}
+.milestone:nth-of-type(even) .milestone__card { grid-column: 3; }
+
+/* short dotted connector from card edge toward its node */
+.milestone__card::before {
+  content: "";
+  position: absolute;
+  top: calc(1rem + var(--node) / 2 - 2px);
+  width: 2.25rem;
+  height: 4px;
+  background: radial-gradient(circle, var(--accent) 1.6px, transparent 2px) 0 0 / 9px 4px repeat-x;
+  opacity: 0.8;
+}
+.milestone:nth-of-type(odd)  .milestone__card::before { left: 100%; }
+.milestone:nth-of-type(even) .milestone__card::before { right: 100%; }
+
+.milestone__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.6rem;
+  margin-bottom: 0.7rem;
+  font-size: 0.75rem;
+}
+.milestone__step {
+  color: var(--text-dim);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.milestone__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--white);
+}
+.milestone__tag svg { width: 0.9rem; height: 0.9rem; }
+.milestone--edu  .milestone__tag { border-color: rgba(97, 175, 239, 0.5);  background: rgba(97, 175, 239, 0.1); }
+.milestone--work .milestone__tag { border-color: rgba(199, 120, 221, 0.5); background: rgba(199, 120, 221, 0.1); }
+.milestone--next .milestone__tag { border-color: rgba(152, 195, 121, 0.5); background: rgba(152, 195, 121, 0.1); }
+.milestone__now {
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: var(--grad);
+  color: #1E2127;
+  font-weight: 600;
+}
+
+.milestone__title { font-size: var(--fs-h3); font-weight: 500; }
+.milestone__org   { margin-top: 0.3rem; color: var(--white); font-size: var(--fs-sm); font-weight: 500; }
+.milestone__when  { margin-top: 0.15rem; color: var(--text-dim); font-size: 0.8rem; }
+.milestone__text {
+  margin-top: 0.8rem;
+  font-family: var(--sans);
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+}
+.milestone__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.8rem;
+}
+.milestone__list li {
+  position: relative;
+  padding-left: 1.1rem;
+  font-size: var(--fs-sm);
+}
+.milestone__list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.milestone__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.9rem;
+}
+.milestone__chips li {
+  padding: 0.1rem 0.6rem;
+  border: 1px solid var(--border-dim);
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+.milestone--next .btn { margin-top: 1rem; }
+
+/* colour per kind of stop */
+.milestone--edu .milestone__node {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 6px rgba(97, 175, 239, 0.12), 0 0 26px rgba(97, 175, 239, 0.4);
+}
+.milestone--edu .milestone__card::before {
+  background-image: radial-gradient(circle, var(--accent-2) 1.6px, transparent 2px);
+}
+.milestone.is-now .milestone__node {
+  background: var(--grad);
+  border-color: transparent;
+  color: #1E2127;
+}
+.milestone.is-now .milestone__node::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  animation: node-ping 2s var(--ease-out) infinite;
+}
+.milestone--next .milestone__node {
+  border-style: dashed;
+  border-color: #98C379;
+  box-shadow: none;
+  color: #98C379;
+}
+.milestone--next .milestone__card { border-style: dashed; }
+.milestone--next .milestone__card::before {
+  background-image: radial-gradient(circle, #98C379 1.6px, transparent 2px);
+}
+@keyframes node-ping {
+  from { transform: scale(1);   opacity: 0.8; }
+  to   { transform: scale(1.75); opacity: 0; }
+}
+
+/* --- armed: JS on, motion allowed ------------------------------------- */
+.roadmap.is-armed .milestone__card {
+  opacity: 0;
+  translate: -56px 0;
+  scale: 0.96;
+  filter: blur(6px);
+}
+.roadmap.is-armed .milestone:nth-of-type(even) .milestone__card { translate: 56px 0; }
+.roadmap.is-armed .milestone.is-in:nth-of-type(n) .milestone__card {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+  filter: none;
+}
+.roadmap.is-armed .milestone:not(.is-passed) .milestone__node {
+  scale: 0.72;
+  border-color: var(--border-mid);
+  border-style: solid;
+  box-shadow: none;
+  color: var(--text-dim);
+  background: var(--bg);
+}
+.roadmap.is-armed .milestone:not(.is-passed) .milestone__node::after { display: none; }
+
+/* the stop you're currently at */
+.milestone.is-active .milestone__node { scale: 1.12; }
+.milestone.is-active .milestone__card {
+  border-color: transparent;
+  box-shadow: 0 0 0 1px var(--accent), 0 24px 60px -24px rgba(199, 120, 221, 0.6);
+}
+.milestone.is-active .milestone__card::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--grad);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+}
+
+/* --- tour HUD (injected by js/fx.js while the walkthrough runs) ------- */
+.tour-hud {
+  position: fixed;
+  left: 50%;
+  bottom: 1.25rem;
+  z-index: 75;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.55rem 0.6rem 0.55rem 1rem;
+  translate: -50% 140%;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(30, 33, 39, 0.88);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  box-shadow: 0 18px 50px -12px rgba(0, 0, 0, 0.6);
+  font-size: var(--fs-sm);
+  color: var(--white);
+  transition: translate 500ms var(--ease-out);
+}
+.tour-hud.is-open { translate: -50% 0; }
+.tour-hud__label { white-space: nowrap; max-width: 46vw; overflow: hidden; text-overflow: ellipsis; }
+.tour-hud__label b { color: var(--accent); font-weight: 600; }
+.tour-hud__dots { display: flex; gap: 5px; }
+.tour-hud__dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border-mid);
+  transition: background 300ms ease, width 300ms ease;
+}
+.tour-hud__dots i.is-on   { background: var(--accent); }
+.tour-hud__dots i.is-here { width: 18px; border-radius: 4px; background: var(--grad); }
+.tour-hud__stop {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--border-mid);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--white);
+  cursor: pointer;
+}
+.tour-hud__stop:hover { border-color: var(--accent); color: var(--accent); }
+.tour-hud__stop svg { width: 0.75rem; height: 0.75rem; }
+body.is-touring .cmdk-trigger { visibility: hidden; }
+
+/* --- certifications as glass chips ------------------------------------ */
+.certs__dot { border-radius: 50%; background: var(--accent); }
+.certs--cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 1rem;
+}
+.certs--cards li {
+  align-items: center;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: rgba(46, 51, 59, 0.55);
+  transition: border-color var(--t-fast), box-shadow 300ms ease, translate var(--t);
+}
+.certs--cards li:hover { border-color: var(--accent); box-shadow: var(--glow); translate: 0 -3px; }
+.certs--cards .certs__dot { margin-top: 0; width: 8px; height: 8px; box-shadow: 0 0 10px var(--accent); }
+
+/* --- mobile: trail runs down a left gutter, cards on the right -------- */
+@media (max-width: 820px) {
+  .roadmap { --road-gap: 4.5rem; --node: 46px; padding-top: 3rem; }
+  .roadmap::before { left: calc(var(--road-gap) / 2); }
+  .milestone { grid-template-columns: var(--road-gap) minmax(0, 1fr); column-gap: 0.75rem; }
+  .milestone__node { grid-column: 1; }
+  .milestone__year { font-size: 0.68rem; }
+  .milestone__card,
+  .milestone:nth-of-type(even) .milestone__card { grid-column: 2; }
+  /* the trail itself sits right beside each card here — connectors would
+     only read as stray dots */
+  .milestone__card::before { display: none; }
+  .roadmap.is-armed .milestone__card,
+  .roadmap.is-armed .milestone:nth-of-type(even) .milestone__card { translate: 36px 0; }
+  .roadmap__odo { display: none; }
+  .roadmap__traveler { width: 30px; height: 30px; margin: -15px 0 0 -15px; }
+  .roadmap__traveler svg { width: 14px; height: 14px; }
+  .tour-hud__dots { display: none; }
+}
+
+/* ---------- 12b. JOURNEY 3D (js/fx.js builds this) ---------------------- */
+/* .roadmap--sr: the original list, kept for screen readers once the 3D
+   flight replaces it on screen */
+.roadmap--sr {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* tall track: scrolling through it flies stop to stop */
+.j3d {
+  position: relative;
+  height: calc(var(--stops, 6) * 75vh + 100vh);
+  margin-inline: calc(var(--gutter) * -1);
+}
+.j3d__stage {
+  position: sticky;
+  top: var(--header-h);
+  height: calc(100vh - var(--header-h));
+  height: calc(100svh - var(--header-h));
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  align-items: center;
+  padding-inline: var(--gutter);
+}
+.j3d__net {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+/* giant outline year watermark behind the network */
+.j3d__year {
+  position: absolute;
+  left: var(--gutter);
+  bottom: 0.5rem;
+  margin: 0;
+  font-size: clamp(5rem, 3rem + 9vw, 11rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(199, 120, 221, 0.22);
+  pointer-events: none;
+  user-select: none;
+}
+.j3d__hint {
+  position: absolute;
+  left: 50%;
+  top: 1rem;
+  translate: -50% 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  pointer-events: none;
+}
+
+.j3d__panel {
+  grid-column: 2;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100% - 2rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #2A2E35;
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(199, 120, 221, 0.08);
+  overflow: hidden;
+}
+.j3d__top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 1.25rem;
+  border-bottom: 1px solid var(--border-dim);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.j3d__count b { color: var(--white); font-weight: 600; }
+.j3d__bar {
+  flex: 1;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--border-dim);
+  overflow: hidden;
+}
+.j3d__bar i {
+  display: block;
+  height: 100%;
+  background: var(--grad);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+}
+
+.j3d__body {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+/* no min-height: the panel sizes to each stop's content (the resize
+   happens while it's dissolved into dots, so it never visibly jumps) */
+.j3d__content {
+  padding: 1.25rem 1.4rem 1.4rem;
+}
+
+/* particle layer for the panel morph — spans the whole stage so the
+   burst can spill out over the network */
+.j3d__fx {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* panel content reuses the .milestone__* card markup */
+.j3d__content .milestone__meta { margin-bottom: 0.8rem; }
+/* the panel header already counts the stop */
+.j3d__content .milestone__step { display: none; }
+.j3d__content .milestone__title { font-size: clamp(1.25rem, 1rem + 0.8vw, 1.6rem); }
+.j3d__content[data-kind="edu"]  .milestone__tag { border-color: rgba(97, 175, 239, 0.5);  background: rgba(97, 175, 239, 0.1); }
+.j3d__content[data-kind="work"] .milestone__tag { border-color: rgba(199, 120, 221, 0.5); background: rgba(199, 120, 221, 0.1); }
+.j3d__content[data-kind="next"] .milestone__tag { border-color: rgba(152, 195, 121, 0.5); background: rgba(152, 195, 121, 0.1); }
+.j3d__content .btn { margin-top: 1.1rem; }
+
+.j3d__pager {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.75rem 1.25rem 0.9rem;
+  border-top: 1px solid var(--border-dim);
+  list-style: none;
+  overflow-x: auto;
+}
+.j3d__pager button {
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-dim);
+  font: 500 0.72rem var(--mono);
+  cursor: pointer;
+  transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+.j3d__pager button:hover { color: var(--white); border-color: var(--border-strong); }
+.j3d__pager button.is-done { color: var(--text); border-color: rgba(199, 120, 221, 0.4); }
+.j3d__pager button.is-here { color: #1E2127; border-color: transparent; background: var(--grad); }
+
+@media (max-width: 820px) {
+  .j3d { height: calc(var(--stops, 6) * 65vh + 100vh); }
+  .j3d__stage {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 0.9fr) auto;
+    align-items: end;
+    padding-bottom: 0.75rem;
+  }
+  .j3d__panel { grid-column: 1; max-height: 58vh; max-height: 58svh; }
+  .j3d__content { padding: 1rem 1.1rem; }
+  .j3d__content .milestone__text,
+  .j3d__content .milestone__list li { font-size: 0.82rem; }
+  .j3d__year { top: 2.25rem; bottom: auto; font-size: 4.5rem; }
+  .j3d__hint { display: none; }
+}
+
+/* ---------- 13. NAV + RAIL --------------------------------------------- */
+.nav__link::after {
+  height: 2px;
+  border-radius: 2px;
+  background: var(--grad);
+}
+.rail__list a { display: block; transition: translate var(--t); }
+.rail__list a:hover { translate: 0 -3px; }
+.rail__list a:hover svg { fill: var(--accent); }
+
+/* ---------- 14. ABOUT PORTRAIT ----------------------------------------- */
+.about__visual img {
+  transition: filter 500ms ease, transform 500ms var(--ease-out);
+}
+.about__visual:hover img {
+  filter: drop-shadow(0 0 30px rgba(199, 120, 221, 0.35));
+  transform: translateY(-6px);
+}
+
+/* ---------- 15. PAGE TRANSITIONS --------------------------------------- */
+/* cross-document View Transitions — zero JS; browsers without support just
+   navigate normally */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: vt-out 260ms ease both; }
+::view-transition-new(root) { animation: vt-in 420ms var(--ease-out) both; }
+@keyframes vt-out { to   { opacity: 0; transform: translateY(-8px); } }
+@keyframes vt-in  { from { opacity: 0; transform: translateY(12px); } }
+
+/* ---------- 16. RESPONSIVE --------------------------------------------- */
+@media (max-width: 820px) {
+  .hero__eyebrow { margin-inline: 0; }
+  .marquee__track { animation-duration: 28s; }
+}
+
+/* ---------- 17. REDUCED MOTION ----------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  .hero__visual::before,
+  .hero__img,
+  .btn--primary,
+  .hero__title em,
+  .marquee__track,
+  .hero__eyebrow-dot::after,
+  .status__dot::after,
+  .fx-scroll-cue__mouse::after,
+  .milestone.is-now .milestone__node::after { animation: none !important; }
+
+  .fx-word { opacity: 1; translate: none; filter: none; animation: none !important; }
+  .reveal .section-head__rule { scale: 1 1; }
+  .fx-glow, .fx-ring { display: none; }
+  @view-transition { navigation: none; }
+}
+
+/* ---------- 18. PRINT -------------------------------------------------- */
+@media print {
+  body::before, body::after,
+  .fx-progress, .fx-glow, .fx-ring, .marquee, .fx-scroll-cue { display: none !important; }
+  .hero__title em, .stat__num { color: #000; background: none; }
+}
+
+/* .contacts__list svg sets fill for the social glyphs, which also flooded the
+   stroke-only copy icon injected beside the email — keep it outline-only */
+.copy-btn__icon { fill: none !important; }

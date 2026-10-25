@@ -872,7 +872,8 @@
      the viewport to form its exact shape (same rasterizer as the journey
      panel), then the real text fades in. Waits for the webfont and for the
      hero's own fade-up entrance, so the shape it samples is final. Any
-     scroll during the intro skips straight to the finished headline. */
+     user scroll after particles start skips to the finished headline. Startup
+     scroll restoration must not cancel the intro before the canvas exists. */
   if (heroTitle && document.createElement("canvas").getContext) {
     heroTitle.classList.add("fx-dot-intro");
     var introDone = false;
@@ -880,22 +881,35 @@
       if (introDone) return;
       introDone = true;
       heroTitle.classList.add("is-formed");
-      window.removeEventListener("scroll", finishIntro);
+      window.removeEventListener("scroll", onIntroScroll);
+      window.removeEventListener("resize", finishIntro);
       if (introCanvas) {
         introCanvas.style.opacity = "0";
         window.setTimeout(function () { introCanvas.remove(); }, 400);
       }
     };
     var introCanvas = null;
-    window.addEventListener("scroll", finishIntro, { passive: true });
+    var introScrollY = 0;
+    function onIntroScroll() {
+      // Restoration/layout events before startup are not a request to skip.
+      if (introCanvas && Math.abs(window.scrollY - introScrollY) > 4) finishIntro();
+    }
+    window.addEventListener("scroll", onIntroScroll, { passive: true });
 
     var fontsReady = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
-    Promise.all([fontsReady, new Promise(function (r) { window.setTimeout(r, 700); })]).then(function () {
+    var loadReady = document.readyState === "complete" ? Promise.resolve() :
+      new Promise(function (resolve) { window.addEventListener("load", resolve, { once: true }); });
+    // A delayed font request must never leave the headline hidden indefinitely.
+    var fontDeadline = new Promise(function (resolve) { window.setTimeout(resolve, 2000); });
+    Promise.all([Promise.race([fontsReady, fontDeadline]), loadReady,
+      new Promise(function (resolve) { window.setTimeout(resolve, 700); })]).then(function () {
       if (introDone) return;
       var targets = rasterizeBox(heroTitle, 0, 0, { maxDots: 3600, texture: false });
       if (!targets.length) { finishIntro(); return; }
 
+      introScrollY = window.scrollY;
       introCanvas = el("canvas", "fx-intro");
+      window.addEventListener("resize", finishIntro);
       introCanvas.setAttribute("aria-hidden", "true");
       document.body.appendChild(introCanvas);
       var ic = introCanvas.getContext("2d");
@@ -931,7 +945,7 @@
         }
         if (t < 1) raf(frame); else finishIntro();
       })(t0);
-    });
+    }).catch(finishIntro);
   }
 
   /* ---------- 3. Scroll cue under the hero (homepage only) --------------- */
@@ -946,56 +960,21 @@
     hero.appendChild(cue);
   }
 
-  /* ---------- 4. Text scramble on section titles ------------------------- */
-  /* Only the text node after the "#" is scrambled; the heading keeps an
-     aria-label with the real text so screen readers never hear the noise. */
-  var GLYPHS = "!<>-_\\/[]{}=+*^?#01";
-
-  function scramble(textNode) {
-    var finalText = textNode.textContent;
-    var length = finalText.length;
-    var frame = 0;
-    var totalFrames = 22;
-
-    function tick() {
-      var progress = frame / totalFrames;
-      var out = "";
-      for (var i = 0; i < length; i++) {
-        var settleAt = (i / length) * 0.7 + 0.3;
-        if (progress >= settleAt || finalText[i] === " " || finalText[i] === "-") {
-          out += finalText[i];
-        } else {
-          out += GLYPHS[(Math.random() * GLYPHS.length) | 0];
-        }
-      }
-      textNode.textContent = out;
-      frame += 1;
-      if (frame <= totalFrames) raf(tick);
-      else textNode.textContent = finalText;
-    }
-    tick();
-  }
-
+  /* ---------- 4. Readable heading reveal ------------------------------- */
+  // Keep the actual heading text unchanged throughout the animation.
   var titles = $all(".section-title, .page-head__title");
   if ("IntersectionObserver" in window && titles.length) {
-    var titleObserver = new IntersectionObserver(function (entries, obs) {
+    var titleObserver = new IntersectionObserver(function (entries, observer) {
       entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
-        obs.unobserve(entry.target);
-        var textNode = null;
-        Array.prototype.forEach.call(entry.target.childNodes, function (n) {
-          if (n.nodeType === 3 && n.textContent.trim()) textNode = n;
-        });
-        if (textNode) scramble(textNode);
+        observer.unobserve(entry.target);
+        if (entry.target.animate) entry.target.animate([
+          { opacity: 0.6, transform: "translateY(12px)" },
+          { opacity: 1, transform: "translateY(0)" }
+        ], { duration: 420, easing: "cubic-bezier(.2,.7,.2,1)" });
       });
-    }, { threshold: 0.6 });
-
-    titles.forEach(function (t) {
-      if (!t.hasAttribute("aria-label")) {
-        t.setAttribute("aria-label", t.textContent.replace(/\s+/g, " ").trim());
-      }
-      titleObserver.observe(t);
-    });
+    }, { threshold: 0.3 });
+    titles.forEach(function (title) { titleObserver.observe(title); });
   }
 
   if (!finePointer) return;
@@ -1047,7 +1026,7 @@
      where the pointer came in — which drifts outward, tints to the accent
      palette and fades. Same rasterizer as the journey panel. One box at a
      time; scrolling clears it. */
-  var PIX_BOXES = ".card, .skill-box, .badge-group, .certs--cards li, .contacts__box, .badge-more, .stats";
+  var PIX_BOXES = ".card, .badge-group, .certs--cards li, .contacts__box, .badge-more, .stats";
   var DUST_MAX = 420, DUST_COOLDOWN = 900;
   var PIX_TINTS = [[199, 120, 221], [97, 175, 239], [86, 182, 194], [255, 255, 255]];
   var pixLayer = null, pixCtx = null, pixRun = null;
@@ -1151,7 +1130,7 @@
 
   /* ---------- 8. 3D tilt -------------------------------------------------- */
   var TILT_MAX = 6; // degrees
-  $all(".card, .skill-box, .badge-group").forEach(function (node) {
+  $all(".card, .badge-group").forEach(function (node) {
     node.classList.add("fx-tilt");
     var frame = 0;
 
@@ -1207,7 +1186,7 @@
           d.style.transform = "translate3d(" + (nx * depth).toFixed(1) + "px," + (ny * depth).toFixed(1) + "px,0)";
         });
         var img = heroVisual && heroVisual.querySelector(".hero__img");
-        if (img) img.style.transform = "translate3d(" + (nx * -10).toFixed(1) + "px," + (ny * -8).toFixed(1) + "px,0)";
+        if (img && !img.closest(".portrait-3d")) img.style.transform = "translate3d(" + (nx * -10).toFixed(1) + "px," + (ny * -8).toFixed(1) + "px,0)";
       });
     }, { passive: true });
   }

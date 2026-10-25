@@ -1,0 +1,3 @@
+Ready Player Me Visage
+https://github.com/readyplayerme/visage/tree/0eafdd9c4c10db079de2656c3eb59212a2fb7f63
+MIT License; see LICENSE

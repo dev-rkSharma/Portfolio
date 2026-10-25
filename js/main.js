@@ -548,17 +548,17 @@
   }
 
   var COMMANDS = [
-    { label: "Home", hint: "Page", href: onHomePage ? "#home" : HOME_PAGE },
-    { label: "Projects", hint: "Page", href: "projects.html" },
+    { label: "Home", hint: "Section", href: onHomePage ? "#home" : HOME_PAGE },
+    { label: "Projects", hint: "Section", href: destFor("#projects") },
     { label: "Skills", hint: "Section", href: destFor("#skills") },
     { label: "Experience", hint: "Section", href: destFor("#experience") },
     { label: "Badges", hint: "Section", href: destFor("#badges") },
-    { label: "About", hint: "Page", href: "about.html" },
-    { label: "Contacts", hint: "Page", href: "contacts.html" },
+    { label: "About", hint: "Section", href: destFor("#about-me") },
+    { label: "Contacts", hint: "Section", href: destFor("#contacts") },
     { label: "Download Résumé", hint: "PDF", href: "assets/Roushan-Kumar-Resume.pdf", download: true },
     { label: "GitHub", hint: "External", href: "https://github.com/dev-rkSharma", external: true },
     { label: "LinkedIn", hint: "External", href: "https://www.linkedin.com/in/roushan-kumar", external: true },
-    { label: "Email", hint: "Mailto", href: "mailto:dev.rksharma1892@gmail.com" },
+    { label: "Email", hint: "Mailto", href: "mailto:hey.roushan.k@gmail.com" },
     { label: "Terminal", hint: "Press `", action: "fx:terminal" }
   ];
 

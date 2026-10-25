@@ -136,3 +136,7 @@ Add a file named `CNAME` next to `index.html` containing just your domain
 | < 900px | rail hidden, hamburger → full-screen menu |
 | < 820px | single-column hero / about / contacts, image moves above text |
 | < 560px | stats strip stacks, buttons go full-width, footer stacks |
+
+
+## Single-page portfolio
+All portfolio content lives in `index.html`, including the complete projects, biography and contact details. Navigation uses section anchors. `projects.html`, `about.html` and `contacts.html` redirect old shared URLs to the corresponding homepage sections.

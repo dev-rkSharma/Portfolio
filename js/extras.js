@@ -96,17 +96,31 @@
       '  <button class="cs__close" type="button" aria-label="Close case study">' +
       '    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>' +
       "  </button>" +
-      '  <div class="cs__media"></div>' +
-      '  <div class="cs__body">' +
+      '  <header class="cs__header">' +
       '    <p class="cs__eyebrow"><span class="hash" aria-hidden="true">#</span>case-study</p>' +
+      '    <p class="cs__status" hidden></p>' +
       '    <h2 class="cs__title" id="cs-title"></h2>' +
       '    <ul class="cs__tech card__tech"></ul>' +
+      '  </header>' +
+      '  <div class="cs__media">' +
+      '    <div class="cs__media-toolbar"><span>System architecture</span><button class="cs__zoom" type="button" aria-pressed="false" aria-controls="cs-diagram">Zoom diagram +</button></div>' +
+      '    <div class="cs__diagram" id="cs-diagram" tabindex="0" role="region" aria-label="Project architecture diagram"></div>' +
+      '    <p class="cs__media-caption">Explore the workflow. Zoom in to inspect the diagram.</p>' +
+      '  </div>' +
+      '  <div class="cs__body">' +
       '    <div class="cs__text"></div>' +
       "  </div>" +
       "</div>";
     document.body.appendChild(dlg);
     var csPanel = dlg.querySelector(".cs__panel");
     var openedFrom = null;
+    dlg.querySelector(".cs__zoom").addEventListener("click", function () {
+      var diagram = dlg.querySelector(".cs__diagram");
+      var zoomed = diagram.classList.toggle("is-zoomed");
+      this.setAttribute("aria-pressed", String(zoomed));
+      this.textContent = zoomed ? "Reset zoom" : "Zoom diagram +";
+      if (!zoomed) diagram.scrollTop = diagram.scrollLeft = 0;
+    });
 
     var flip = function (fromRect, reverse, done) {
       if (reduceMotion || !csPanel.animate || !fromRect) { if (done) done(); return; }
@@ -124,16 +138,36 @@
     var openCase = function (card) {
       openedFrom = card;
       var media = card.querySelector(".card__media");
-      dlg.querySelector(".cs__media").innerHTML = media ? media.innerHTML : "";
+      var diagram = dlg.querySelector(".cs__diagram");
+      var artwork = media && media.querySelector("img, svg");
+      diagram.replaceChildren();
+      if (artwork) {
+        var copy = artwork.cloneNode(true);
+        if (copy.tagName === "IMG") copy.loading = "eager";
+        diagram.appendChild(copy);
+      }
+      diagram.classList.remove("is-zoomed");
+      diagram.scrollTop = diagram.scrollLeft = 0;
+      var zoom = dlg.querySelector(".cs__zoom");
+      zoom.setAttribute("aria-pressed", "false");
+      zoom.textContent = "Zoom diagram +";
+      var projectStatus = card.querySelector(".card__status");
+      dlg.querySelector(".cs__status").textContent = projectStatus ? projectStatus.textContent : "";
+      dlg.querySelector(".cs__status").hidden = !projectStatus;
       dlg.querySelector(".cs__title").textContent = (card.querySelector(".card__title") || {}).textContent || "";
       dlg.querySelector(".cs__tech").innerHTML = (card.querySelector(".card__tech") || { innerHTML: "" }).innerHTML;
       var text = "";
-      [".card__desc", ".card__contribution", ".card__nda"].forEach(function (sel) {
+      [".card__desc", ".card__contribution", ".card__workflow", ".card__nda"].forEach(function (sel) {
         var n = card.querySelector(sel);
-        if (n) text += '<p class="' + sel.slice(1).replace("card__", "cs__") + '">' + n.innerHTML + "</p>";
+        if (n) {
+          var paragraph = '<p class="' + sel.slice(1).replace("card__", "cs__") + '">' + n.innerHTML + "</p>";
+          text += sel === ".card__desc" ? '<section class="cs__overview"><h3>Overview</h3>' + paragraph + '</section>' : paragraph;
+        }
       });
       dlg.querySelector(".cs__text").innerHTML = text;
+      dlg.style.setProperty("--project-accent", getComputedStyle(card).getPropertyValue("--project-accent"));
       dlg.showModal();
+      csPanel.scrollTop = 0;
       document.body.classList.add("is-locked");
       flip(card.getBoundingClientRect(), false);
     };
@@ -182,7 +216,7 @@
     name: "Roushan Kumar",
     role: "Palantir Applied Engineer @ Vanyar",
     tagline: "Palantir Foundry developer building agentic AI on enterprise data.",
-    email: "dev.rksharma1892@gmail.com",
+    email: "hey.roushan.k@gmail.com",
     github: "https://github.com/dev-rkSharma",
     linkedin: "https://www.linkedin.com/in/roushan-kumar",
     resume: "assets/Roushan-Kumar-Resume.pdf",
@@ -202,6 +236,7 @@
       ["2026-now", "Palantir Applied Engineer", "Vanyar"]
     ],
     projects: [
+      "Finance OS (personal / in progress)",
       "AI-Generated Quarterly Reporting Platform",
       "Operational Reporting Automation",
       "Timeseries Analytics & Quiver Dashboards",
@@ -257,7 +292,7 @@
       desc: "featured case studies",
       run: function () {
         return T.projects.map(function (p, i) { return '<span class="t-dim">0' + (i + 1) + "</span> " + esc(p); })
-          .concat(["", "→ " + link("projects.html", "projects.html") + ' <span class="t-dim">(client work under NDA)</span>']);
+          .concat(["", "→ " + link(HOME + "#projects", "View projects") + ' <span class="t-dim">(client work under NDA; personal projects marked)</span>']);
       }
     },
     certs: {
@@ -283,7 +318,7 @@
     open: {
       desc: "open a page: home · projects · about · contacts",
       run: function (args) {
-        var pages = { home: HOME || "index.html", projects: "projects.html", about: "about.html", contacts: "contacts.html" };
+        var pages = { home: HOME + "#home", projects: HOME + "#projects", about: HOME + "#about-me", contacts: HOME + "#contacts" };
         var dest = pages[args[0]];
         if (!dest) return ['usage: open <span class="t-cmd">home|projects|about|contacts</span>'];
         window.setTimeout(function () { window.location.href = dest; }, 250);

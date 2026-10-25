@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="600" height="340" role="img" aria-label="Finance OS concept: expenses, income and debt feed a Foundry Ontology, powering charts and an AI analyst. The analyst can update records from information supplied by the user.">
+  <defs><pattern id="finance-grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#879db5" stroke-opacity=".08"/></pattern><marker id="finance-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#88d9bd"/></marker></defs>
+  <rect width="600" height="340" fill="#101520"/><rect width="600" height="340" fill="url(#finance-grid)"/>
+  <g fill="none" stroke="#88d9bd" stroke-opacity=".7" marker-end="url(#finance-arrow)"><path d="M164 85H193Q210 85 210 110V158H237"/><path d="M164 167H237"/><path d="M164 249H193Q210 249 210 223V181H237"/><path d="M313 157H349V93H382"/><path d="M313 181H349V246H382"/><path d="M475 133V168H318" stroke-dasharray="4 5"/></g>
+  <g fill="#161e2c" stroke="#3b4c62"><rect x="34" y="55" width="130" height="60" rx="10"/><rect x="34" y="137" width="130" height="60" rx="10"/><rect x="34" y="219" width="130" height="60" rx="10"/><rect x="382" y="50" width="182" height="83" rx="12"/><rect x="382" y="207" width="182" height="83" rx="12"/></g>
+  <g font-family="monospace" fill="#b9c9dc" font-size="12"><text x="54" y="80">Expenses</text><text x="54" y="162">Income</text><text x="54" y="244">Debt</text><text x="405" y="77">AI analyst</text><text x="403" y="230">Charts &amp; trends</text></g>
+  <g stroke="#637892" stroke-width="2"><path d="M54 96H138M54 178H114M54 260H125"/></g>
+  <circle cx="275" cy="170" r="39" fill="#192a2c" stroke="#88d9bd" stroke-width="1.5"/>
+  <g fill="none" stroke="#88d9bd" stroke-width="1.5"><circle cx="275" cy="158" r="5"/><circle cx="261" cy="180" r="5"/><circle cx="289" cy="180" r="5"/><path d="M272 162L264 175M278 162L286 175M266 180H284"/></g>
+  <g font-family="monospace" font-size="10" fill="#8fa8bd"><text x="246" y="229">Ontology</text><text x="223" y="246">Foundry / AIP Logic</text><text x="394" y="181">User-provided updates</text><text x="405" y="99">Habits / gaps</text><text x="405" y="116">Financial strategies</text></g>
+  <g fill="none" stroke="#88d9bd" stroke-width="2"><path d="M406 271L432 251L457 259L486 240L519 250L541 234"/></g>
+  <g font-family="monospace" font-size="9" fill="#8ba1b7"><text x="34" y="316">PERSONAL PROJECT</text><text x="445" y="316">IN DEVELOPMENT</text></g>
+</svg>

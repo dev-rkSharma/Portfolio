@@ -830,123 +830,87 @@
 
   if (reduceMotion) return;
 
-  /* ---------- 2. Split the hero headline into words ---------------------- */
-  /* Each word becomes an inline-block .fx-word with --w = its index, which
-     css/fx.css staggers into a blur-up entrance. <em> phrases are split too
-     (and marked .fx-split) so long phrases can still wrap on mobile. The
-     full sentence is kept as aria-label so assistive tech reads it whole. */
-  var heroTitle = document.querySelector(".hero__title");
-  var wordIndex = 0;
-
-  function splitWords(node) {
-    Array.prototype.slice.call(node.childNodes).forEach(function (child) {
-      if (child.nodeType === 3) {
-        var frag = document.createDocumentFragment();
-        child.textContent.split(/(\s+)/).forEach(function (part) {
-          if (!part) return;
-          if (/^\s+$/.test(part)) {
-            frag.appendChild(document.createTextNode(" "));
-          } else {
-            var w = el("span", "fx-word");
-            w.textContent = part;
-            w.style.setProperty("--w", String(wordIndex++));
-            frag.appendChild(w);
-          }
-        });
-        node.replaceChild(frag, child);
-      } else if (child.nodeType === 1) {
-        if (child.tagName === "EM") child.classList.add("fx-split");
-        splitWords(child);
-      }
-    });
-  }
-
-  if (heroTitle) {
-    heroTitle.setAttribute("aria-label", heroTitle.textContent.replace(/\s+/g, " ").trim());
-    splitWords(heroTitle);
-    $all(".fx-word", heroTitle).forEach(function (w) { w.setAttribute("aria-hidden", "true"); });
-  }
-
-  /* ---------- 2b. Hero headline assembles from dots --------------------- */
-  /* On load the headline is hidden and a swarm of dots flies in from across
-     the viewport to form its exact shape (same rasterizer as the journey
-     panel), then the real text fades in. Waits for the webfont and for the
-     hero's own fade-up entrance, so the shape it samples is final. Any
-     user scroll after particles start skips to the finished headline. Startup
-     scroll restoration must not cancel the intro before the canvas exists. */
-  if (heroTitle && document.createElement("canvas").getContext) {
-    heroTitle.classList.add("fx-dot-intro");
-    var introDone = false;
-    var finishIntro = function () {
-      if (introDone) return;
-      introDone = true;
-      heroTitle.classList.add("is-formed");
-      window.removeEventListener("scroll", onIntroScroll);
-      window.removeEventListener("resize", finishIntro);
-      if (introCanvas) {
-        introCanvas.style.opacity = "0";
-        window.setTimeout(function () { introCanvas.remove(); }, 400);
-      }
-    };
-    var introCanvas = null;
-    var introScrollY = 0;
-    function onIntroScroll() {
-      // Restoration/layout events before startup are not a request to skip.
-      if (introCanvas && Math.abs(window.scrollY - introScrollY) > 4) finishIntro();
+  /* ---------- 2. Sequential, weighted letters with sand impacts ---------- */
+  (function () {
+    var title=document.querySelector('.hero__title');
+    if(!title||!Element.prototype.animate)return;
+    title.dataset.introState='pending';
+    var original=title.innerHTML,animations=[],done=false,started=false,startScroll=scrollY;
+    var preference=matchMedia('(prefers-reduced-motion: reduce)');
+    var canvas=null,context=null,frame=0,grains=[],landings=[],epoch=0;
+    function finish(){
+      if(done)return;done=true;cancelAnimationFrame(frame);animations.forEach(function(a){a.cancel();});
+      if(canvas)canvas.remove();grains=[];landings=[];
+      title.innerHTML=original;title.classList.remove('letter-assembly','cinematic-title');title.removeAttribute('aria-label');
+      title.dataset.introState='ready';document.dispatchEvent(new CustomEvent('hero-title-ready'));
+      window.removeEventListener('resize',finish);window.removeEventListener('scroll',onScroll);
+      preference.removeEventListener('change',finish);document.removeEventListener('visibilitychange',onVisibility);
     }
-    window.addEventListener("scroll", onIntroScroll, { passive: true });
-
-    var fontsReady = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
-    var loadReady = document.readyState === "complete" ? Promise.resolve() :
-      new Promise(function (resolve) { window.addEventListener("load", resolve, { once: true }); });
-    // A delayed font request must never leave the headline hidden indefinitely.
-    var fontDeadline = new Promise(function (resolve) { window.setTimeout(resolve, 2000); });
-    Promise.all([Promise.race([fontsReady, fontDeadline]), loadReady,
-      new Promise(function (resolve) { window.setTimeout(resolve, 700); })]).then(function () {
-      if (introDone) return;
-      var targets = rasterizeBox(heroTitle, 0, 0, { maxDots: 3600, texture: false });
-      if (!targets.length) { finishIntro(); return; }
-
-      introScrollY = window.scrollY;
-      introCanvas = el("canvas", "fx-intro");
-      window.addEventListener("resize", finishIntro);
-      introCanvas.setAttribute("aria-hidden", "true");
-      document.body.appendChild(introCanvas);
-      var ic = introCanvas.getContext("2d");
-      var dpr = Math.min(window.devicePixelRatio || 1, 2);
-      var VW = window.innerWidth, VH = window.innerHeight;
-      introCanvas.width = Math.round(VW * dpr); introCanvas.height = Math.round(VH * dpr);
-      ic.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      var tints = [[199, 120, 221], [97, 175, 239], [86, 182, 194], [255, 255, 255]];
-      targets.forEach(function (d) {
-        var t = tints[(Math.random() * tints.length) | 0];
-        d.fx = Math.random() * VW; d.fy = Math.random() * VH;
-        d.cx = (d.fx + d.x) / 2 + (Math.random() - 0.5) * 260;   // curved approach
-        d.cy = (d.fy + d.y) / 2 + (Math.random() - 0.5) * 260;
-        d.sr = t[0]; d.sg = t[1]; d.sb = t[2];
-        d.del = Math.random() * 0.45;
+    function onScroll(){if(started&&Math.abs(scrollY-startScroll)>12)finish();}
+    function onVisibility(){if(document.hidden)finish();}
+    function dust(now){
+      if(done)return;var elapsed=now-epoch;
+      landings.forEach(function(landing){
+        if(landing.emitted||elapsed<landing.time)return;landing.emitted=true;
+        landing.points.forEach(function(point){grains.push({x:point.x,y:point.y,start:now,life:650+Math.random()*450,vx:45+Math.random()*110,vy:-18-Math.random()*50,size:.65+Math.random()*1.1,color:landing.color});});
       });
+      context.clearRect(0,0,innerWidth,innerHeight);
+      grains=grains.filter(function(p){var age=(now-p.start)/p.life;if(age>=1)return false;var seconds=(now-p.start)/1000;
+        context.globalAlpha=(1-age)*.8;context.fillStyle=p.color;
+        var x=p.x+p.vx*seconds,y=p.y+p.vy*seconds+12*seconds*seconds;
+        context.fillRect(x,y,p.size*(1-age*.5),p.size);return true;
+      });context.globalAlpha=1;
+      if(landings.every(function(l){return l.emitted;})&&!grains.length){finish();return;}
+      frame=requestAnimationFrame(dust);
+    }
+    var fonts=document.fonts?document.fonts.ready:Promise.resolve();
+    Promise.race([fonts,new Promise(function(resolve){setTimeout(resolve,650);})]).then(function(){
+      if(done)return;if(preference.matches||document.hidden||scrollY>innerHeight*.5){finish();return;}
+      title.setAttribute('aria-label',title.textContent.replace(/\s+/g,' ').trim());
+      var letters=[];
+      function split(node){Array.from(node.childNodes).forEach(function(child){
+        if(child.nodeType===3){var fragment=document.createDocumentFragment();child.textContent.split(/(\s+)/).forEach(function(word){
+          if(!word)return;if(/^\s+$/.test(word)){fragment.appendChild(document.createTextNode(word));return;}
+          var group=document.createElement('span');group.className='assembly-word';group.setAttribute('aria-hidden','true');
+          Array.from(word).forEach(function(char){var letter=document.createElement('span');letter.className='assembly-letter';letter.textContent=char;group.appendChild(letter);letters.push(letter);});fragment.appendChild(group);
+        });child.replaceWith(fragment);}else if(child.nodeType===1)split(child);
+      });}
+      title.classList.add('letter-assembly','cinematic-title');split(title);
+      var positions=letters.map(function(letter){var r=letter.getBoundingClientRect(),cs=getComputedStyle(letter);return {rect:r,font:cs.fontWeight+' '+cs.fontSize+' '+cs.fontFamily,accent:!!letter.closest('em')};});
+      canvas=document.createElement('canvas');canvas.className='title-sand';canvas.setAttribute('aria-hidden','true');
+      var dpr=Math.min(devicePixelRatio||1,1.5);canvas.width=Math.round(innerWidth*dpr);canvas.height=Math.round(innerHeight*dpr);
+      context=canvas.getContext('2d');if(!context){finish();return;}context.scale(dpr,dpr);document.body.appendChild(canvas);
+      var mask=document.createElement('canvas'),ink=mask.getContext('2d');
+      var cadence=innerWidth<900?65:75,duration=780;
+      startScroll=scrollY;started=true;epoch=performance.now();
+      letters.forEach(function(letter,index){
+        var entry=positions[index],rect=entry.rect,side=index%4,x=0,y=0;
+        if(side===0)x=-rect.right-35;else if(side===1)x=innerWidth-rect.left+35;
+        else if(side===2)y=-rect.bottom-35;else y=innerHeight-rect.top+35;
+        if(side<2)y=-80;else x=(index%2?1:-1)*85;
+        var tilt=(side%2?1:-1)*28;
+        var animation=letter.animate([
+          {opacity:0,transform:'translate3d('+x+'px,'+y+'px,-250px) rotateY('+tilt+'deg) rotateZ('+(tilt*.4)+'deg) scale(1.25)',offset:0,easing:'cubic-bezier(.45,0,.8,.4)'},
+          {opacity:1,transform:'translate3d('+(x*.025)+'px,-18px,18px) rotateY(4deg) scale(1.02)',offset:.58,easing:'cubic-bezier(.5,0,.9,.65)'},
+          {opacity:1,transform:'translate3d(0,3px,0) scale(1.055,.91)',offset:.78,easing:'cubic-bezier(.2,.7,.3,1)'},
+          {opacity:1,transform:'translate3d(0,-1px,0) scale(.995,1.015)',offset:.9},
+          {opacity:1,transform:'translate3d(0,0,0) scale(1)',offset:1}
+        ],{duration:duration,delay:index*cadence,easing:'linear',fill:'backwards'});animations.push(animation);
+        // Sample the actual glyph silhouette; only a small, bounded dust cloud is live.
+        var points=[];mask.width=Math.max(1,Math.ceil(rect.width));mask.height=Math.max(1,Math.ceil(rect.height));
+        ink.font=entry.font;ink.textBaseline='middle';ink.fillStyle='#fff';ink.fillText(letter.textContent,0,mask.height*.5);
+        var pixels=ink.getImageData(0,0,mask.width,mask.height).data,candidates=[];
+        for(var py=0;py<mask.height;py+=3)for(var px=0;px<mask.width;px+=3)if(pixels[(py*mask.width+px)*4+3]>90)candidates.push({x:rect.left+px,y:rect.top+py});
+        for(var p=0;p<18&&candidates.length;p++)points.push(candidates[Math.floor(Math.random()*candidates.length)]);
+        landings.push({time:index*cadence+duration*.78,points:points,color:entry.accent?'#c5acf5':'#e4d8c3',emitted:false});
+      });
+      frame=requestAnimationFrame(dust);
+      setTimeout(finish,letters.length*cadence+duration+1500);
+    }).catch(finish);
+    window.addEventListener('resize',finish);window.addEventListener('scroll',onScroll,{passive:true});
+    preference.addEventListener('change',finish);document.addEventListener('visibilitychange',onVisibility);
+  })();
 
-      var DUR = 1500, t0 = performance.now();
-      (function frame(now) {
-        if (introDone) return;
-        var t = Math.min(Math.max((now - t0) / DUR, 0), 1);
-        ic.clearRect(0, 0, VW, VH);
-        for (var i = 0; i < targets.length; i++) {
-          var d = targets[i];
-          var lt = Math.min(Math.max((t - d.del) / (1 - d.del), 0), 1);
-          var e = lt < 0.5 ? 4 * lt * lt * lt : 1 - Math.pow(-2 * lt + 2, 3) / 2, u = 1 - e;
-          var x = u * u * d.fx + 2 * u * e * d.cx + e * e * d.x;
-          var y = u * u * d.fy + 2 * u * e * d.cy + e * e * d.y;
-          ic.fillStyle = "rgba(" + ((d.sr + (d.r - d.sr) * e) | 0) + "," + ((d.sg + (d.g - d.sg) * e) | 0) + "," +
-                         ((d.sb + (d.b - d.sb) * e) | 0) + "," + (0.35 + 0.65 * Math.min(lt * 2, 1)).toFixed(3) + ")";
-          ic.fillRect(x - 1, y - 1, 2, 2);
-        }
-        if (t < 1) raf(frame); else finishIntro();
-      })(t0);
-    }).catch(finishIntro);
-  }
 
   /* ---------- 3. Scroll cue under the hero (homepage only) --------------- */
   var hero = document.querySelector(".hero");

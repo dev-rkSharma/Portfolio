@@ -16,6 +16,31 @@
     return Array.prototype.slice.call((root || document).querySelectorAll(sel));
   }
 
+  /* Critically-damped follower: eases a 2D value toward its target with a
+     frame-rate-independent exponential, so pointer effects glide instead of
+     snapping. `tau` is the settle time constant in ms. */
+  function follower(apply, tau) {
+    var cx = 0, cy = 0, tx = 0, ty = 0, frame = 0, last = 0;
+    function step(now) {
+      var dt = last ? Math.min(now - last, 64) : 16;
+      last = now;
+      var k = 1 - Math.exp(-dt / tau);
+      cx += (tx - cx) * k;
+      cy += (ty - cy) * k;
+      if (Math.abs(tx - cx) < 0.002 && Math.abs(ty - cy) < 0.002) {
+        cx = tx; cy = ty; frame = 0; last = 0;
+        apply(cx, cy, true);
+        return;
+      }
+      apply(cx, cy, false);
+      frame = raf(step);
+    }
+    return function (x, y) {
+      tx = x; ty = y;
+      if (!frame) frame = raf(step);
+    };
+  }
+
   function el(tag, cls) {
     var node = document.createElement(tag);
     if (cls) node.className = cls;
@@ -834,6 +859,8 @@
   (function () {
     var title=document.querySelector('.hero__title');
     if(!title||!Element.prototype.animate)return;
+    if(window.heroIntroBoot&&window.heroIntroBoot.expired)return;
+    if(location.hash&&location.hash!=='#home')return;
     title.dataset.introState='pending';
     var original=title.innerHTML,animations=[],done=false,started=false,startScroll=scrollY;
     var preference=matchMedia('(prefers-reduced-motion: reduce)');
@@ -841,10 +868,11 @@
     function finish(){
       if(done)return;done=true;cancelAnimationFrame(frame);animations.forEach(function(a){a.cancel();});
       if(canvas)canvas.remove();grains=[];landings=[];
+      document.documentElement.classList.remove('hero-title-pending');
       title.innerHTML=original;title.classList.remove('letter-assembly','cinematic-title');title.removeAttribute('aria-label');
       title.dataset.introState='ready';document.dispatchEvent(new CustomEvent('hero-title-ready'));
       window.removeEventListener('resize',finish);window.removeEventListener('scroll',onScroll);
-      preference.removeEventListener('change',finish);document.removeEventListener('visibilitychange',onVisibility);
+      preference.removeEventListener('change',finish);document.removeEventListener('visibilitychange',onVisibility);document.removeEventListener('hero-intro-fallback',finish);
     }
     function onScroll(){if(started&&Math.abs(scrollY-startScroll)>12)finish();}
     function onVisibility(){if(document.hidden)finish();}
@@ -864,8 +892,8 @@
       frame=requestAnimationFrame(dust);
     }
     var fonts=document.fonts?document.fonts.ready:Promise.resolve();
-    Promise.race([fonts,new Promise(function(resolve){setTimeout(resolve,650);})]).then(function(){
-      if(done)return;if(preference.matches||document.hidden||scrollY>innerHeight*.5){finish();return;}
+    Promise.race([fonts,new Promise(function(resolve){setTimeout(resolve,120);})]).then(function(){
+      if(done)return;if(preference.matches||document.hidden||scrollY>innerHeight*.5||(window.heroIntroBoot&&window.heroIntroBoot.expired)){finish();return;}
       title.setAttribute('aria-label',title.textContent.replace(/\s+/g,' ').trim());
       var letters=[];
       function split(node){Array.from(node.childNodes).forEach(function(child){
@@ -904,11 +932,12 @@
         for(var p=0;p<18&&candidates.length;p++)points.push(candidates[Math.floor(Math.random()*candidates.length)]);
         landings.push({time:index*cadence+duration*.78,points:points,color:entry.accent?'#c5acf5':'#e4d8c3',emitted:false});
       });
+      document.documentElement.classList.remove('hero-title-pending');
       frame=requestAnimationFrame(dust);
       setTimeout(finish,letters.length*cadence+duration+1500);
     }).catch(finish);
     window.addEventListener('resize',finish);window.addEventListener('scroll',onScroll,{passive:true});
-    preference.addEventListener('change',finish);document.addEventListener('visibilitychange',onVisibility);
+    preference.addEventListener('change',finish);document.addEventListener('visibilitychange',onVisibility);document.addEventListener('hero-intro-fallback',finish);
   })();
 
 
@@ -1096,62 +1125,58 @@
   var TILT_MAX = 6; // degrees
   $all(".card, .badge-group").forEach(function (node) {
     node.classList.add("fx-tilt");
-    var frame = 0;
+    // transform is driven by the follower, so it is left out of the CSS
+    // transition list to avoid double-easing
+    var tilt = follower(function (px, py, settled) {
+      node.style.transform = settled && !px && !py ? "" :
+        "perspective(900px) rotateX(" + (-py * TILT_MAX).toFixed(2) + "deg) rotateY(" +
+        (px * TILT_MAX).toFixed(2) + "deg)";
+    }, 110);
 
     node.addEventListener("pointermove", function (e) {
-      if (frame) return;
-      frame = raf(function () {
-        frame = 0;
-        var r = node.getBoundingClientRect();
-        var px = (e.clientX - r.left) / r.width - 0.5;
-        var py = (e.clientY - r.top) / r.height - 0.5;
-        node.style.transform =
-          "perspective(900px) rotateX(" + (-py * TILT_MAX).toFixed(2) + "deg) rotateY(" +
-          (px * TILT_MAX).toFixed(2) + "deg)";
-      });
+      var r = node.getBoundingClientRect();
+      tilt((e.clientX - r.left) / r.width - 0.5, (e.clientY - r.top) / r.height - 0.5);
     });
     node.addEventListener("pointerenter", function () {
-      node.style.transition = "transform 120ms ease-out, border-color 140ms ease, translate 220ms ease, box-shadow 300ms ease, opacity 500ms ease";
+      node.style.transition = "border-color var(--t-fast), translate var(--t), box-shadow 400ms var(--ease-out), opacity 800ms var(--ease-out)";
     });
-    node.addEventListener("pointerleave", function () {
-      node.style.transition = "transform 600ms cubic-bezier(.2,.7,.2,1), border-color 140ms ease, translate 220ms ease, box-shadow 300ms ease, opacity 500ms ease";
-      node.style.transform = "";
-    });
+    node.addEventListener("pointerleave", function () { tilt(0, 0); });
   });
 
   /* ---------- 9. Magnetic buttons ---------------------------------------- */
   $all(".btn, .section-head__link, .cmdk-trigger, .rail__list a, .footer__socials a").forEach(function (node) {
     var strength = node.classList.contains("btn") ? 0.3 : 0.4;
+    var pull = follower(function (x, y, settled) {
+      node.style.transform = settled && !x && !y ? "" : "translate(" + x.toFixed(2) + "px," + y.toFixed(2) + "px)";
+    }, 140);
+    // drop only `transform` from the element's own transition list, so the
+    // follower is the sole easing on the pull while hover colours still fade
+    node.addEventListener("pointerenter", function () {
+      if (node.style.transitionProperty) return;
+      var props = getComputedStyle(node).transitionProperty.split(/,\s*/);
+      node.style.transitionProperty = props.map(function (p) { return p === "transform" || p === "all" ? "fx-none" : p; }).join(", ");
+    });
     node.addEventListener("pointermove", function (e) {
       var r = node.getBoundingClientRect();
-      var dx = e.clientX - (r.left + r.width / 2);
-      var dy = e.clientY - (r.top + r.height / 2);
-      node.style.transform = "translate(" + (dx * strength).toFixed(1) + "px," + (dy * strength).toFixed(1) + "px)";
+      pull((e.clientX - (r.left + r.width / 2)) * strength, (e.clientY - (r.top + r.height / 2)) * strength);
     });
-    node.addEventListener("pointerleave", function () {
-      node.style.transform = "";
-    });
+    node.addEventListener("pointerleave", function () { pull(0, 0); });
   });
 
   /* ---------- 10. Parallax on decorative dot grids + hero halo ----------- */
   var parallax = $all(".decor");
   var heroVisual = document.querySelector(".hero__visual");
   if (parallax.length || heroVisual) {
-    var pTicking = false;
-    document.addEventListener("pointermove", function (e) {
-      if (pTicking) return;
-      pTicking = true;
-      raf(function () {
-        pTicking = false;
-        var nx = e.clientX / window.innerWidth - 0.5;
-        var ny = e.clientY / window.innerHeight - 0.5;
-        parallax.forEach(function (d, i) {
-          var depth = (i % 2 ? -1 : 1) * 18;
-          d.style.transform = "translate3d(" + (nx * depth).toFixed(1) + "px," + (ny * depth).toFixed(1) + "px,0)";
-        });
-        var img = heroVisual && heroVisual.querySelector(".hero__img");
-        if (img && !img.closest(".portrait-3d")) img.style.transform = "translate3d(" + (nx * -10).toFixed(1) + "px," + (ny * -8).toFixed(1) + "px,0)";
+    var img = heroVisual && heroVisual.querySelector(".hero__img");
+    var drift = follower(function (nx, ny) {
+      parallax.forEach(function (d, i) {
+        var depth = (i % 2 ? -1 : 1) * 18;
+        d.style.transform = "translate3d(" + (nx * depth).toFixed(2) + "px," + (ny * depth).toFixed(2) + "px,0)";
       });
+      if (img && !img.closest(".portrait-3d")) img.style.transform = "translate3d(" + (nx * -10).toFixed(2) + "px," + (ny * -8).toFixed(2) + "px,0)";
+    }, 380);
+    document.addEventListener("pointermove", function (e) {
+      drift(e.clientX / window.innerWidth - 0.5, e.clientY / window.innerHeight - 0.5);
     }, { passive: true });
   }
 })();

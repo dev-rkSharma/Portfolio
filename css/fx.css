@@ -17,7 +17,6 @@
   --glow:       0 0 0 1px rgba(199, 120, 221, 0.25), 0 18px 50px -18px rgba(199, 120, 221, 0.45);
   --radius:     14px;
   --radius-sm:  8px;
-  --ease-out:   cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 ::selection { background: rgba(199, 120, 221, 0.35); color: var(--white); }
@@ -99,7 +98,7 @@ body::after {
   border-radius: 50%;
   background: radial-gradient(closest-side, rgba(199, 120, 221, 0.13), rgba(97, 175, 239, 0.05) 55%, transparent);
   opacity: 0;
-  transition: opacity 400ms ease;
+  transition: opacity 400ms var(--ease-out);
 }
 .fx-ring {
   z-index: 90;
@@ -109,8 +108,8 @@ body::after {
   border: 1.5px solid rgba(199, 120, 221, 0.7);
   border-radius: 50%;
   opacity: 0;
-  transition: opacity 250ms ease, width 250ms var(--ease-out), height 250ms var(--ease-out),
-              margin 250ms var(--ease-out), background-color 250ms ease, border-color 250ms ease;
+  transition: opacity 250ms var(--ease-out), width 250ms var(--ease-out), height 250ms var(--ease-out),
+              margin 250ms var(--ease-out), background-color 250ms var(--ease-out), border-color 250ms var(--ease-out);
 }
 body.fx-has-pointer .fx-glow,
 body.fx-has-pointer .fx-ring { opacity: 1; }
@@ -160,7 +159,7 @@ body.fx-has-pointer .fx-ring { opacity: 1; }
 .badge-group:hover { box-shadow: var(--glow); }
 .card,
 .skill-box,
-.badge-group { transition: border-color var(--t-fast), translate var(--t), box-shadow 300ms ease; }
+.badge-group { transition: border-color var(--t-fast), translate var(--t), box-shadow 300ms var(--ease-out); }
 
 .status,
 .agent-trace,
@@ -203,7 +202,7 @@ kbd { border-radius: var(--radius-sm); }
   -webkit-mask-composite: xor;
           mask-composite: exclude;
   opacity: 0;
-  transition: opacity 300ms ease;
+  transition: opacity 300ms var(--ease-out);
   pointer-events: none;
 }
 .fx-spot::before {
@@ -215,7 +214,7 @@ kbd { border-radius: var(--radius-sm); }
   background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%),
               rgba(199, 120, 221, 0.09), transparent 45%);
   opacity: 0;
-  transition: opacity 300ms ease;
+  transition: opacity 300ms var(--ease-out);
   pointer-events: none;
 }
 .fx-spot:hover::after,
@@ -234,7 +233,7 @@ kbd { border-radius: var(--radius-sm); }
   border-radius: 999px;
   padding: 0.65rem 1.35rem;
   transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast),
-              box-shadow 300ms ease, transform 300ms var(--ease-out);
+              box-shadow 300ms var(--ease-out), transform 300ms var(--ease-out);
 }
 /* shine sweep */
 .btn::before {
@@ -346,7 +345,7 @@ em .fx-word {
 /* dot intro (js/fx.js 2b): the headline is hidden while dots assemble its
    shape, then fades in; the per-word blur entrance is skipped in that mode */
 .hero__title.fx-dot-intro { opacity: 0; }
-.hero__title.fx-dot-intro.is-formed { opacity: 1; transition: opacity 450ms ease; }
+.hero__title.fx-dot-intro.is-formed { opacity: 1; transition: opacity 450ms var(--ease-out); }
 .hero__title.fx-dot-intro .fx-word { animation: none; opacity: 1; translate: none; filter: none; }
 .hero__title.fx-dot-intro em .fx-word { animation: shimmer 9s linear infinite; }
 .fx-intro {
@@ -356,7 +355,7 @@ em .fx-word {
   width: 100vw;
   height: 100vh;
   pointer-events: none;
-  transition: opacity 400ms ease;
+  transition: opacity 400ms var(--ease-out);
 }
 
 /* glowing halo + slow float behind the portrait */
@@ -641,8 +640,8 @@ em .fx-word {
   border: 2px solid var(--accent);
   color: var(--white);
   box-shadow: 0 0 0 6px rgba(199, 120, 221, 0.12), 0 0 26px rgba(199, 120, 221, 0.4);
-  transition: border-color 400ms ease, box-shadow 400ms ease, background 400ms ease,
-              color 400ms ease, scale 500ms var(--ease-out);
+  transition: border-color 400ms var(--ease-out), box-shadow 400ms var(--ease-out), background 400ms var(--ease-out),
+              color 400ms var(--ease-out), scale 500ms var(--ease-out);
 }
 .milestone:nth-of-type(even) .milestone__node { justify-self: end; }
 .milestone__year { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.03em; }
@@ -657,7 +656,7 @@ em .fx-word {
   -webkit-backdrop-filter: blur(8px);
           backdrop-filter: blur(8px);
   transition: opacity 800ms var(--ease-out), translate 800ms var(--ease-out), scale 800ms var(--ease-out),
-              filter 800ms var(--ease-out), border-color 300ms ease, box-shadow 400ms ease;
+              filter 800ms var(--ease-out), border-color 300ms var(--ease-out), box-shadow 400ms var(--ease-out);
 }
 .milestone:nth-of-type(even) .milestone__card { grid-column: 3; }
 
@@ -861,7 +860,7 @@ em .fx-word {
   height: 7px;
   border-radius: 50%;
   background: var(--border-mid);
-  transition: background 300ms ease, width 300ms ease;
+  transition: background 300ms var(--ease-out), width 300ms var(--ease-out);
 }
 .tour-hud__dots i.is-on   { background: var(--accent); }
 .tour-hud__dots i.is-here { width: 18px; border-radius: 4px; background: var(--grad); }
@@ -894,7 +893,7 @@ body.is-touring .cmdk-trigger { visibility: hidden; }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: rgba(46, 51, 59, 0.55);
-  transition: border-color var(--t-fast), box-shadow 300ms ease, translate var(--t);
+  transition: border-color var(--t-fast), box-shadow 300ms var(--ease-out), translate var(--t);
 }
 .certs--cards li:hover { border-color: var(--accent); box-shadow: var(--glow); translate: 0 -3px; }
 .certs--cards .certs__dot { margin-top: 0; width: 8px; height: 8px; box-shadow: 0 0 10px var(--accent); }
@@ -1108,7 +1107,7 @@ body.is-touring .cmdk-trigger { visibility: hidden; }
 
 /* ---------- 14. ABOUT PORTRAIT ----------------------------------------- */
 .about__visual img {
-  transition: filter 500ms ease, transform 500ms var(--ease-out);
+  transition: filter 500ms var(--ease-out), transform 500ms var(--ease-out);
 }
 .about__visual:hover img {
   filter: drop-shadow(0 0 30px rgba(199, 120, 221, 0.35));
@@ -1119,7 +1118,7 @@ body.is-touring .cmdk-trigger { visibility: hidden; }
 /* cross-document View Transitions — zero JS; browsers without support just
    navigate normally */
 @view-transition { navigation: auto; }
-::view-transition-old(root) { animation: vt-out 260ms ease both; }
+::view-transition-old(root) { animation: vt-out 260ms var(--ease-out) both; }
 ::view-transition-new(root) { animation: vt-in 420ms var(--ease-out) both; }
 @keyframes vt-out { to   { opacity: 0; transform: translateY(-8px); } }
 @keyframes vt-in  { from { opacity: 0; transform: translateY(12px); } }

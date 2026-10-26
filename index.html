@@ -4,6 +4,50 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+<!-- Establish the hero's starting state before any page content paints. -->
+<script>
+(function(){
+  if(!window.matchMedia||matchMedia('(prefers-reduced-motion: reduce)').matches||!Element.prototype.animate)return;
+  if(location.hash&&location.hash!=='#home')return;
+  var root=document.documentElement;
+  window.heroIntroBoot={expired:false};
+  root.classList.add('hero-intro-enabled','hero-title-pending','hero-support-pending');
+  // If enhancement scripts fail or stall, keep the page usable.
+  setTimeout(function(){
+    if(!root.classList.contains('hero-title-pending')&&!root.classList.contains('hero-support-pending'))return;
+    window.heroIntroBoot.expired=true;
+    root.classList.remove('hero-title-pending','hero-support-pending');
+    document.dispatchEvent(new CustomEvent('hero-intro-fallback'));
+  },4000);
+})();
+</script>
+<style>
+html.hero-title-pending .hero__title { opacity:0; }
+html.hero-support-pending .hero__text,
+html.hero-support-pending .hero__copy .btn-row,
+html.hero-support-pending .hero__copy .now,
+html.hero-support-pending .hero__visual,
+html.hero-support-pending .hero .fx-scroll-cue { opacity:0; }
+html.hero-intro-enabled .hero__copy,
+html.hero-intro-enabled .hero__visual { animation:none !important; }
+@media(prefers-reduced-motion:reduce) {
+  html.hero-title-pending .hero__title,
+  html.hero-support-pending .hero__text,
+  html.hero-support-pending .hero__copy .btn-row,
+  html.hero-support-pending .hero__copy .now,
+  html.hero-support-pending .hero__visual,
+  html.hero-support-pending .hero .fx-scroll-cue { opacity:1; }
+}
+@media print {
+  html.hero-title-pending .hero__title,
+  html.hero-support-pending .hero__text,
+  html.hero-support-pending .hero__copy .btn-row,
+  html.hero-support-pending .hero__copy .now,
+  html.hero-support-pending .hero__visual { opacity:1; }
+}
+</style>
+
+
 <title>Roushan Kumar | Palantir Foundry &amp; AI Engineer</title>
 <meta name="description" content="Explore Roushan Kumar’s Palantir Foundry and AIP projects, AI agents, ontology applications and data pipelines. Certified AI Engineer and application developer." />
 
@@ -185,7 +229,9 @@
 <link rel="stylesheet" href="css/style.css" />
 <link rel="stylesheet" href="css/fx.css" />
 <link rel="stylesheet" href="css/extras.css" />
-<link rel="stylesheet" href="css/modern.css" />
+<link rel="stylesheet" href="css/modern.css?v=hero-start-20261025" />
+<link rel="stylesheet" href="css/hero-likeness.css" />
+<link rel="stylesheet" href="css/project-detail.css?v=dossier-20261026" />
 </head>
 <body>
 
@@ -368,10 +414,23 @@
       </div>
       <p class="page-lede">All the Foundry &amp; AIP case studies I&rsquo;ve delivered, grouped by scope. Client work is NDA-safe by design &mdash; no client names, no proprietary data, implementation details available on request.</p>
 
-      <h3 class="subhead stack-lg"><span class="hash" aria-hidden="true">#</span>case studies</h3>
-      <div class="cards">
-
-        <article class="card">
+      <div class="proj-rail" data-rail>
+        <div class="proj-rail__bar">
+          <div class="proj-filters" role="group" aria-label="Filter projects">
+          <button class="proj-filter" type="button" data-filter="all" aria-pressed="true">All<span class="proj-filter__count">8</span></button>
+          <button class="proj-filter" type="button" data-filter="case" aria-pressed="false">Case studies<span class="proj-filter__count">6</span></button>
+          <button class="proj-filter" type="button" data-filter="personal" aria-pressed="false">Personal<span class="proj-filter__count">1</span></button>
+          <button class="proj-filter" type="button" data-filter="additional" aria-pressed="false">Additional<span class="proj-filter__count">1</span></button>
+          </div>
+          <div class="proj-rail__nav">
+            <p class="proj-rail__count" aria-live="polite"><span data-rail-current>01</span><span class="proj-rail__sep">/</span><span data-rail-total>08</span></p>
+            <button class="proj-rail__btn" type="button" data-rail-prev aria-label="Previous project"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <button class="proj-rail__btn" type="button" data-rail-next aria-label="Next project"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          </div>
+        </div>
+        <div class="proj-rail__viewport" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Projects — use the arrow keys or drag to browse">
+          <div class="proj-rail__track">
+<article class="card" data-group="case">
           <div class="card__media">
             <img decoding="async" src="assets/project-7.svg" alt="Source data and uploaded PDFs flow through a pipeline into an ontology, feeding a dashboard with charts, a map and AI suggestions, and an admin report whose AI-drafted sections are approved by a human before publishing" loading="lazy" width="600" height="340" />
           </div>
@@ -389,7 +448,7 @@
           </div>
         </article>
 
-        <article class="card">
+<article class="card" data-group="case">
           <div class="card__media">
             <img decoding="async" src="assets/project-6.svg" alt="A request reaching an agent hub, which calls an LLM, Ontology and AI Analyst tools, converging into a decision output" loading="lazy" width="600" height="340" />
           </div>
@@ -405,7 +464,7 @@
           </div>
         </article>
 
-        <article class="card">
+<article class="card" data-group="case">
           <div class="card__media">
             <img decoding="async" src="assets/project-1.svg" alt="Operational reporting automation" loading="lazy" width="600" height="340" />
           </div>
@@ -421,7 +480,7 @@
           </div>
         </article>
 
-        <article class="card">
+<article class="card" data-group="case">
           <div class="card__media">
             <img decoding="async" src="assets/project-2.svg" alt="Timeseries analytics dashboards" loading="lazy" width="600" height="340" />
           </div>
@@ -437,7 +496,7 @@
           </div>
         </article>
 
-        <article class="card">
+<article class="card" data-group="case">
           <div class="card__media">
             <img decoding="async" src="assets/project-3.svg" alt="Governance and process mining workflows" loading="lazy" width="600" height="340" />
           </div>
@@ -453,7 +512,7 @@
           </div>
         </article>
 
-        <article class="card">
+<article class="card" data-group="case">
           <div class="card__media">
             <img decoding="async" src="assets/project-4.svg" alt="Law firm automation pipelines and workshop reporting" loading="lazy" width="600" height="340" />
           </div>
@@ -469,10 +528,7 @@
           </div>
         </article>
 
-      </div>
-      <h3 class="subhead stack-lg">Personal projects</h3>
-      <div class="cards">
-        <article class="card" id="finance-os">
+<article class="card" data-group="personal" id="finance-os">
           <div class="card__media"><img decoding="async" src="assets/project-8.svg" alt="Finance OS architecture: expenses, income and debt connect through a Foundry Ontology to charts and an AI analyst, with updates based on information supplied by the user" loading="lazy" width="600" height="340" /></div>
           <ul class="card__tech"><li>Ontology</li><li>AIP Logic</li><li>Automations</li><li>AI Analyst</li></ul>
           <div class="card__body">
@@ -483,13 +539,8 @@
             <p class="card__workflow"><strong>Current workflow:</strong> I currently enter records manually. The analyst can also update records when I provide the relevant information. I&rsquo;m continuing to build, test and improve the application.</p>
           </div>
         </article>
-      </div>
 
-
-      <h3 class="subhead stack-lg"><span class="hash" aria-hidden="true">#</span>additional work</h3>
-      <div class="cards">
-
-        <article class="card">
+<article class="card" data-group="additional">
           <div class="card__media">
             <img decoding="async" src="assets/project-5.svg" alt="Dynamic geospatial markers on a map visualization" loading="lazy" width="600" height="340" />
           </div>
@@ -503,7 +554,12 @@
             <p class="card__contribution"><strong>My contribution:</strong> Designed and implemented the geohash-driven marker styling logic within Foundry.</p>
           </div>
         </article>
-
+          </div>
+        </div>
+        <div class="proj-rail__foot" aria-hidden="true">
+          <div class="proj-rail__progress"><span class="proj-rail__thumb"></span></div>
+          <span class="proj-rail__hint">Drag, swipe or use &larr; &rarr;</span>
+        </div>
       </div>
 
       <p class="page-lede stack-lg">Want the implementation detail behind any of these, or have something similar you need built?</p>
@@ -852,9 +908,11 @@
 
 <script src="js/main.js" defer></script>
 <script src="js/icons.js" defer></script>
-<script src="js/fx.js" defer></script>
-<script src="js/extras.js" defer></script>
-<script src="js/modern.js?v=workstation-local-fix-20261025" defer></script>
+<script src="js/fx.js?v=hero-start-20261025" defer></script>
+<script src="js/extras.js?v=project-dossier-20261026" defer></script>
+<script src="js/modern.js?v=hero-start-20261025" defer></script>
+<script src="js/hero-likeness.js?v=local-texture-fix-20261026" defer></script>
+<script src="js/rail.js" defer></script>
 <script src="js/connect.js" defer></script>
 </body>
 </html>

@@ -83,111 +83,339 @@
     movePill(activeLink(), true);
   }
 
-  /* ---------- 3. Case-study modal ---------------------------------------- */
-  /* Clicking a project card opens it in a <dialog>, zooming out of the card's
-     own rectangle (FLIP) and back into it on close. The dialog shows the same
-     content as the card, larger — nothing invented. */
+  /* ---------- 3. Project detail view ------------------------------------ */
+  /* Clicking a project card opens a full-screen detail page in a <dialog>:
+     sticky bar with prev/next, hero, the architecture diagram, overview,
+     contributions as a checklist and a facts sidebar. Everything shown is
+     read from the card itself — nothing invented. The URL becomes
+     #project/<slug> so a detail page can be linked to directly. */
   var cards = $all(".card");
   if (cards.length && window.HTMLDialogElement) {
-    var dlg = el("dialog", "cs");
-    dlg.setAttribute("aria-labelledby", "cs-title");
+    var GROUPS = {
+      case: { label: "Client case study", crumb: "Case study", conf: "Client work · NDA-safe" },
+      personal: { label: "Personal project", crumb: "Personal", conf: "Personal project" },
+      additional: { label: "Additional work", crumb: "Additional", conf: "" }
+    };
+    var ARROW_L = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+    var ARROW_R = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+    var dlg = el("dialog", "pd");
+    dlg.setAttribute("aria-labelledby", "pd-title");
     dlg.innerHTML =
-      '<div class="cs__panel">' +
-      '  <button class="cs__close" type="button" aria-label="Close case study">' +
-      '    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>' +
-      "  </button>" +
-      '  <header class="cs__header">' +
-      '    <p class="cs__eyebrow"><span class="hash" aria-hidden="true">#</span>case-study</p>' +
-      '    <p class="cs__status" hidden></p>' +
-      '    <h2 class="cs__title" id="cs-title"></h2>' +
-      '    <ul class="cs__tech card__tech"></ul>' +
+      '<div class="pd__scroll">' +
+      '  <header class="pd__bar">' +
+      '    <button class="pd__back" type="button" data-pd-close aria-label="All projects">' + ARROW_L + '<span>All projects</span></button>' +
+      '    <p class="pd__crumbs"><span>Projects</span><span class="pd__crumb-sep" aria-hidden="true">/</span><span data-pd-crumb></span></p>' +
+      '    <div class="pd__pager">' +
+      '      <span class="pd__count" data-pd-count></span>' +
+      '      <button class="pd__nav" type="button" data-pd-prev aria-label="Previous project">' + ARROW_L + '</button>' +
+      '      <button class="pd__nav" type="button" data-pd-next aria-label="Next project">' + ARROW_R + '</button>' +
+      '      <button class="pd__close" type="button" data-pd-close aria-label="Close project">' +
+      '        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>' +
+      '    </div>' +
+      '    <span class="pd__read" aria-hidden="true"></span>' +
       '  </header>' +
-      '  <div class="cs__media">' +
-      '    <div class="cs__media-toolbar"><span>System architecture</span><button class="cs__zoom" type="button" aria-pressed="false" aria-controls="cs-diagram">Zoom diagram +</button></div>' +
-      '    <div class="cs__diagram" id="cs-diagram" tabindex="0" role="region" aria-label="Project architecture diagram"></div>' +
-      '    <p class="cs__media-caption">Explore the workflow. Zoom in to inspect the diagram.</p>' +
-      '  </div>' +
-      '  <div class="cs__body">' +
-      '    <div class="cs__text"></div>' +
-      "  </div>" +
-      "</div>";
+      '  <article class="pd__page">' +
+      '    <div class="pd__opening">' +
+      '    <header class="pd__hero">' +
+      '      <span class="pd__watermark" aria-hidden="true" data-pd-index></span>' +
+      '      <p class="pd__series">Selected work <span aria-hidden="true">/</span> Project dossier</p>' +
+      '      <p class="pd__eyebrow"><span class="pd__kind" data-pd-kind></span><span class="pd__state" data-pd-state hidden></span></p>' +
+      '      <h2 class="pd__title" id="pd-title"></h2>' +
+      '      <ul class="pd__tech card__tech" aria-label="Technologies"></ul>' +
+      '      <div class="pd__signature"><span class="pd__signature-mark" aria-hidden="true">RK</span><span>Engineering portfolio<br><strong>Roushan Kumar</strong></span></div>' +
+      '    </header>' +
+      '    <figure class="pd__figure">' +
+      '      <div class="pd__figbar"><span class="pd__figlabel"><i></i><i></i><i></i>System architecture</span>' +
+      '        <button class="pd__zoom" type="button" aria-pressed="false" aria-controls="pd-diagram">Zoom in</button></div>' +
+      '      <div class="pd__diagram" id="pd-diagram" tabindex="0" role="region" aria-label="Project architecture diagram"></div>' +
+      '      <figcaption class="pd__caption">Zoom in, then drag to pan across the workflow.</figcaption>' +
+      '    </figure>' +
+      '    </div>' +
+      '    <div class="pd__layout">' +
+      '      <div class="pd__main"></div>' +
+      '      <aside class="pd__aside" aria-label="Project facts">' +
+      '        <nav class="pd__contents" aria-label="In this project"><p class="pd__aside-title">In this project</p><div data-pd-contents></div></nav>' +
+      '        <div class="pd__facts"><p class="pd__aside-title">Project facts</p><dl></dl></div>' +
+      '        <div class="pd__cta"><p>Want the implementation detail behind this, or something similar built?</p>' +
+      '          <a class="btn btn--primary" href="#contacts" data-pd-discuss>Discuss this project <span aria-hidden="true">&#8594;</span></a></div>' +
+      '      </aside>' +
+      '    </div>' +
+      '    <nav class="pd__next" aria-label="More projects">' +
+      '      <button class="pd__next-card" type="button" data-pd-next-card>' +
+      '        <span class="pd__next-preview" aria-hidden="true"></span>' +
+      '        <span class="pd__next-label">Next project</span>' +
+      '        <span class="pd__next-title" data-pd-next-title></span>' +
+      '        <span class="pd__next-arrow" aria-hidden="true">' + ARROW_R + '</span>' +
+      '      </button>' +
+      '    </nav>' +
+      '  </article>' +
+      '</div>';
     document.body.appendChild(dlg);
-    var csPanel = dlg.querySelector(".cs__panel");
-    var openedFrom = null;
-    dlg.querySelector(".cs__zoom").addEventListener("click", function () {
-      var diagram = dlg.querySelector(".cs__diagram");
-      var zoomed = diagram.classList.toggle("is-zoomed");
-      this.setAttribute("aria-pressed", String(zoomed));
-      this.textContent = zoomed ? "Reset zoom" : "Zoom diagram +";
-      if (!zoomed) diagram.scrollTop = diagram.scrollLeft = 0;
-    });
 
-    var flip = function (fromRect, reverse, done) {
-      if (reduceMotion || !csPanel.animate || !fromRect) { if (done) done(); return; }
-      var to = csPanel.getBoundingClientRect();
-      var sx = fromRect.width / to.width, sy = fromRect.height / to.height;
-      var dx = fromRect.left - to.left, dy = fromRect.top - to.top;
-      var start = { transform: "translate(" + dx + "px," + dy + "px) scale(" + sx + "," + sy + ")", opacity: 0.6, borderRadius: "14px" };
-      var end = { transform: "none", opacity: 1 };
-      var anim = csPanel.animate(reverse ? [end, start] : [start, end], {
-        duration: reverse ? 320 : 480, easing: "cubic-bezier(.2,.7,.2,1)", fill: "both"
+    var scroller = dlg.querySelector(".pd__scroll");
+    var page = dlg.querySelector(".pd__page");
+    var diagram = dlg.querySelector(".pd__diagram");
+    var zoomBtn = dlg.querySelector(".pd__zoom");
+    var readBar = dlg.querySelector(".pd__read");
+    var markChapter = function () {
+      var sections = $all('.pd__section', dlg), active = 0;
+      var boundary = dlg.querySelector('.pd__bar').getBoundingClientRect().bottom + 145;
+      if (dlg.open) sections.forEach(function(section, i) { if (section.getBoundingClientRect().top <= boundary) active = i; });
+      $all('.pd__jump', dlg).forEach(function(button, i) {
+        if (i === active) button.setAttribute('aria-current', 'location');
+        else button.removeAttribute('aria-current');
       });
-      anim.onfinish = function () { anim.cancel(); if (done) done(); };
+    };
+    var list = cards, index = 0, openedFrom = null, prevHash = "", swapping = false, afterClose = null;
+
+    var slug = function (card) {
+      if (card.id) return card.id;
+      var t = (card.querySelector(".card__title") || {}).textContent || "project";
+      return t.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    };
+    var pad = function (n) { return (n < 10 ? "0" : "") + n; };
+    var text = function (card, sel) { var n = card.querySelector(sel); return n ? n.textContent.trim() : ""; };
+    // the body of a "<strong>Label:</strong> text" paragraph, without the label
+    var bodyOf = function (n) {
+      var c = n.cloneNode(true), s = c.querySelector("strong");
+      if (s) s.remove();
+      return c.textContent.replace(/\s+/g, " ").trim();
+    };
+    // "A, B, and C." -> ["A", "B", "C"]; commas inside brackets are kept
+    var items = function (s) {
+      return s.replace(/\.$/, "").split(/,\s+(?![^()]*\))/).map(function (x) {
+        x = x.replace(/^and\s+/i, "").trim();
+        return x.charAt(0).toUpperCase() + x.slice(1);
+      }).filter(Boolean);
     };
 
-    var openCase = function (card) {
-      openedFrom = card;
-      var media = card.querySelector(".card__media");
-      var diagram = dlg.querySelector(".cs__diagram");
-      var artwork = media && media.querySelector("img, svg");
+    var setZoom = function (on) {
+      diagram.classList.toggle("is-zoomed", on);
+      zoomBtn.setAttribute("aria-pressed", String(on));
+      zoomBtn.textContent = on ? "Fit to view" : "Zoom in";
+      if (!on) diagram.scrollTop = diagram.scrollLeft = 0;
+    };
+    zoomBtn.addEventListener("click", function () { setZoom(!diagram.classList.contains("is-zoomed")); });
+    // drag to pan the zoomed diagram
+    var pan = null;
+    diagram.addEventListener("pointerdown", function (e) {
+      if (!diagram.classList.contains("is-zoomed") || e.pointerType !== "mouse") return;
+      pan = { x: e.clientX, y: e.clientY, l: diagram.scrollLeft, t: diagram.scrollTop };
+      diagram.setPointerCapture(e.pointerId);
+      diagram.classList.add("is-panning");
+    });
+    diagram.addEventListener("pointermove", function (e) {
+      if (!pan) return;
+      diagram.scrollLeft = pan.l - (e.clientX - pan.x);
+      diagram.scrollTop = pan.t - (e.clientY - pan.y);
+    });
+    ["pointerup", "pointercancel"].forEach(function (t) {
+      diagram.addEventListener(t, function () { pan = null; diagram.classList.remove("is-panning"); });
+    });
+
+    var render = function (card) {
+      var group = GROUPS[card.dataset.group] || { label: "Project", crumb: "Project", conf: "" };
+      var title = text(card, ".card__title");
+      var status = text(card, ".card__status");
+      var state = status ? status.split("·").pop().trim() : "";
+      var n = list.indexOf(card) + 1;
+
+      dlg.style.setProperty("--project-accent", getComputedStyle(card).getPropertyValue("--project-accent") || "#b49aff");
+      dlg.style.setProperty("--project-tint", getComputedStyle(card).getPropertyValue("--project-tint") || "#b49aff20");
+      dlg.querySelector("[data-pd-crumb]").textContent = group.crumb + " " + pad(n);
+      dlg.querySelector("[data-pd-count]").innerHTML = pad(n) + '<span aria-hidden="true"> / </span><span class="sr-only"> of </span>' + pad(list.length);
+      dlg.querySelector("[data-pd-index]").textContent = pad(n);
+      dlg.querySelector("[data-pd-kind]").textContent = group.label;
+      var stateEl = dlg.querySelector("[data-pd-state]");
+      stateEl.textContent = state;
+      stateEl.hidden = !state;
+      dlg.querySelector(".pd__title").textContent = title;
+      dlg.querySelector(".pd__tech").innerHTML = (card.querySelector(".card__tech") || { innerHTML: "" }).innerHTML;
+
+      var art = card.querySelector(".card__media img, .card__media svg");
       diagram.replaceChildren();
-      if (artwork) {
-        var copy = artwork.cloneNode(true);
+      if (art) {
+        var copy = art.cloneNode(true);
         if (copy.tagName === "IMG") copy.loading = "eager";
         diagram.appendChild(copy);
       }
-      diagram.classList.remove("is-zoomed");
-      diagram.scrollTop = diagram.scrollLeft = 0;
-      var zoom = dlg.querySelector(".cs__zoom");
-      zoom.setAttribute("aria-pressed", "false");
-      zoom.textContent = "Zoom diagram +";
-      var projectStatus = card.querySelector(".card__status");
-      dlg.querySelector(".cs__status").textContent = projectStatus ? projectStatus.textContent : "";
-      dlg.querySelector(".cs__status").hidden = !projectStatus;
-      dlg.querySelector(".cs__title").textContent = (card.querySelector(".card__title") || {}).textContent || "";
-      dlg.querySelector(".cs__tech").innerHTML = (card.querySelector(".card__tech") || { innerHTML: "" }).innerHTML;
-      var text = "";
-      [".card__desc", ".card__contribution", ".card__workflow", ".card__nda"].forEach(function (sel) {
-        var n = card.querySelector(sel);
-        if (n) {
-          var paragraph = '<p class="' + sel.slice(1).replace("card__", "cs__") + '">' + n.innerHTML + "</p>";
-          text += sel === ".card__desc" ? '<section class="cs__overview"><h3>Overview</h3>' + paragraph + '</section>' : paragraph;
-        }
+      setZoom(false);
+
+      var html = "";
+      var desc = card.querySelector(".card__desc");
+      if (desc) html += '<section class="pd__section"><h3 class="pd__h">Overview</h3><p class="pd__lead">' + desc.innerHTML + "</p></section>";
+      var contrib = card.querySelector(".card__contribution");
+      if (contrib) {
+        var parts = items(bodyOf(contrib));
+        html += '<section class="pd__section"><h3 class="pd__h">My contribution</h3>' + (parts.length > 1
+          ? '<ul class="pd__checks">' + parts.map(function (p) { return "<li>" + esc(p) + "</li>"; }).join("") + "</ul>"
+          : '<p class="pd__p">' + esc(bodyOf(contrib)) + "</p>") + "</section>";
+      }
+      var flow = card.querySelector(".card__workflow");
+      if (flow) html += '<section class="pd__section pd__section--note"><h3 class="pd__h">Current workflow</h3><p class="pd__p">' + esc(bodyOf(flow)) + "</p></section>";
+      var nda = card.querySelector(".card__nda");
+      if (nda) html += '<p class="pd__nda">' + nda.innerHTML + "</p>";
+      dlg.querySelector(".pd__main").innerHTML = html;
+      var chapters = $all('.pd__section', dlg.querySelector('.pd__main'));
+      dlg.querySelector('[data-pd-contents]').replaceChildren();
+      chapters.forEach(function(section, i) {
+        section.id = 'pd-chapter-' + (i + 1);
+        var number = el('span', 'pd__chapter-number');
+        number.textContent = pad(i + 1);
+        number.setAttribute('aria-hidden', 'true');
+        section.prepend(number);
+        var jump = el('button', 'pd__jump');
+        jump.type = 'button';
+        jump.dataset.pdChapter = section.id;
+        var count = el('span');count.textContent = pad(i + 1);
+        var label = el('span');label.textContent = section.querySelector('.pd__h').textContent;
+        jump.append(count, label);
+        dlg.querySelector('[data-pd-contents]').appendChild(jump);
       });
-      dlg.querySelector(".cs__text").innerHTML = text;
-      dlg.style.setProperty("--project-accent", getComputedStyle(card).getPropertyValue("--project-accent"));
-      dlg.showModal();
-      csPanel.scrollTop = 0;
-      document.body.classList.add("is-locked");
-      flip(card.getBoundingClientRect(), false);
+
+      var facts = [["Category", group.label], ["Platform", "Palantir Foundry"]];
+      if (state) facts.push(["Status", state]);
+      if (group.conf) facts.push(["Confidentiality", group.conf]);
+      facts.push(["Stack", $all(".card__tech li", card).length + " technologies"]);
+      dlg.querySelector(".pd__facts dl").innerHTML = facts.map(function (f) {
+        return "<div><dt>" + esc(f[0]) + "</dt><dd>" + esc(f[1]) + "</dd></div>";
+      }).join("");
+
+      var next = list[(list.indexOf(card) + 1) % list.length];
+      dlg.querySelector("[data-pd-next-title]").textContent = text(next, ".card__title");
+      var preview = dlg.querySelector('.pd__next-preview');
+      preview.replaceChildren();
+      var nextArt = next.querySelector('.card__media img, .card__media svg');
+      if (nextArt) {
+        var thumbnail = nextArt.cloneNode(true);
+        if (thumbnail.tagName === 'IMG') { thumbnail.alt = ''; thumbnail.loading = 'lazy'; }
+        preview.appendChild(thumbnail);
+      }
+      dlg.querySelector(".pd__next").hidden = list.length < 2;
+      dlg.querySelector("[data-pd-prev]").disabled = list.length < 2;
+      dlg.querySelector("[data-pd-next]").disabled = list.length < 2;
+      history.replaceState(null, "", "#project/" + slug(card));
+      scroller.scrollTop = 0;
+      readBar.style.setProperty("--read", "0");
+      markChapter();
     };
 
-    var closeCase = function () {
-      if (!dlg.open) return;
-      var card = openedFrom;
-      dlg.classList.add("is-closing");
-      flip(card && card.getBoundingClientRect(), true, function () {
-        dlg.classList.remove("is-closing");
-        dlg.close();
+    var enter = function () {
+      if (reduceMotion || !page.animate) return;
+      $all(".pd__hero > *, .pd__figure, .pd__layout", page).forEach(function (n, i) {
+        n.animate([{ opacity: 0, transform: "translate3d(0,18px,0)" }, { opacity: 1, transform: "none" }],
+          { duration: 700, delay: 60 + i * 55, easing: "cubic-bezier(.16,1,.3,1)", fill: "backwards" });
       });
     };
+
+    var go = function (dir) {
+      if (swapping || list.length < 2) return;
+      index = (index + dir + list.length) % list.length;
+      var card = list[index];
+      if (reduceMotion || !page.animate) { render(card); return; }
+      swapping = true;
+      var out = page.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translate3d(" + (-24 * dir) + "px,0,0)" }],
+        { duration: 200, easing: "cubic-bezier(.65,0,.35,1)", fill: "forwards" });
+      out.onfinish = function () {
+        render(card);
+        out.cancel();
+        page.animate([{ opacity: 0, transform: "translate3d(" + (32 * dir) + "px,0,0)" }, { opacity: 1, transform: "none" }],
+          { duration: 560, easing: "cubic-bezier(.16,1,.3,1)" }).onfinish = function () { swapping = false; };
+      };
+    };
+
+    var openCase = function (card) {
+      // follow the rail's current filter, in rail order
+      list = cards.filter(function (c) { return !c.hidden; });
+      if (list.indexOf(card) < 0) list = cards;
+      index = list.indexOf(card);
+      openedFrom = card;
+      if (!dlg.open) prevHash = /^#project\//.test(location.hash) ? "#projects" : location.hash;
+      render(card);
+      if (!dlg.open) {
+        dlg.showModal();
+        document.body.classList.add("is-locked");
+        if (!reduceMotion && scroller.animate) {
+          scroller.animate([{ opacity: 0, transform: "translate3d(0,32px,0) scale(.985)" }, { opacity: 1, transform: "none" }],
+            { duration: 620, easing: "cubic-bezier(.16,1,.3,1)" });
+        }
+        enter();
+        dlg.querySelector(".pd__back").focus({ preventScroll: true });
+      }
+    };
+
+    var closeCase = function (after) {
+      if (!dlg.open || dlg.classList.contains("is-closing")) return;
+      dlg.classList.add("is-closing");
+      afterClose = typeof after === "function" ? after : null;
+      var done = function () {
+        dlg.classList.remove("is-closing");
+        dlg.close();
+      };
+      if (reduceMotion || !scroller.animate) { done(); return; }
+      scroller.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translate3d(0,24px,0) scale(.99)" }],
+        { duration: 260, easing: "cubic-bezier(.65,0,.35,1)", fill: "forwards" }).onfinish = function () {
+        done();
+        scroller.getAnimations().forEach(function (a) { a.cancel(); });
+      };
+    };
+
     dlg.addEventListener("close", function () {
       document.body.classList.remove("is-locked");
-      if (openedFrom) openedFrom.focus();
+      var after = afterClose;
+      afterClose = null;
+      if (after) { after(); return; }
+      history.replaceState(null, "", prevHash || location.pathname + location.search);
+      // land back on the card you were reading last, wherever the pager left you
+      var card = list[index] || openedFrom;
+      if (card) {
+        card.scrollIntoView({ block: "nearest", inline: "start" });
+        card.focus({ preventScroll: true });
+      }
     });
     dlg.addEventListener("cancel", function (e) { e.preventDefault(); closeCase(); });
-    dlg.querySelector(".cs__close").addEventListener("click", closeCase);
-    dlg.addEventListener("click", function (e) { if (e.target === dlg) closeCase(); });   // backdrop
+    dlg.addEventListener("click", function (e) {
+      var chapter = e.target.closest('[data-pd-chapter]');
+      if (chapter) {
+        var target = document.getElementById(chapter.dataset.pdChapter);
+        if (target) { target.tabIndex = -1; target.focus({ preventScroll: true }); target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' }); }
+      }
+      else if (e.target.closest("[data-pd-close]")) closeCase();
+      else if (e.target.closest("[data-pd-prev]")) go(-1);
+      else if (e.target.closest("[data-pd-next], [data-pd-next-card]")) go(1);
+    });
+    dlg.addEventListener("keydown", function (e) {
+      if (e.altKey || e.ctrlKey || e.metaKey || e.target.closest(".pd__diagram, input, textarea")) return;
+      if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
+    });
+    dlg.querySelector("[data-pd-discuss]").addEventListener("click", function (e) {
+      e.preventDefault();
+      var title = dlg.querySelector(".pd__title").textContent;
+      closeCase(function () {
+        var draft = document.getElementById("contact-draft");
+        if (draft && !draft.value.trim()) {
+          draft.value = "Hi Roushan, I'd like to know more about “" + title + "”.";
+          draft.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+        var target = document.getElementById("contacts");
+        if (target) target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+        history.replaceState(null, "", "#contacts");
+      });
+    });
+
+    var reading = false;
+    scroller.addEventListener("scroll", function () {
+      if (reading) return;
+      reading = true;
+      raf(function () {
+        reading = false;
+        var max = scroller.scrollHeight - scroller.clientHeight;
+        readBar.style.setProperty("--read", max > 0 ? (scroller.scrollTop / max).toFixed(4) : "0");
+        dlg.classList.toggle("is-scrolled", scroller.scrollTop > 8);
+        markChapter();
+      });
+    }, { passive: true });
 
     cards.forEach(function (card) {
       card.classList.add("is-openable");
@@ -195,15 +423,23 @@
       card.setAttribute("role", "button");
       card.setAttribute("aria-haspopup", "dialog");
       var t = card.querySelector(".card__title");
-      if (t) card.setAttribute("aria-label", "Open case study: " + t.textContent.trim());
+      if (t) card.setAttribute("aria-label", "Open project: " + t.textContent.trim());
       card.addEventListener("click", function (e) {
         if (e.target.closest("a")) return;
         openCase(card);
       });
       card.addEventListener("keydown", function (e) {
+        if (e.target !== card) return;
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCase(card); }
       });
     });
+
+    // deep link: index.html#project/<slug> opens straight into the detail page
+    var deep = location.hash.match(/^#project\/(.+)$/);
+    if (deep) {
+      var hit = cards.filter(function (c) { return slug(c) === decodeURIComponent(deep[1]); })[0];
+      if (hit) setTimeout(function () { openCase(hit); }, 0);
+    }
   }
 
   /* ---------- 4. Terminal ------------------------------------------------- */
@@ -479,7 +715,11 @@
     var GW = 0, GH = 0;
     var sizeGraph = function () {
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var oldWidth = GW, oldHeight = GH;
       GW = wrap.clientWidth; GH = GW < 700 ? 540 : Math.max(Math.min(GW * 0.62, 620), 440);
+      if (oldWidth && oldHeight) nodes.forEach(function (n) {
+        n.x *= GW / oldWidth; n.y *= GH / oldHeight;
+      });
       cv.style.height = GH + "px";
       cv.width = Math.round(GW * dpr); cv.height = Math.round(GH * dpr);
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -489,20 +729,23 @@
     var labelText = function (n) { return n.label.length > 30 ? n.label.slice(0, 29) + "…" : n.label; };
     var measure = function () {
       nodes.forEach(function (n) {
-        g.font = (n.kind !== "leaf" ? "600 12px" : "11px") + " 'IBM Plex Mono', monospace";
+        g.font = (n.kind !== "leaf" ? "600 12px" : "12px") + " 'IBM Plex Mono', monospace";
         n.lw = g.measureText(labelText(n)).width;
       });
     };
     measure();
-    // seed: hubs on a ring, leaves around their hub, projects in the middle
-    var hubs = nodes.filter(function (n) { return n.kind === "hub"; });
-    hubs.forEach(function (h, i) {
-      var a = (i / hubs.length) * Math.PI * 2;
-      h.x = GW / 2 + Math.cos(a) * GW * 0.36; h.y = GH / 2 + Math.sin(a) * GH * 0.34;
-    });
-    nodes.forEach(function (n) {
-      if (n.kind === "leaf") { var h = n.adj[0]; n.x = h.x + (Math.random() - 0.5) * 60; n.y = h.y + (Math.random() - 0.5) * 60; }
-      if (n.kind === "proj") { n.x = GW / 2 + (Math.random() - 0.5) * 80; n.y = GH / 2 + (Math.random() - 0.5) * 80; }
+    // Mix all node types independently of their category and connections.
+    var slots = nodes.map(function (_, i) { return i; });
+    for (var si = slots.length - 1; si > 0; si--) {
+      var sj = Math.floor(Math.random() * (si + 1)), swap = slots[si];
+      slots[si] = slots[sj]; slots[sj] = swap;
+    }
+    var columns = Math.ceil(Math.sqrt(nodes.length * GW / GH));
+    var rows = Math.ceil(nodes.length / columns);
+    nodes.forEach(function (n, i) {
+      var slot = slots[i];
+      n.x = 28 + ((slot % columns + .5 + (Math.random() - .5) * .65) / columns) * (GW - 56);
+      n.y = 28 + ((Math.floor(slot / columns) + .5 + (Math.random() - .5) * .65) / rows) * (GH - 76);
     });
 
     var dragging = null, hover = null, energy = 1, running = false, inView = false;
@@ -514,16 +757,21 @@
         for (j = i + 1; j < nodes.length; j++) {
           b = nodes[j];
           dx = b.x - a.x; dy = b.y - a.y; d2 = dx * dx + dy * dy + 0.01;
+          // Main category nodes do not push or pull each other.
+          if (a.kind === "hub" && b.kind === "hub") continue;
           if (d2 > 250000) continue;
-          f = (a.kind === "hub" && b.kind === "hub" ? 9000 : a.kind === "hub" || b.kind === "hub" ? 2600 : 1100) / d2;
+          f = (a.kind === "hub" || b.kind === "hub" ? 2600 : 1100) / d2;
           d = Math.sqrt(d2);
           a.vx -= dx / d * f; a.vy -= dy / d * f; b.vx += dx / d * f; b.vy += dy / d * f;
         }
       }
-      links.forEach(function (l) {                  // springs
+      // Restore elastic motion between skills, their categories, and projects.
+      links.forEach(function (l) {
+        if (l.a.kind === "hub" && l.b.kind === "hub") return;
         dx = l.b.x - l.a.x; dy = l.b.y - l.a.y; d = Math.sqrt(dx * dx + dy * dy) || 1;
         f = (d - l.len) * 0.02;
-        l.a.vx += dx / d * f; l.a.vy += dy / d * f; l.b.vx -= dx / d * f; l.b.vy -= dy / d * f;
+        l.a.vx += dx / d * f; l.a.vy += dy / d * f;
+        l.b.vx -= dx / d * f; l.b.vy -= dy / d * f;
       });
       // keep node+label boxes from overlapping (leaf labels are hidden on narrow screens)
       var spill = 0, boxOf = function (n) {
@@ -545,7 +793,8 @@
       }
       energy = spill * 0.05;
       nodes.forEach(function (n) {
-        n.vx += (GW / 2 - n.x) * 0.0007; n.vy += (GH / 2 - n.y) * 0.0016;   // gravity (wide, not tall)
+        // Keep the network inside its canvas, independently of other category nodes.
+        n.vx += (GW / 2 - n.x) * 0.0007; n.vy += (GH / 2 - n.y) * 0.0016;
         if (n === dragging) { n.vx = n.vy = 0; return; }
         n.vx *= 0.82; n.vy *= 0.82;
         n.x = Math.min(Math.max(n.x + n.vx, 24), GW - 24);
@@ -606,9 +855,9 @@
         // labels — on narrow screens leaf labels only show when highlighted
         if (n.kind === "leaf" && GW < 700 && !(hover && on)) return;
         var big = n.kind !== "leaf";
-        g.font = (big ? "600 12px" : "11px") + " 'IBM Plex Mono', monospace";
+        g.font = (big ? "600 12px" : "12px") + " 'IBM Plex Mono', monospace";
         g.textBaseline = "middle";
-        g.fillStyle = "rgba(" + (n.kind === "leaf" ? "171,178,191" : "255,255,255") + "," + (on ? (n.kind === "leaf" ? 0.85 : 1) : 0.25) + ")";
+        g.fillStyle = "rgba(" + (n.kind === "leaf" ? "203,210,226" : "255,255,255") + "," + (on ? (n.kind === "leaf" ? 0.85 : 1) : 0.25) + ")";
         var label = labelText(n);
         // near the right edge the label goes on the node's left so it isn't clipped
         var flip = n.x + n.r + 6 + g.measureText(label).width > GW - 8;

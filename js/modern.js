@@ -41,7 +41,7 @@
   // One shared portrait treatment for every profile photo, including About.
   var portraitMotion = matchMedia('(prefers-reduced-motion: reduce)');
   var portraitPointer = matchMedia('(hover: hover) and (pointer: fine)');
-  document.querySelectorAll('img[src$="profile.png"]').forEach(function (photo) {
+  document.querySelectorAll('img[src$="profile.png"], .hero__img').forEach(function (photo) {
     if (photo.closest('.portrait-3d')) return;
     var shell = photo.closest('.portrait-shell');
     if (!shell) {
@@ -316,7 +316,7 @@
   'use strict';
   if (!('IntersectionObserver' in window) || !Element.prototype.animate) return;
   var motion=matchMedia('(prefers-reduced-motion: reduce)');
-  var selector='main .section-head, main .stat, main .card, main .skill-box, main .badge-group, main .badge-more, main .certs--cards > li, main .milestone__card, main .about__content, main .contacts__copy, main .contact-composer, main .contacts__box';
+  var selector='main .section-head, main .stat, main .card:not(.proj-rail .card), main .skill-box, main .badge-group, main .badge-more, main .certs--cards > li, main .milestone__card, main .about__content, main .contacts__copy, main .contact-composer, main .contacts__box';
   var nodes=Array.from(document.querySelectorAll(selector)),seen=new WeakSet(),animations=new Map();
   document.body.classList.add('scroll-motion');
   nodes.forEach(function(node){node.classList.add('scroll-component');});
@@ -355,7 +355,7 @@
 /* Polished standing workstation: fitted clothing, contact shadows, responsive camera. */
 (function(){
  'use strict';
- var visual=document.querySelector('.hero__visual');if(!visual)return;
+ var visual=document.querySelector('.hero__visual');if(!visual || visual.hasAttribute('data-hero-photo'))return;
  function script(src){return new Promise(function(resolve,reject){var s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=reject;document.head.appendChild(s);});}
  // Load the optional scene after the page, only while its hero is nearby.
  var requested=false,ready=false,near=false;
@@ -528,20 +528,21 @@
   'use strict';
   var motion=matchMedia('(prefers-reduced-motion: reduce)');
   var copy=document.querySelector('.hero__text'),row=document.querySelector('.hero__copy .btn-row'),title=document.querySelector('.hero__title');
-  if(!copy||!row||motion.matches||!Element.prototype.animate||scrollY>innerHeight*.5)return;
+  if(!copy||!row||motion.matches||!Element.prototype.animate||scrollY>innerHeight*.5||(window.heroIntroBoot&&window.heroIntroBoot.expired)||(location.hash&&location.hash!=='#home')){document.documentElement.classList.remove('hero-support-pending');return;}
   var original=copy.innerHTML,label=copy.getAttribute('aria-label'),animations=[],holds=new Map(),done=false,running=false,startY=scrollY;
   var buttons=Array.from(row.querySelectorAll('.btn'));
   var details=Array.from(document.querySelectorAll('.hero__copy .now,.hero__visual,.hero .fx-scroll-cue'));
   copy.classList.add('hero-support-entering');
   function hold(node){var a=node.animate([{opacity:0},{opacity:0}],{duration:1,fill:'both'});a.pause();a.currentTime=0;holds.set(node,a);}
   [copy].concat(buttons,details).forEach(hold);
+  document.documentElement.classList.remove('hero-support-pending');
   function release(node){var a=holds.get(node);if(a){a.cancel();holds.delete(node);}}
   function finish(){
-    if(done)return;done=true;animations.forEach(function(a){a.cancel();});holds.forEach(function(a){a.cancel();});holds.clear();
+    if(done)return;done=true;document.documentElement.classList.remove('hero-support-pending');animations.forEach(function(a){a.cancel();});holds.forEach(function(a){a.cancel();});holds.clear();
     copy.innerHTML=original;copy.classList.remove('hero-support-entering');
     if(label===null)copy.removeAttribute('aria-label');else copy.setAttribute('aria-label',label);
     window.removeEventListener('scroll',onScroll);window.removeEventListener('resize',finish);
-    document.removeEventListener('visibilitychange',onVisibility);document.removeEventListener('hero-title-ready',start);motion.removeEventListener('change',finish);
+    document.removeEventListener('visibilitychange',onVisibility);document.removeEventListener('hero-title-ready',start);document.removeEventListener('hero-intro-fallback',finish);motion.removeEventListener('change',finish);
     document.querySelector('.hero').removeEventListener('focusin',finish);row.removeEventListener('pointerdown',finish);
   }
   function onScroll(){if(Math.abs(scrollY-startY)>12)finish();}
@@ -575,6 +576,7 @@
   document.addEventListener('visibilitychange',onVisibility);motion.addEventListener('change',finish);
   document.querySelector('.hero').addEventListener('focusin',finish);row.addEventListener('pointerdown',finish);
   document.addEventListener('hero-title-ready',start);
+  document.addEventListener('hero-intro-fallback',finish);
   if(!title||title.dataset.introState!=='pending')start();
   setTimeout(finish,16000);
 })();

@@ -50,8 +50,11 @@
   --measure-narrow: 48ch;
 
   /* motion */
-  --t-fast: 140ms ease;
-  --t:      220ms ease;
+  /* one motion curve for the whole site: quick start, long soft settle */
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --t-fast: 200ms var(--ease-out);
+  --t:      380ms var(--ease-out);
 }
 
 /* ---------- 2. RESET ---------------------------------------------------- */
@@ -1257,8 +1260,8 @@ body.is-locked .cmdk-trigger { visibility: hidden; }
    Without JS the content is simply always visible. */
 .reveal {
   opacity: 0;
-  translate: 0 1.25rem;
-  transition: opacity 500ms ease, translate 500ms ease;
+  translate: 0 1.5rem;
+  transition: opacity 900ms var(--ease-out), translate 1100ms var(--ease-out);
 }
 .reveal.is-visible { opacity: 1; translate: 0 0; }
 
@@ -1280,12 +1283,12 @@ body.is-locked .cmdk-trigger { visibility: hidden; }
 .reveal .badge-group,
 .reveal .timeline .entry {
   opacity: 0;
-  translate: 0 12px;
+  translate: 0 16px;
   /* per-property delays, so the stagger never slows the hover feedback:
      border-color stays on --t-fast no matter how late in the stagger */
   transition:
-    opacity 500ms ease calc(var(--i, 0) * 90ms),
-    translate 500ms ease calc(var(--i, 0) * 90ms),
+    opacity 800ms var(--ease-out) calc(var(--i, 0) * 70ms),
+    translate 1000ms var(--ease-out) calc(var(--i, 0) * 70ms),
     border-color var(--t-fast);
 }
 .reveal.is-visible .card,
@@ -1329,7 +1332,7 @@ main > .section:first-of-type .contacts__text,
 main > .section:first-of-type .contacts__box,
 main > .section:first-of-type .media-row,
 main > .section:first-of-type .subhead {
-  animation: fade-up 650ms ease both;
+  animation: fade-up 900ms var(--ease-out) both;
 }
 main > .section:first-of-type .hero__visual,
 main > .section:first-of-type .page-lede,
@@ -1342,7 +1345,7 @@ main > .section:first-of-type .media-row {
 /* same --i mechanism as the scroll reveal above, so this ladder also scales to
    any number of cards instead of stopping dead at the fifth */
 main > .section:first-of-type .cards .card {
-  animation: fade-up 550ms ease both;
+  animation: fade-up 800ms var(--ease-out) both;
   animation-delay: calc(220ms + var(--i, 0) * 80ms);
 }
 

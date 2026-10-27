@@ -388,12 +388,12 @@
    renderer.setPixelRatio(Math.min(devicePixelRatio||1,innerWidth<900?1:1.5));renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1;
    renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
    var stage=document.createElement('div');stage.className='character-stage human-character';stage.appendChild(renderer.domElement);
-   renderer.domElement.setAttribute('role','img');renderer.domElement.setAttribute('aria-label','Professional developer standing at a large dual-monitor desk, typing on a keyboard');
+   renderer.domElement.setAttribute('role','img');renderer.domElement.setAttribute('aria-label','Developer seated in an office chair at an aligned dual-monitor workstation, waving hello and returning to work');
    var label=document.createElement('a');label.className='character-label';label.textContent='Avatar by Ready Player Me';label.href='https://github.com/readyplayerme/visage';label.target='_blank';label.rel='noopener';stage.appendChild(label);
    var controls=document.createElement('div');controls.className='character-controls';
-   var hello=document.createElement('button');hello.type='button';hello.textContent='Run workflow';
+   var hello=document.createElement('button');hello.type='button';hello.textContent='Say hi again';
    var pause=document.createElement('button');pause.type='button';pause.textContent='Pause';pause.setAttribute('aria-pressed','false');
-   controls.append(hello,pause);stage.appendChild(controls);visual.prepend(stage);visual.classList.add('has-character');
+   var greeting=document.createElement('span');greeting.className='character-greeting';greeting.textContent='Hi, I?m Roushan!';greeting.setAttribute('role','status');greeting.hidden=true;stage.appendChild(greeting);controls.append(hello,pause);stage.appendChild(controls);visual.prepend(stage);visual.classList.add('has-character');
    var scene=new T.Scene(),camera=new T.PerspectiveCamera(32,1,.1,100);
    camera.position.set(3,2.35,4.8);camera.lookAt(0,.95,0);
    scene.add(new T.HemisphereLight(0xe8edff,0x293044,.85));
@@ -402,7 +402,7 @@
    var person=gltf.scene;scene.add(person);
    var bounds=new T.Box3().setFromObject(person),height=bounds.max.y-bounds.min.y;
    var scale=1.85/height;person.scale.setScalar(scale);person.position.y=-bounds.min.y*scale;
-   person.rotation.y=-.85;person.position.x=.5;person.position.z=-.35;
+   person.rotation.set(0,0,0);person.position.y-=.28;person.position.x=.65;person.position.z=-.5;
    person.traverse(function(n){if(n.isMesh){n.frustumCulled=false;if(n.material){n.material.envMapIntensity=.3;}}});
    // Replace the distressed clothing textures with quiet, professional fabrics.
    person.traverse(function(n){if(!n.isMesh)return;
@@ -429,7 +429,7 @@
     var knee=new T.Mesh(new T.SphereGeometry(.086,20,14),trousers),foot=new T.Mesh(new T.SphereGeometry(1,24,16),leather);
     foot.scale.set(.085,.075,.175);scene.add(thigh,shin,knee,foot);legs[side]={thigh:thigh,shin:shin,knee:knee,foot:foot};
    });
-   var desk=new T.Group();scene.add(desk);
+   var furnitureStart=scene.children.length;var desk=new T.Group();scene.add(desk);
    var shape=new T.Shape(),hw=1.35,hd=.56,r=.045;
    shape.moveTo(-hw+r,-hd);shape.lineTo(hw-r,-hd);shape.quadraticCurveTo(hw,-hd,hw,-hd+r);shape.lineTo(hw,hd-r);shape.quadraticCurveTo(hw,hd,hw-r,hd);shape.lineTo(-hw+r,hd);shape.quadraticCurveTo(-hw,hd,-hw,hd-r);shape.lineTo(-hw,-hd+r);shape.quadraticCurveTo(-hw,-hd,-hw+r,-hd);
    var top=new T.Mesh(new T.ExtrudeGeometry(shape,{depth:.06,bevelEnabled:true,bevelSize:.008,bevelThickness:.008,bevelSegments:3,steps:1}),desktop);top.rotation.x=-Math.PI/2;top.position.set(0,.985,.35);desk.add(top);
@@ -447,14 +447,15 @@
      p.fillStyle='#b5a0e9';p.font='25px monospace';p.fillText('WORKFLOW / ACTIVE',35,400);}
     var texture=new T.CanvasTexture(c);texture.encoding=T.sRGBEncoding;monitorMaps.push(texture);return texture;
    }
-   function monitor(x,z,angle,index){var group=new T.Group();group.position.set(x,1.48,z);group.rotation.y=angle;scene.add(group);
+   function monitor(x,z,angle,index){var group=new T.Group();group.position.set(x,1.28,z);group.rotation.y=angle;scene.add(group);
     box(group,dark,0,0,0,.91,.57,.047);
+    box(group,frameMat,0,0,-.025,.22,.018,.003);box(group,accent,0,-.03,-.026,.06,.004,.003);
     var face=new T.Mesh(new T.PlaneGeometry(.855,.51),new T.MeshBasicMaterial({map:screenTexture(index)}));face.position.z=.025;group.add(face);
     box(group,frameMat,0,-.35,-.03,.035,.22,.035);box(group,dark,0,-.43,-.03,.28,.018,.18);
     box(group,accent,0,-.266,.027,.07,.005,.003);return group;
    }
-   monitor(-.64,.02,1.8,0);monitor(-.88,.59,1.25,1);
-   var keyboard=new T.Group();keyboard.position.set(.2,1.065,-.075);keyboard.rotation.y=-.65;scene.add(keyboard);
+   monitor(-.85,.60,Math.PI-.1,0);monitor(.10,.65,Math.PI+.12,1);
+   var keyboard=new T.Group();keyboard.position.set(.65,1.065,.10);keyboard.rotation.y=0;scene.add(keyboard);
    box(keyboard,dark,0,0,0,.56,.022,.2);
    for(var row=0;row<4;row++)for(var col=0;col<12;col++)box(keyboard,material((col+row)%7?0x3d4a60:0x8872b7,.6),-.25+col*.045,.018,-.075+row*.047,.034,.012,.032);
    var mouseMat=box(scene,material(0x111a28),.52,1.066,.39,.3,.006,.28);
@@ -465,8 +466,17 @@
    var mug=new T.Mesh(new T.CylinderGeometry(.06,.05,.12,28),material(0xd3d9e3,.4));mug.position.set(.87,1.12,.76);scene.add(mug);
    var handle=new T.Mesh(new T.TorusGeometry(.04,.009,8,24),mug.material);handle.position.set(.94,1.13,.76);scene.add(handle);
    var speaker=box(scene,dark,-1.13,1.18,-.02,.14,.25,.15);
-   var mixer=new T.AnimationMixer(person),clip=idle.animations[0];
-   if(clip)mixer.clipAction(clip).play();mixer.update(.01);
+   // Furniture shares one level; the seated body uses the bind pose, avoiding
+   // the sideways lean baked into the imported standing idle animation.
+   var workstation=new T.Group();scene.children.slice(furnitureStart).forEach(function(n){workstation.add(n);});scene.add(workstation);workstation.position.y=-.2;
+   var chair=new T.Group();chair.position.set(.65,0,-.55);scene.add(chair);
+   box(chair,dark,0,.69,0,.50,.09,.48);box(chair,shirtMat,0,1.01,-.21,.48,.58,.065);
+   box(chair,frameMat,0,.30,0,.055,.50,.055);
+   [-1,1].forEach(function(side){box(chair,frameMat,side*.28,.72,-.03,.035,.27,.035);box(chair,dark,side*.28,.85,0,.075,.035,.30);});
+   for(var ci=0;ci<5;ci++){var spoke=new T.Group();spoke.rotation.y=ci*Math.PI*2/5;chair.add(spoke);box(spoke,frameMat,0,.08,.17,.045,.04,.38);var wheel=new T.Mesh(new T.SphereGeometry(.055,16,12),dark);wheel.position.set(0,.055,.34);spoke.add(wheel);}
+   var rest=[];person.traverse(function(n){if(n.isBone)rest.push({bone:n,q:n.quaternion.clone()});});
+   function resetPose(){rest.forEach(function(r){r.bone.quaternion.copy(r.q);});person.updateMatrixWorld(true);}
+
    var head=person.getObjectByName('Head');
    function aimBone(bone,end,target){
     person.updateMatrixWorld(true);var origin=bone.getWorldPosition(new T.Vector3()),current=end.getWorldPosition(new T.Vector3()).sub(origin).normalize(),desired=target.clone().sub(origin).normalize();
@@ -476,11 +486,18 @@
    function handIK(side,target){var upper=person.getObjectByName(side+'Arm'),lower=person.getObjectByName(side+'ForeArm'),hand=person.getObjectByName(side+'Hand');if(!upper||!lower||!hand)return;
     person.updateMatrixWorld(true);var a=upper.getWorldPosition(new T.Vector3()),b=lower.getWorldPosition(new T.Vector3()),c=hand.getWorldPosition(new T.Vector3());
     var lenA=a.distanceTo(b),lenB=b.distanceTo(c),dir=target.clone().sub(a),dist=Math.min(dir.length(),lenA+lenB-.005);dir.normalize();
-    var bend=new T.Vector3(side==='Left'?-1:1,-.3,.5);bend.addScaledVector(dir,-bend.dot(dir)).normalize();
+    var bend=new T.Vector3(side==='Left'?1:-1,-.3,-.25);bend.addScaledVector(dir,-bend.dot(dir)).normalize();
     var cos=T.MathUtils.clamp((lenA*lenA+dist*dist-lenB*lenB)/(2*lenA*dist),-1,1);
     var elbow=a.clone().addScaledVector(dir,lenA*cos).addScaledVector(bend,lenA*Math.sqrt(1-cos*cos));aimBone(upper,lower,elbow);aimBone(lower,hand,target);
    }
-   function workPose(time){handIK('Left',new T.Vector3(.10,1.105+Math.sin(time*7)*.003,-.02));handIK('Right',new T.Vector3(.30,1.105+Math.sin(time*8+1)*.003,-.17));
+   function workPose(time,helloAmount){helloAmount=helloAmount||0;resetPose();
+    if(head){head.rotation.x+=.16*(1-helloAmount);head.rotation.y+=.4*helloAmount;}
+    ['Left','Right'].forEach(function(side){var hip=person.getObjectByName(side+'UpLeg'),knee=person.getObjectByName(side+'Leg'),foot=person.getObjectByName(side+'Foot');if(!hip||!knee||!foot)return;var x=.65+(side==='Left'?.12:-.12);aimBone(hip,knee,new T.Vector3(x,.53,-.08));aimBone(knee,foot,new T.Vector3(x,.10,.12));});
+    handIK('Left',new T.Vector3(.78,.905+Math.sin(time*7)*.003,.10));
+    var typing=new T.Vector3(.52,.905+Math.sin(time*8+1)*.003,.10),waving=new T.Vector3(.22+Math.sin(time*10)*.065,1.61,-.30);
+    handIK('Right',typing.lerp(waving,helloAmount||0));
+    ['Left','Right'].forEach(function(side){var hand=person.getObjectByName(side+'Hand'),finger=person.getObjectByName(side+'HandMiddle1');if(!hand||!finger)return;var reach=hand.getWorldPosition(new T.Vector3()).add(new T.Vector3(0,-.025,.16));if(side==='Right')reach.lerp(hand.getWorldPosition(new T.Vector3()).add(new T.Vector3(Math.sin(time*10)*.05,.15,.03)),helloAmount);aimBone(hand,finger,reach);});
+
     ['Left','Right'].forEach(function(side){var upper=person.getObjectByName(side+'Arm'),lower=person.getObjectByName(side+'ForeArm');if(!upper||!lower)return;
      var a=upper.getWorldPosition(new T.Vector3()),b=lower.getWorldPosition(new T.Vector3());b.lerp(a,.12);var direction=b.clone().sub(a),mesh=sleeves[side];mesh.position.copy(a.clone().add(b).multiplyScalar(.5));mesh.scale.y=direction.length();mesh.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),direction.normalize());
     });
@@ -492,32 +509,32 @@
    }
    workPose(0);
    scene.traverse(function(n){if(n.isMesh&&n!==floor){n.castShadow=true;n.receiveShadow=true;}});
-   var motion=matchMedia('(prefers-reduced-motion: reduce)'),paused=false,visible=true,frame=0,last=0,time=0,waveEnd=0;
+   var motion=matchMedia('(prefers-reduced-motion: reduce)'),paused=false,visible=true,frame=0,last=0,time=0,waveStart=.65,waveEnd=5.1;
    var mouse={x:0,y:0};
    function still(){renderer.render(scene,camera);}
    function tick(now){
     frame=0;if(paused||motion.matches||!visible||document.hidden){last=0;still();return;}
     if(last&&now-last<32){frame=requestAnimationFrame(tick);return;}
-    var dt=Math.min(last?(now-last)/1000:0,.05);last=now;time+=dt;mixer.update(dt*.45);
-    if(head){head.rotation.y+=-.18+Math.sin(time*.5)*.055;head.rotation.x+=.12;}
-    workPose(time);
-    if(time<waveEnd){accent.color.setHex(Math.floor(time*5)%2?0xb49aff:0x82e2d4);}else accent.color.setHex(0x8bcac9);
+    var dt=Math.min(last?(now-last)/1000:0,.05);last=now;time+=dt;
+    var ramp=T.MathUtils.smoothstep(time,waveStart,waveStart+.8)*(1-T.MathUtils.smoothstep(time,waveEnd-.85,waveEnd));
+    workPose(time,ramp);greeting.hidden=ramp<.6;stage.dataset.action=ramp>.01?'greeting':'working';
+    accent.color.setHex(ramp>.5?0xb49aff:0x8bcac9);
     still();frame=requestAnimationFrame(tick);
    }
-   function sync(){cancelAnimationFrame(frame);frame=0;last=0;if(!paused&&!motion.matches&&visible&&!document.hidden)frame=requestAnimationFrame(tick);else still();}
+   function sync(){cancelAnimationFrame(frame);frame=0;last=0;if(motion.matches){workPose(time,0);greeting.hidden=true;stage.dataset.action='working';}if(!paused&&!motion.matches&&visible&&!document.hidden)frame=requestAnimationFrame(tick);else still();}
    function size(){var w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;
     var target=new T.Vector3(0,.96,.15),direction=new T.Vector3(2.8,1.35,4.8).normalize(),right=new T.Vector3().crossVectors(new T.Vector3(0,1,0),direction).normalize(),up=new T.Vector3().crossVectors(direction,right).normalize();
     var tanV=Math.tan(T.MathUtils.degToRad(camera.fov*.5)),tanH=tanV*camera.aspect,distance=0;
     [-1.43,1.43].forEach(function(x){[0,1.93].forEach(function(y){[-.7,1].forEach(function(z){var v=new T.Vector3(x,y,z).sub(target),depth=v.dot(direction);distance=Math.max(distance,depth+Math.abs(v.dot(right))/tanH,depth+Math.abs(v.dot(up))/tanV);});});});
     camera.position.copy(target).addScaledVector(direction,distance*1.08);camera.lookAt(target);camera.updateProjectionMatrix();still();}
    pause.addEventListener('click',function(){paused=!paused;pause.textContent=paused?'Play':'Pause';pause.setAttribute('aria-pressed',String(paused));sync();});
-   hello.addEventListener('click',function(){if(motion.matches)return;waveEnd=time+2.6;paused=false;pause.textContent='Pause';pause.setAttribute('aria-pressed','false');sync();});
+   hello.addEventListener('click',function(){if(motion.matches)return;waveStart=time;waveEnd=time+4.45;paused=false;pause.textContent='Pause';pause.setAttribute('aria-pressed','false');sync();});
    visual.addEventListener('pointermove',function(e){if(motion.matches||e.pointerType==='touch')return;var r=stage.getBoundingClientRect();mouse.x=Math.max(-.5,Math.min(.5,(e.clientX-r.left)/r.width-.5));mouse.y=Math.max(-.5,Math.min(.5,(e.clientY-r.top)/r.height-.5));},{passive:true});
    visual.addEventListener('pointerleave',function(){mouse.x=mouse.y=0;});
    new ResizeObserver(size).observe(stage);new IntersectionObserver(function(entries){visible=entries[0].isIntersecting;sync();}).observe(stage);
    motion.addEventListener('change',sync);document.addEventListener('visibilitychange',sync);
    renderer.domElement.addEventListener('webglcontextlost',function(e){e.preventDefault();cancelAnimationFrame(frame);visual.classList.remove('has-character');stage.remove();});
-   stage.dataset.model='polished-workstation';size();sync();
+   stage.dataset.model='seated-workstation';size();sync();
    delete window.PORTFOLIO_HUMAN;
   }
  }
@@ -530,6 +547,8 @@
   var copy=document.querySelector('.hero__text'),row=document.querySelector('.hero__copy .btn-row'),title=document.querySelector('.hero__title');
   if(!copy||!row||motion.matches||!Element.prototype.animate||scrollY>innerHeight*.5||(window.heroIntroBoot&&window.heroIntroBoot.expired)||(location.hash&&location.hash!=='#home')){document.documentElement.classList.remove('hero-support-pending');return;}
   var original=copy.innerHTML,label=copy.getAttribute('aria-label'),animations=[],holds=new Map(),done=false,running=false,startY=scrollY;
+  var introWidth=innerWidth,introHeight=innerHeight;
+  function onResize(){if(innerWidth!==introWidth||innerHeight!==introHeight)finish();}
   var buttons=Array.from(row.querySelectorAll('.btn'));
   var details=Array.from(document.querySelectorAll('.hero__copy .now,.hero__visual,.hero .fx-scroll-cue'));
   copy.classList.add('hero-support-entering');
@@ -541,7 +560,7 @@
     if(done)return;done=true;document.documentElement.classList.remove('hero-support-pending');animations.forEach(function(a){a.cancel();});holds.forEach(function(a){a.cancel();});holds.clear();
     copy.innerHTML=original;copy.classList.remove('hero-support-entering');
     if(label===null)copy.removeAttribute('aria-label');else copy.setAttribute('aria-label',label);
-    window.removeEventListener('scroll',onScroll);window.removeEventListener('resize',finish);
+    window.removeEventListener('scroll',onScroll);window.removeEventListener('resize',onResize);
     document.removeEventListener('visibilitychange',onVisibility);document.removeEventListener('hero-title-ready',start);document.removeEventListener('hero-intro-fallback',finish);motion.removeEventListener('change',finish);
     document.querySelector('.hero').removeEventListener('focusin',finish);row.removeEventListener('pointerdown',finish);
   }
@@ -572,7 +591,7 @@
       finish();
     }catch(error){finish();}
   }
-  window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',finish);
+  window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onResize);
   document.addEventListener('visibilitychange',onVisibility);motion.addEventListener('change',finish);
   document.querySelector('.hero').addEventListener('focusin',finish);row.addEventListener('pointerdown',finish);
   document.addEventListener('hero-title-ready',start);

@@ -13,7 +13,7 @@
   window.heroIntroBoot={expired:false};
   root.classList.add('hero-intro-enabled','hero-title-pending','hero-support-pending');
   // If enhancement scripts fail or stall, keep the page usable.
-  setTimeout(function(){
+  window.heroIntroBoot.timer=setTimeout(function(){
     if(!root.classList.contains('hero-title-pending')&&!root.classList.contains('hero-support-pending'))return;
     window.heroIntroBoot.expired=true;
     root.classList.remove('hero-title-pending','hero-support-pending');
@@ -232,6 +232,11 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 <link rel="stylesheet" href="css/modern.css?v=hero-start-20261025" />
 <link rel="stylesheet" href="css/hero-likeness.css" />
 <link rel="stylesheet" href="css/project-detail.css?v=dossier-20261026" />
+<link rel="stylesheet" href="css/case-identities.css?v=work-20261026" />
+<link rel="stylesheet" href="css/work-explorer.css?v=work-20261026" />
+<link rel="stylesheet" href="css/quality.css?v=work-20261026" />
+<link rel="stylesheet" href="css/refinements.css?v=nav-20261026" />
+<link rel="stylesheet" href="css/skills-badges.css?v=1" />
 </head>
 <body>
 
@@ -594,18 +599,6 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
           <div class="skill-box">
             <h3 class="skill-box__head">
               <svg class="skill-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                <circle cx="12" cy="12" r="3.5"/>
-                <path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.8 5.8l1.8 1.8M16.4 16.4l1.8 1.8M18.2 5.8l-1.8 1.8M7.6 16.4l-1.8 1.8"/>
-              </svg>
-              Agentic AI
-            </h3>
-            <ul class="skill-box__body">
-              <li>AIP Logic &amp; Agents</li><li>AI Analyst</li><li>LLM Pipelines</li><li>AI-FDE</li><li>Pilot</li>
-            </ul>
-          </div>
-          <div class="skill-box">
-            <h3 class="skill-box__head">
-              <svg class="skill-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                 <circle cx="12" cy="4.5" r="2"/><circle cx="5" cy="17" r="2"/><circle cx="19" cy="17" r="2"/>
                 <path d="M12 6.5 6.3 15.3M12 6.5l5.7 8.8M7 17h10"/>
               </svg>
@@ -618,6 +611,18 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
           <div class="skill-box">
             <h3 class="skill-box__head">
               <svg class="skill-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <circle cx="12" cy="12" r="3.5"/>
+                <path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.8 5.8l1.8 1.8M16.4 16.4l1.8 1.8M18.2 5.8l-1.8 1.8M7.6 16.4l-1.8 1.8"/>
+              </svg>
+              Agentic AI
+            </h3>
+            <ul class="skill-box__body">
+              <li>AIP Logic &amp; Agents</li><li>AI Analyst</li><li>LLM Pipelines</li><li>AI-FDE</li><li>Pilot</li>
+            </ul>
+          </div>
+          <div class="skill-box">
+            <h3 class="skill-box__head">
+              <svg class="skill-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                 <rect x="2" y="9" width="5" height="6"/><rect x="9.5" y="9" width="5" height="6"/><rect x="17" y="9" width="5" height="6"/>
                 <path d="M7 12h2.5M14.5 12H17"/>
               </svg>
@@ -625,6 +630,17 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
             </h3>
             <ul class="skill-box__body">
               <li>Data Modeling</li><li>Pipeline Engineering</li><li>ETL</li><li>Timeseries</li><li>Process Mining</li>
+            </ul>
+          </div>
+          <div class="skill-box">
+            <h3 class="skill-box__head">
+              <svg class="skill-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path d="M8 6 3 12l5 6M16 6l5 6-5 6M14 4l-4 16"/>
+              </svg>
+              Programming
+            </h3>
+            <ul class="skill-box__body">
+              <li>Python</li><li>SQL</li><li>JavaScript</li><li>TypeScript</li><li>React</li><li>Node.js</li>
             </ul>
           </div>
           <div class="skill-box">
@@ -651,18 +667,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
               <li>Data Governance</li><li>Access Controls</li><li>Compliance</li><li>API Integrations</li>
             </ul>
           </div>
-          <div class="skill-box">
-            <h3 class="skill-box__head">
-              <svg class="skill-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                <path d="M8 6 3 12l5 6M16 6l5 6-5 6M14 4l-4 16"/>
-              </svg>
-              Programming
-            </h3>
-            <ul class="skill-box__body">
-              <li>Python</li><li>SQL</li><li>JavaScript</li><li>TypeScript</li><li>React</li><li>Node.js</li>
-            </ul>
-          </div>
-          <div class="skill-box">
+          <div class="skill-box skill-box--languages">
             <h3 class="skill-box__head">
               <svg class="skill-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                 <circle cx="12" cy="12" r="9"/>
@@ -794,7 +799,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 
       <!-- ---------- certifications ---------- -->
       <h3 class="subhead stack-lg"><span class="hash" aria-hidden="true">#</span>certifications</h3>
-      <ul class="certs certs--cards"><li><a class="cert-preview" href="https://verify.skilljar.com/c/pby6viwbnyed" target="_blank" rel="noopener"><span class="cert-preview__image"><img decoding="async" src="assets/certificates/pby6viwbnyed.webp" alt="AI Engineer Certification certificate issued to Roushan Kumar" loading="lazy" width="1000" height="707" /></span><span class="cert-preview__body"><span class="cert-preview__issuer">Palantir Technologies</span><span class="cert-preview__title">AI Engineer Certification</span><span class="cert-preview__action">Open certificate<span aria-hidden="true">&#8599;</span></span></span></a></li>
+      <ul class="certs certs--cards" tabindex="0" aria-label="Certificates ? scroll horizontally to explore"><li><a class="cert-preview" href="https://verify.skilljar.com/c/pby6viwbnyed" target="_blank" rel="noopener"><span class="cert-preview__image"><img decoding="async" src="assets/certificates/pby6viwbnyed.webp" alt="AI Engineer Certification certificate issued to Roushan Kumar" loading="lazy" width="1000" height="707" /></span><span class="cert-preview__body"><span class="cert-preview__issuer">Palantir Technologies</span><span class="cert-preview__title">AI Engineer Certification</span><span class="cert-preview__action">Open certificate<span aria-hidden="true">&#8599;</span></span></span></a></li>
 <li><a class="cert-preview" href="https://verify.skilljar.com/c/iqjrtpi248z9" target="_blank" rel="noopener"><span class="cert-preview__image"><img decoding="async" src="assets/certificates/iqjrtpi248z9.webp" alt="Certified Palantir Foundry Application Developer Professional certificate issued to Roushan Kumar" loading="lazy" width="1000" height="707" /></span><span class="cert-preview__body"><span class="cert-preview__issuer">Palantir Technologies</span><span class="cert-preview__title">Certified Palantir Foundry Application Developer Professional</span><span class="cert-preview__action">Open certificate<span aria-hidden="true">&#8599;</span></span></span></a></li>
 <li><a class="cert-preview" href="https://verify.skilljar.com/c/zka2jmnxfj8r" target="_blank" rel="noopener"><span class="cert-preview__image"><img decoding="async" src="assets/certificates/zka2jmnxfj8r.webp" alt="Certified Palantir Foundry Aware certificate issued to Roushan Kumar" loading="lazy" width="1000" height="707" /></span><span class="cert-preview__body"><span class="cert-preview__issuer">Palantir Technologies</span><span class="cert-preview__title">Certified Palantir Foundry Aware</span><span class="cert-preview__action">Open certificate<span aria-hidden="true">&#8599;</span></span></span></a></li>
 <li><a class="cert-preview" href="https://verify.skilljar.com/c/p792rr4y8it7" target="_blank" rel="noopener"><span class="cert-preview__image"><img decoding="async" src="assets/certificates/p792rr4y8it7.webp" alt="Certified Palantir Foundry Data Engineer certificate issued to Roushan Kumar" loading="lazy" width="1000" height="707" /></span><span class="cert-preview__body"><span class="cert-preview__issuer">Palantir Technologies</span><span class="cert-preview__title">Certified Palantir Foundry Data Engineer</span><span class="cert-preview__action">Open certificate<span aria-hidden="true">&#8599;</span></span></span></a></li></ul>
@@ -805,18 +810,27 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
   <section class="section" id="badges"><div class="container">
 <div class="section-head"><h2 class="section-title">Badges &amp; learning</h2><span class="section-head__rule" aria-hidden="true"></span></div>
 <p class="page-lede">Hands-on coursework across Foundry, AIP, and operational data. Explore each course completion through its original credential link.</p>
-<div class="badge-overview"><span><strong>12</strong> course completions</span><span><strong>3</strong> learning tracks</span><span>Palantir learning</span></div>
-<div class="badge-groups"><div class="badge-group"><h3 class="badge-group__head"><span class="badge-collection-icon"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span>Applications &amp; AIP<span class="badge-collection-count">3 courses</span></h3><p class="badge-group__intro">From ontology functions to AI workflows and process mining.</p><ul class="badge-course-list"><li><a class="badge-course" href="https://verify.skilljar.com/c/neinye7kddza" target="_blank" rel="noopener"><span class="badge-course__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-course__name">Mining Your First Business Process</span><span class="badge-course__meta">Jul 2025 &middot; View credential</span></span><span class="badge-course__arrow" aria-hidden="true">&#8599;</span></a></li>
-<li><a class="badge-course" href="https://verify.skilljar.com/c/2ujx2sk5szd9" target="_blank" rel="noopener"><span class="badge-course__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-course__name">Your First Ontology Function</span><span class="badge-course__meta">Jun 2025 &middot; View credential</span></span><span class="badge-course__arrow" aria-hidden="true">&#8599;</span></a></li>
-<li><a class="badge-course" href="https://verify.skilljar.com/c/y7495gsyec8m" target="_blank" rel="noopener"><span class="badge-course__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-course__name">Your First AIP Workflow</span><span class="badge-course__meta">Jan 2025 &middot; View credential</span></span><span class="badge-course__arrow" aria-hidden="true">&#8599;</span></a></li></ul></div><div class="badge-group"><h3 class="badge-group__head"><span class="badge-collection-icon"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span>Pipelines &amp; Data<span class="badge-collection-count">3 courses</span></h3><p class="badge-group__intro">Building pipelines, protecting data, and exploring operational insights.</p><ul class="badge-course-list"><li><a class="badge-course" href="https://verify.skilljar.com/c/y7ytntcfxmmv" target="_blank" rel="noopener"><span class="badge-course__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-course__name">Data Analysis in Quiver</span><span class="badge-course__meta">Jul 2025 &middot; View credential</span></span><span class="badge-course__arrow" aria-hidden="true">&#8599;</span></a></li>
-<li><a class="badge-course" href="https://verify.skilljar.com/c/pdwckq8sg85o" target="_blank" rel="noopener"><span class="badge-course__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-course__name">Data Protection Tools in Foundry</span><span class="badge-course__meta">Apr 2025 &middot; View credential</span></span><span class="badge-course__arrow" aria-hidden="true">&#8599;</span></a></li>
-<li><a class="badge-course" href="https://verify.skilljar.com/c/ef5ew9u6ot6j" target="_blank" rel="noopener"><span class="badge-course__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-course__name">Building Your First Pipeline</span><span class="badge-course__meta">Jan 2025 &middot; View credential</span></span><span class="badge-course__arrow" aria-hidden="true">&#8599;</span></a></li></ul></div></div>
-<details class="badge-more"><summary class="badge-more__summary">Platform foundations <span class="badge-more__hint">6 course completions &middot; expand to explore</span></summary><div class="badge-more__body"><ul class="badge-course-list"><li><a class="badge-course" href="https://verify.skilljar.com/c/xf2dza4h993n" target="_blank" rel="noopener"><span class="badge-course__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-course__name">Creating Your First Data Connection</span><span class="badge-course__meta">Jan 2025 &middot; View credential</span></span><span class="badge-course__arrow" aria-hidden="true">&#8599;</span></a></li>
-<li><a class="badge-course" href="https://verify.skilljar.com/c/v76gatkr35te" target="_blank" rel="noopener"><span class="badge-course__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-course__name">Data Analysis in Contour</span><span class="badge-course__meta">Jan 2025 &middot; View credential</span></span><span class="badge-course__arrow" aria-hidden="true">&#8599;</span></a></li>
-<li><a class="badge-course" href="https://verify.skilljar.com/c/awairahfrb5x" target="_blank" rel="noopener"><span class="badge-course__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-course__name">Building Your First Application</span><span class="badge-course__meta">Jan 2025 &middot; View credential</span></span><span class="badge-course__arrow" aria-hidden="true">&#8599;</span></a></li>
-<li><a class="badge-course" href="https://verify.skilljar.com/c/t7w8tru9ofy6" target="_blank" rel="noopener"><span class="badge-course__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-course__name">Creating Your First Ontology</span><span class="badge-course__meta">Jan 2025 &middot; View credential</span></span><span class="badge-course__arrow" aria-hidden="true">&#8599;</span></a></li>
-<li><a class="badge-course" href="https://verify.skilljar.com/c/sgfaqg9tbnt7" target="_blank" rel="noopener"><span class="badge-course__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-course__name">Scoping Use Cases for Foundry &amp; AIP</span><span class="badge-course__meta">Jan 2025 &middot; View credential</span></span><span class="badge-course__arrow" aria-hidden="true">&#8599;</span></a></li>
-<li><a class="badge-course" href="https://verify.skilljar.com/c/a5dv4q37an6g" target="_blank" rel="noopener"><span class="badge-course__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-course__name">Introduction to Foundry &amp; AIP for Enterprise Organizations</span><span class="badge-course__meta">Jan 2025 &middot; View credential</span></span><span class="badge-course__arrow" aria-hidden="true">&#8599;</span></a></li></ul></div></details>
+<div class="badge-board" data-badge-board>
+<div class="badge-tracks" role="group" aria-label="Filter badges by track" hidden>
+<button class="badge-track" type="button" data-track="all" aria-pressed="true">All <span>12</span></button>
+<button class="badge-track" type="button" data-track="apps" aria-pressed="false">Applications &amp; AIP <span>3</span></button>
+<button class="badge-track" type="button" data-track="data" aria-pressed="false">Pipelines &amp; Data <span>3</span></button>
+<button class="badge-track" type="button" data-track="foundations" aria-pressed="false">Platform foundations <span>6</span></button>
+</div>
+<ul class="badge-grid">
+<li data-track="apps"><a class="badge-tile" href="https://verify.skilljar.com/c/neinye7kddza" target="_blank" rel="noopener"><span class="badge-tile__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-tile__track">Applications &amp; AIP</span><span class="badge-tile__name">Mining Your First Business Process</span><span class="badge-tile__meta"><time datetime="2025-07">Jul 2025</time> &middot; View credential</span></span><span class="badge-tile__arrow" aria-hidden="true">&#8599;</span></a></li>
+<li data-track="data"><a class="badge-tile" href="https://verify.skilljar.com/c/y7ytntcfxmmv" target="_blank" rel="noopener"><span class="badge-tile__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-tile__track">Pipelines &amp; Data</span><span class="badge-tile__name">Data Analysis in Quiver</span><span class="badge-tile__meta"><time datetime="2025-07">Jul 2025</time> &middot; View credential</span></span><span class="badge-tile__arrow" aria-hidden="true">&#8599;</span></a></li>
+<li data-track="apps"><a class="badge-tile" href="https://verify.skilljar.com/c/2ujx2sk5szd9" target="_blank" rel="noopener"><span class="badge-tile__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-tile__track">Applications &amp; AIP</span><span class="badge-tile__name">Your First Ontology Function</span><span class="badge-tile__meta"><time datetime="2025-06">Jun 2025</time> &middot; View credential</span></span><span class="badge-tile__arrow" aria-hidden="true">&#8599;</span></a></li>
+<li data-track="data"><a class="badge-tile" href="https://verify.skilljar.com/c/pdwckq8sg85o" target="_blank" rel="noopener"><span class="badge-tile__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-tile__track">Pipelines &amp; Data</span><span class="badge-tile__name">Data Protection Tools in Foundry</span><span class="badge-tile__meta"><time datetime="2025-04">Apr 2025</time> &middot; View credential</span></span><span class="badge-tile__arrow" aria-hidden="true">&#8599;</span></a></li>
+<li data-track="apps"><a class="badge-tile" href="https://verify.skilljar.com/c/y7495gsyec8m" target="_blank" rel="noopener"><span class="badge-tile__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-tile__track">Applications &amp; AIP</span><span class="badge-tile__name">Your First AIP Workflow</span><span class="badge-tile__meta"><time datetime="2025-01">Jan 2025</time> &middot; View credential</span></span><span class="badge-tile__arrow" aria-hidden="true">&#8599;</span></a></li>
+<li data-track="data"><a class="badge-tile" href="https://verify.skilljar.com/c/ef5ew9u6ot6j" target="_blank" rel="noopener"><span class="badge-tile__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-tile__track">Pipelines &amp; Data</span><span class="badge-tile__name">Building Your First Pipeline</span><span class="badge-tile__meta"><time datetime="2025-01">Jan 2025</time> &middot; View credential</span></span><span class="badge-tile__arrow" aria-hidden="true">&#8599;</span></a></li>
+<li data-track="foundations"><a class="badge-tile" href="https://verify.skilljar.com/c/xf2dza4h993n" target="_blank" rel="noopener"><span class="badge-tile__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-tile__track">Platform foundations</span><span class="badge-tile__name">Creating Your First Data Connection</span><span class="badge-tile__meta"><time datetime="2025-01">Jan 2025</time> &middot; View credential</span></span><span class="badge-tile__arrow" aria-hidden="true">&#8599;</span></a></li>
+<li data-track="foundations"><a class="badge-tile" href="https://verify.skilljar.com/c/v76gatkr35te" target="_blank" rel="noopener"><span class="badge-tile__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-tile__track">Platform foundations</span><span class="badge-tile__name">Data Analysis in Contour</span><span class="badge-tile__meta"><time datetime="2025-01">Jan 2025</time> &middot; View credential</span></span><span class="badge-tile__arrow" aria-hidden="true">&#8599;</span></a></li>
+<li data-track="foundations"><a class="badge-tile" href="https://verify.skilljar.com/c/awairahfrb5x" target="_blank" rel="noopener"><span class="badge-tile__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-tile__track">Platform foundations</span><span class="badge-tile__name">Building Your First Application</span><span class="badge-tile__meta"><time datetime="2025-01">Jan 2025</time> &middot; View credential</span></span><span class="badge-tile__arrow" aria-hidden="true">&#8599;</span></a></li>
+<li data-track="foundations"><a class="badge-tile" href="https://verify.skilljar.com/c/t7w8tru9ofy6" target="_blank" rel="noopener"><span class="badge-tile__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-tile__track">Platform foundations</span><span class="badge-tile__name">Creating Your First Ontology</span><span class="badge-tile__meta"><time datetime="2025-01">Jan 2025</time> &middot; View credential</span></span><span class="badge-tile__arrow" aria-hidden="true">&#8599;</span></a></li>
+<li data-track="foundations"><a class="badge-tile" href="https://verify.skilljar.com/c/sgfaqg9tbnt7" target="_blank" rel="noopener"><span class="badge-tile__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-tile__track">Platform foundations</span><span class="badge-tile__name">Scoping Use Cases for Foundry &amp; AIP</span><span class="badge-tile__meta"><time datetime="2025-01">Jan 2025</time> &middot; View credential</span></span><span class="badge-tile__arrow" aria-hidden="true">&#8599;</span></a></li>
+<li data-track="foundations"><a class="badge-tile" href="https://verify.skilljar.com/c/a5dv4q37an6g" target="_blank" rel="noopener"><span class="badge-tile__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-tile__track">Platform foundations</span><span class="badge-tile__name">Introduction to Foundry &amp; AIP for Enterprise Organizations</span><span class="badge-tile__meta"><time datetime="2025-01">Jan 2025</time> &middot; View credential</span></span><span class="badge-tile__arrow" aria-hidden="true">&#8599;</span></a></li>
+</ul></div>
 <p class="badge-footnote">These badges represent course completions. View my three professional and foundational <a href="#experience">Foundry certifications</a> in Experience.</p>
 </div></section>
 
@@ -906,13 +920,18 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
   <div class="footer-bottom"><p class="footer__copy">&copy; <span id="year">2026</span> Roushan Kumar</p><span class="footer-bottom__role">Foundry developer / Agentic AI builder</span><a class="footer-top" href="#home">Back to top <span aria-hidden="true">&#8593;</span></a></div>
 </div></footer>
 
-<script src="js/main.js" defer></script>
+<script src="js/main.js?v=nav-20261026" defer></script>
 <script src="js/icons.js" defer></script>
-<script src="js/fx.js?v=hero-start-20261025" defer></script>
-<script src="js/extras.js?v=project-dossier-20261026" defer></script>
-<script src="js/modern.js?v=hero-start-20261025" defer></script>
+<script src="js/experience-logos.js?v=mtas-linkedin-20261026" defer></script>
+<script src="js/fx.js?v=title-restored-20261026" defer></script>
+<script src="js/project-stories.js?v=work-20261026" defer></script>
+<script src="js/extras.js?v=nav-20261026" defer></script>
+<script src="js/modern.js?v=title-support-20261026" defer></script>
 <script src="js/hero-likeness.js?v=local-texture-fix-20261026" defer></script>
 <script src="js/rail.js" defer></script>
 <script src="js/connect.js" defer></script>
+<script src="js/work-explorer.js?v=work-20261026" defer></script>
+<script src="js/skills-badges.js?v=1" defer></script>
+<script src="js/cert-carousel.js?v=cert-gallery-20261026" defer></script>
 </body>
 </html>

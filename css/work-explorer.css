@@ -1,0 +1,39 @@
+/* Work is the main interaction: choose a skill, then inspect its implementation. */
+.work-kicker { color:#c4b2f3; font:500 .75rem/1.6 var(--mono); letter-spacing:.07em; text-transform:uppercase; }
+.selected-work { margin:40px 0 44px; }
+.selected-work__title { margin:12px 0 24px; font-size:clamp(1.6rem,3vw,2.4rem); font-weight:500; letter-spacing:-.04em; }
+.selected-work__grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.selected-work__card { position:relative; display:flex; flex-direction:column; align-items:flex-start; gap:16px; min-width:0; padding:28px; border:1px solid #ffffff24; border-radius:18px; background:linear-gradient(135deg,#1b2030,#11151f); color:#edf0f9; font:inherit; text-align:left; cursor:pointer; transition:border-color .2s,background .2s; }
+.selected-work__number { color:var(--work-accent,#b49aff); font:.75rem var(--mono); }
+.selected-work__discipline { color:#b8c3d6; font:.75rem/1.6 var(--mono); }
+.selected-work__name { max-width:20ch; font-size:clamp(1.25rem,2vw,1.65rem); letter-spacing:-.035em; line-height:1.3; }
+.selected-work__action { display:flex; align-items:center; justify-content:space-between; width:100%; margin-top:auto; padding-top:18px; border-top:1px solid #ffffff16; font-size:.8125rem; color:#c9d2e2; }
+.selected-work__action > span { color:var(--work-accent); font-size:22px; }
+.selected-work__card:hover { border-color:var(--work-accent); background:#1b2131; }
+#skills .section-figure { min-height:620px; }
+.work-explorer { padding:clamp(22px,3vw,40px); margin:24px 0 44px; border:1px solid #ffffff26; border-radius:22px; background:linear-gradient(135deg,#1b2030,#101520); }
+.work-explorer__header { display:flex; justify-content:space-between; align-items:end; gap:32px; }
+.work-explorer__header h3 { margin:10px 0 12px; font-size:clamp(1.5rem,2.8vw,2.15rem); max-width:26ch; font-weight:500; line-height:1.2; letter-spacing:-.035em; }
+.work-explorer__intro { max-width:58ch; font-size:.9375rem; color:#bbc6d9; line-height:1.75; }
+.work-explorer__select { display:flex; flex-direction:column; gap:10px; min-width:220px; font:.8125rem/1.6 var(--sans); color:#c8d2e2; }
+.work-explorer select { width:100%; min-height:48px; border:1px solid #74819b; border-radius:10px; padding:10px 12px; color:#eef0f9; background:#101622; font:1rem var(--sans); }
+.work-explorer__quick { display:flex; flex-wrap:wrap; gap:8px; margin:24px 0; }
+.work-explorer__quick button { min-height:44px; padding:9px 15px; border:1px solid #74819b; border-radius:999px; background:transparent; color:#ccd6e7; font:.875rem/1.5 var(--sans); cursor:pointer; }
+.work-explorer__quick button:hover { background:#b49aff14; }
+.work-explorer__quick button[aria-pressed=true] { background:#c7b2ff; border-color:#c7b2ff; color:#151020; }
+.work-explorer__status { color:#b9c6db; font:.8125rem/1.7 var(--sans); margin-bottom:16px; }
+.work-explorer__results { display:grid; gap:12px; }
+.work-explorer__result { display:grid; grid-template-columns:150px minmax(0,1fr) 32px; gap:24px; align-items:center; width:100%; padding:18px; border:1px solid #ffffff23; border-radius:12px; background:#101620; color:#cbd5e5; font:inherit; text-align:left; cursor:pointer; transition:border-color .2s; }
+.work-explorer__result:hover { border-color:var(--work-accent); }
+.work-explorer__art { display:block; aspect-ratio:16/9; border:1px solid #ffffff1a; background:#0b1019; border-radius:6px; padding:6px; }
+.work-explorer__art img { width:100%; height:100%; object-fit:contain; }
+.work-explorer__body { display:flex; flex-direction:column; gap:7px; min-width:0; }
+.work-explorer__discipline { color:var(--work-accent); font:.6875rem/1.6 var(--mono); }
+.work-explorer__name { color:#eef0fa; font-weight:500; font-size:1.125rem; line-height:1.4; letter-spacing:-.02em; }
+.work-explorer__contribution { color:#b7c5da; font-size:.875rem; line-height:1.7; }
+.work-explorer__arrow { color:var(--work-accent); font-size:24px; text-align:center; }
+.work-explorer__empty { padding:24px; border:1px dashed #8290aa; border-radius:10px; line-height:1.8; color:#c4cee0; }
+:is(.selected-work,.work-explorer) :is(button,select):focus-visible { outline:3px solid #a8eee4; outline-offset:4px; }
+@media(max-width:1000px) { .selected-work__card { padding:22px; } .work-explorer__header { align-items:start; flex-direction:column; gap:20px; } .work-explorer__select { width:min(100%,360px); } }
+@media(max-width:700px) { .selected-work__grid { grid-template-columns:1fr; gap:12px; } .selected-work__card { display:grid; grid-template-columns:24px minmax(0,1fr); gap:10px 14px; } .selected-work__number { grid-row:1 / span 2; } .selected-work__discipline,.selected-work__name,.selected-work__action { grid-column:2; } .selected-work__name { max-width:30ch; } .selected-work__action { margin-top:4px; padding-top:12px; } #skills .section-figure { min-height:540px; } .work-explorer { padding:20px 16px; } .work-explorer__result { grid-template-columns:minmax(0,1fr) 24px; gap:12px; padding:18px 14px; } .work-explorer__art { display:none; } .work-explorer__name { font-size:1rem; } }
+@media(prefers-reduced-motion:reduce) { .selected-work__card,.work-explorer__result { transition:none; } }

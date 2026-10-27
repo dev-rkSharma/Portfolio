@@ -8,7 +8,9 @@
 (function () {
   "use strict";
 
-  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var reduceMotion = motionPreference.matches;
+  motionPreference.addEventListener('change', function (e) { reduceMotion = e.matches; });
   var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   var raf = window.requestAnimationFrame;
 
@@ -85,7 +87,7 @@
 
     // boxes: the frame + dividers, chips, tags, badges, buttons, bars
     [root].concat($all("*", root)).forEach(function (n) {
-      if (n.closest("svg") || n.tagName === "CANVAS" || n.tagName === "IMG") return;
+      if (opts.inkOnly || n.closest("svg") || n.tagName === "CANVAS" || n.tagName === "IMG") return;
       var r = n.getBoundingClientRect();
       if (!r.width || !r.height) return;
       var cs = getComputedStyle(n);
@@ -130,7 +132,7 @@
       var r = n.getBoundingClientRect();
       if (!r.width || !r.height) return;
       if (opts.noImages) return;
-      var src = n.tagName === "IMG" ? (n.complete ? n : null) : (opts.media && opts.media.get(n));
+      var src = n.tagName === "IMG" ? (n.fxRasterImage && n.fxRasterImage.complete ? n.fxRasterImage : (n.complete ? n : null)) : (opts.media && opts.media.get(n));
       if (src) {
         try { o.drawImage(src, r.left - cb.left, r.top - cb.top, r.width, r.height); } catch (e) { /* tainted/broken: skip */ }
       }
@@ -212,14 +214,14 @@
       if (opts.noImages) return [];
       return rasterizeBox(root, ox, oy, Object.assign({}, opts, { noImages: true }));
     }
-    var step = 3, pts;
+    var step = opts.step || 3, pts;
     do {
       pts = [];
       for (var y = 0; y < h; y += step) {
         var sy = cb.top + y;
         for (var x = 0; x < w; x += step) {
           var k = (y * w + x) * 4;
-          if (data[k + 3] < 110) continue;
+          if (data[k + 3] < (opts.alphaThreshold || 110)) continue;
           pts.push({ x: cb.left - sb.left + x, y: sy - sb.top, r: data[k], g: data[k + 1], b: data[k + 2] });
         }
       }
@@ -274,7 +276,7 @@
      Scroll position along .j3d picks the stop. The canvas draws a 3D
      constellation (plain 2D-canvas perspective projection, no WebGL) with the
      stops as bright nodes on a helix; the camera turns so the current stop
-     faces front. The panel swaps stops with a pixel dissolve/build. Under
+     faces front. Alphanumeric ink flows from that node to form the story. Under
      reduced motion the network renders static and the panel swaps instantly. */
   var roadmap = document.querySelector(".roadmap");
 
@@ -289,7 +291,8 @@
         now: m.classList.contains("is-now"),
         year: m.querySelector(".milestone__year").textContent,
         title: m.getAttribute("data-label") || "",
-        html: m.querySelector(".milestone__card").innerHTML
+        html: m.querySelector(".milestone__card").innerHTML,
+        logo: ["education.svg","development.svg","btu.png","mtas-icon.png","vanyar.png","palantir.svg"][i]
       };
     });
 
@@ -325,6 +328,8 @@
     var pagerBtns = $all(".j3d__pager button", track);
 
     /* --- scroll -> stop position ------------------------------------- */
+    function nodeLogoSource(name){return (window.PORTFOLIO_EXPERIENCE_LOGOS||{})[name]||'assets/experience/'+name;}
+    var nodeLogos=STOPS.map(function(stop){var image=new Image();image.onload=function(){kick();if(shown===stop.i&&!morphing)refreshParticles();};image.src=nodeLogoSource(stop.logo);return image;});
     var pos = 0;          // continuous stop position, 0 .. N-1
     var current = -1;     // stop shown in the panel
 
@@ -347,22 +352,12 @@
     }
 
     /* --- detail panel + particle morph -------------------------------- */
-    /* Changing stop morphs the whole panel through dots:
-         1. rasterize the panel as it is on screen (frame, header, bar,
-            text, chips, badges, pager) and sample it into small dots
-         2. hide the real panel; the dots burst outward and swirl
-         3. swap in the next stop, rasterize it the same way
-         4. the dots fly along curved paths into the new panel's shape,
-            recolouring on the way, then the real panel fades back in
-       The dot canvas (.j3d__fx) covers the whole stage, so the burst can
-       spill out over the network. If the stop changes mid-morph, the latest
-       stop wins at the next swap point. */
-    var DOT = 2;              // dot size, CSS px
-    var BURST_MS = 520, FORM_MS = 900;
-    var MAX_DOTS = 4200;      // ink dots; the box texture adds a sparse layer on top
-    var TINTS = [[199, 120, 221], [97, 175, 239], [86, 182, 194], [255, 255, 255]];
+    /* Sample only the story ink into tiny connected dots. Particles
+       return to the old node, then flow from the newly selected node into
+       the next story. The settled story remains crisp on the particle canvas. */
+    var MAX_DOTS = 80000;      // bounded ink sampling; no panel texture
     var morphing = false, shown = -1;
-    var dots = [];
+    var dots = [], morphVersion = 0;
 
     var fx = track.querySelector(".j3d__fx");
     var fctx = fx.getContext("2d");
@@ -373,6 +368,12 @@
       content.setAttribute("data-kind", s.kind);
       content.classList.toggle("is-now", s.now);
       content.innerHTML = s.html;
+      var logoWrap=el('div','j3d__story-logo'),logoImage=new Image(),source=nodeLogos[i];
+      logoImage.alt='';logoImage.src=nodeLogoSource(s.logo);logoImage.fxRasterImage=source;
+      var ratio=source.naturalWidth&&source.naturalHeight?Math.min(104/source.naturalWidth,80/source.naturalHeight):1;
+      logoImage.width=source.naturalWidth?Math.round(source.naturalWidth*ratio):80;
+      logoImage.height=source.naturalHeight?Math.round(source.naturalHeight*ratio):80;
+      logoWrap.appendChild(logoImage);content.prepend(logoWrap);
       // the panel is aria-hidden; keep its links out of the tab order too
       $all("a, button", content).forEach(function (a) { a.setAttribute("tabindex", "-1"); });
       countEl.innerHTML = "Stop <b>" + String(i + 1).padStart(2, "0") + "</b> / " + String(N).padStart(2, "0");
@@ -392,22 +393,42 @@
 
     function rasterize() {
       var sb = stage.getBoundingClientRect();
-      return rasterizeBox(panel, sb.left, sb.top, { maxDots: MAX_DOTS });
+      return rasterizeBox(panel, sb.left, sb.top, { maxDots: MAX_DOTS, texture: false, inkOnly: true, step: 1, alphaThreshold: 100 }).map(function(p,i){p.a=1;p.size=1.15;return p;});
     }
 
     function drawDots() {
       fctx.clearRect(0, 0, stage.offsetWidth, stage.offsetHeight);
-      for (var i = 0; i < dots.length; i++) {
-        var d = dots[i];
-        if (d.a <= 0.01) continue;
-        fctx.fillStyle = "rgba(" + (d.r | 0) + "," + (d.g | 0) + "," + (d.b | 0) + "," + d.a.toFixed(3) + ")";
-        fctx.fillRect(d.x - DOT / 2, d.y - DOT / 2, DOT, DOT);
-      }
+      // Spatial buckets keep short graph-like connections local and bounded.
+      // No glow or long lines across the settled letterforms.
+      var cell=morphing?14:2,buckets=Object.create(null);
+      fctx.lineWidth=morphing?.4:.25;
+      fctx.strokeStyle=morphing?'rgba(167,187,223,.17)':'rgba(211,226,248,.25)';
+      fctx.beginPath();
+      dots.forEach(function(d){
+        if(d.a<.15)return;
+        var gx=Math.floor(d.x/cell),gy=Math.floor(d.y/cell),links=0;
+        for(var yy=gy-1;yy<=gy&&links<2;yy++)for(var xx=gx-1;xx<=gx+1&&links<2;xx++){
+          var bucket=buckets[xx+','+yy];if(!bucket)continue;
+          for(var j=bucket.length-1;j>=Math.max(0,bucket.length-6)&&links<2;j--){
+            var n=bucket[j],dx=n.x-d.x,dy=n.y-d.y,dist=dx*dx+dy*dy;
+            if(dist>cell*cell||dist<.25)continue;
+            fctx.moveTo(d.x,d.y);fctx.lineTo(n.x,n.y);links++;
+          }
+        }
+        var key=gx+','+gy;(buckets[key]||(buckets[key]=[])).push(d);
+      });
+      fctx.stroke();
+      dots.forEach(function(d){
+        if(d.a<=.01)return;
+        fctx.fillStyle='rgba('+(d.r|0)+','+(d.g|0)+','+(d.b|0)+','+d.a.toFixed(3)+')';
+        fctx.beginPath();fctx.arc(d.x,d.y,(d.size||1.15)*.5,0,Math.PI*2);fctx.fill();
+      });
     }
 
     function animate(ms, step, done) {
-      var t0 = performance.now();
+      var t0 = performance.now(), version=morphVersion;
       (function frame(now) {
+        if(version!==morphVersion)return;
         // rAF timestamps can precede performance.now() by a frame — clamp at 0
         var t = Math.min(Math.max((now - t0) / ms, 0), 1);
         step(t);
@@ -420,116 +441,47 @@
     function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
     function easeInOut(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
 
-    // 2. the current panel bursts into a drifting cloud
-    function burst(done) {
-      var cb = panel.getBoundingClientRect(), sb = stage.getBoundingClientRect();
-      var cx = cb.left - sb.left + cb.width / 2, cy = cb.top - sb.top + cb.height / 2;
-      dots.forEach(function (d) {
-        var ang = Math.atan2(d.y - cy, d.x - cx) + (Math.random() - 0.5) * 1.8;
-        var dist = 30 + Math.random() * 170;
-        d.ox = d.x; d.oy = d.y;
-        d.sx = d.x + Math.cos(ang) * dist;
-        d.sy = d.y + Math.sin(ang) * dist - Math.random() * 30;
-        d.px = -Math.sin(ang); d.py = Math.cos(ang);              // swirl direction
-        d.sw = (Math.random() - 0.5) * 90;
-        d.del = Math.random() * 0.35;
-        // tint toward the accent palette while airborne
-        var tint = TINTS[(Math.random() * TINTS.length) | 0];
-        d.or = d.r; d.og = d.g; d.ob = d.b;
-        d.tr = tint[0]; d.tg = tint[1]; d.tb = tint[2];
-      });
-      animate(BURST_MS, function (t) {
-        dots.forEach(function (d) {
-          var lt = clamp01((t - d.del) / (1 - d.del)), e = easeOut(lt), s = Math.sin(lt * Math.PI) * d.sw;
-          d.x = d.ox + (d.sx - d.ox) * e + d.px * s;
-          d.y = d.oy + (d.sy - d.oy) * e + d.py * s;
-          d.a = 1 - 0.3 * e;
-          d.r = d.or + (d.tr - d.or) * e * 0.7;
-          d.g = d.og + (d.tg - d.og) * e * 0.7;
-          d.b = d.ob + (d.tb - d.ob) * e * 0.7;
-        });
-      }, done);
+    function nodeOrigin(index) {
+      return (screenStops && screenStops[index]) || {x:stage.offsetWidth*.29,y:stage.offsetHeight*.52};
     }
-
-    // 4. the cloud flies into the shape of the next panel
-    function form(targets, done) {
-      for (var s = dots.length - 1; s > 0; s--) {                 // shuffle: any dot can land anywhere
-        var j = (Math.random() * (s + 1)) | 0, tmp = dots[s]; dots[s] = dots[j]; dots[j] = tmp;
-      }
-      var next = [];
-      targets.forEach(function (tg, i) {
-        var d = dots[i];
-        if (!d) {                                                  // more dots needed: spawn from the cloud
-          var src = dots.length ? dots[(Math.random() * dots.length) | 0] : tg;
-          d = { x: src.x + (Math.random() - 0.5) * 60, y: src.y + (Math.random() - 0.5) * 60,
-                r: src.r, g: src.g, b: src.b, a: 0 };
-        }
-        d.fx = d.x; d.fy = d.y; d.fa = d.a;
-        d.fr = d.r; d.fg = d.g; d.fb = d.b;
-        d.tx = tg.x; d.ty = tg.y; d.tr = tg.r; d.tg = tg.g; d.tb = tg.b;
-        var mx = (d.fx + d.tx) / 2, my = (d.fy + d.ty) / 2;
-        var dx = d.tx - d.fx, dy = d.ty - d.fy, len = Math.sqrt(dx * dx + dy * dy) || 1;
-        var bend = (Math.random() - 0.5) * Math.min(len, 160);
-        d.cx = mx - (dy / len) * bend; d.cy = my + (dx / len) * bend;  // curved flight
-        d.del = Math.random() * 0.42;
-        d.dead = false;
-        next.push(d);
-      });
-      dots.slice(targets.length).forEach(function (d) {            // leftovers drift off and fade
-        d.dead = true; d.fx = d.x; d.fy = d.y; d.fa = d.a;
-        d.tx = d.x + (Math.random() - 0.5) * 120; d.ty = d.y + (Math.random() - 0.5) * 120;
-        d.del = Math.random() * 0.3;
-        next.push(d);
-      });
-      dots = next;
-
-      animate(FORM_MS, function (t) {
-        dots.forEach(function (d) {
-          var lt = clamp01((t - d.del) / (1 - d.del)), e = easeInOut(lt), u = 1 - e;
-          if (d.dead) {
-            d.x = d.fx + (d.tx - d.fx) * e; d.y = d.fy + (d.ty - d.fy) * e; d.a = d.fa * u;
-            return;
-          }
-          d.x = u * u * d.fx + 2 * u * e * d.cx + e * e * d.tx;
-          d.y = u * u * d.fy + 2 * u * e * d.cy + e * e * d.ty;
-          d.r = d.fr + (d.tr - d.fr) * e; d.g = d.fg + (d.tg - d.fg) * e; d.b = d.fb + (d.tb - d.fb) * e;
-          d.a = d.fa + (1 - d.fa) * e;
-        });
-      }, done);
+    function settle() {
+      fillPanel(current);sizeFx();dots=rasterize();drawDots();
+      panel.style.opacity='0';fx.style.opacity='1';morphing=false;
     }
-
     function morphTo() {
-      morphing = true;
-      sizeFx();
-      fx.style.transition = "none";
-      fx.style.opacity = "1";
-      dots = rasterize().map(function (p) { p.a = 1; return p; });
-      drawDots();                                   // dots on top first, then hide the panel — no flash
-      panel.style.transition = "none";
-      panel.style.opacity = "0";
-
-      burst(function () {
-        fillPanel(current);                         // latest stop wins
-        form(rasterize(), function () {
-          panel.style.transition = "opacity 260ms ease";
-          panel.style.opacity = "1";
-          fx.style.transition = "opacity 260ms ease";
-          fx.style.opacity = "0";
-          window.setTimeout(function () {
-            dots = [];
-            fctx.clearRect(0, 0, stage.offsetWidth, stage.offsetHeight);
-            morphing = false;
-            if (shown !== current) morphTo();
-          }, 270);
-        });
-      });
+      morphing=true;morphVersion++;sizeFx();
+      panel.style.opacity='0';fx.style.opacity='1';
+      // Existing dots return to their own graph point before the next
+      // point emits the new story. There is no solid-card handoff.
+      var oldOrigin=nodeOrigin(shown);
+      dots.forEach(function(d){d.ox=d.x;d.oy=d.y;d.oa=d.a;});
+      function emit() {
+        fillPanel(current);
+        var targets=rasterize();
+        var stride=Math.max(1,Math.ceil(targets.length/5500));targets=targets.filter(function(t,i){return i%stride===0;});
+        dots=targets.map(function(t,i){var source=nodeOrigin(shown);return {x:source.x,y:source.y,tx:t.x,ty:t.y,r:t.r,g:t.g,b:t.b,a:0,size:2.6,delay:(i%43)/43*.36,bend:Math.sin(i*2.4)*65};});
+        animate(1450,function(t){
+          var source=nodeOrigin(shown);
+          dots.forEach(function(d){var local=clamp01((t-d.delay)/(1-d.delay)),e=easeInOut(local),u=1-e;
+            d.x=source.x*u+d.tx*e;
+            d.y=source.y*u+d.ty*e+Math.sin(e*Math.PI)*d.bend;
+            d.a=clamp01(local*5);
+            d.size=1.15+1.45*(1-e);
+          });
+        },function(){morphing=false;if(shown!==current)morphTo();else settle();});
+      }
+      if(!dots.length){emit();return;}
+      animate(340,function(t){var e=easeInOut(t);dots.forEach(function(d){d.x=d.ox+(oldOrigin.x-d.ox)*e;d.y=d.oy+(oldOrigin.y-d.oy)*e;d.a=d.oa*(1-e);});},emit);
     }
-
     function showStop(i) {
-      current = i;
-      if (shown === -1 || reduceMotion) { fillPanel(i); return; }
-      if (!morphing && shown !== i) morphTo();
+      current=i;
+      if(reduceMotion){morphVersion++;settle();return;}
+      if(!morphing&&shown!==i)morphTo();
     }
+    var refreshParticles=function(){if(current<0)return;morphVersion++;settle();};
+    panel.querySelector('.j3d__body').addEventListener('scroll',refreshParticles,{passive:true});
+    motionPreference.addEventListener('change',refreshParticles);
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){if(!morphing)refreshParticles();});
 
     pagerBtns.forEach(function (b) {
       b.addEventListener("click", function () { scrollToStop(Number(b.getAttribute("data-go"))); });
@@ -691,7 +643,7 @@
         var p = S[i], st = STOPS[i];
         var passed = i <= pos + 0.01, isActive = i === active;
         var hue = st.kind === "edu" ? "97,175,239" : st.kind === "next" ? "152,195,121" : "199,120,221";
-        var r = (isActive ? 11 : 7) * p.k;
+        var r = Math.max(mobile?11:14,(isActive ? 24 : 18) * p.k);
         var al = depthAlpha(p.z);
 
         if (isActive) {
@@ -707,16 +659,18 @@
             ctx.beginPath(); ctx.arc(p.x, p.y, r * (1.2 + ping * 2.2), 0, Math.PI * 2); ctx.stroke();
           }
         }
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = "rgba(" + hue + "," + al.toFixed(3) + ")";
-        ctx.fillStyle = passed ? "rgba(" + hue + "," + al.toFixed(3) + ")" : "rgba(30,33,39," + al.toFixed(3) + ")";
-        if (st.kind === "next") ctx.setLineDash([3, 3]);
-        ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        ctx.setLineDash([]);
-        if (passed) {
-          ctx.fillStyle = "rgba(255,255,255," + (0.9 * al).toFixed(3) + ")";
-          ctx.beginPath(); ctx.arc(p.x, p.y, r * 0.38, 0, Math.PI * 2); ctx.fill();
+        ctx.save();ctx.globalAlpha=isActive?1:Math.max(.6,al);
+        ctx.fillStyle='#0e1522';ctx.strokeStyle='rgba('+hue+','+(isActive?.9:.4)+')';ctx.lineWidth=isActive?1.5:1;
+        ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill();ctx.stroke();
+        var logo=nodeLogos[i];
+        if(logo&&logo.complete&&logo.naturalWidth){
+          var inset=r*.22,available=(r-inset)*2,ratio=Math.min(available/logo.naturalWidth,available/logo.naturalHeight);
+          ctx.save();ctx.beginPath();ctx.arc(p.x,p.y,r-2,0,Math.PI*2);ctx.clip();
+          ctx.drawImage(logo,p.x-logo.naturalWidth*ratio/2,p.y-logo.naturalHeight*ratio/2,logo.naturalWidth*ratio,logo.naturalHeight*ratio);ctx.restore();
+        }else{
+          ctx.fillStyle='rgb('+hue+')';ctx.beginPath();ctx.arc(p.x,p.y,r*.3,0,Math.PI*2);ctx.fill();
         }
+        ctx.restore();
 
         // labels: year on every stop, title on the active one
         ctx.textBaseline = "middle";
@@ -734,17 +688,19 @@
 
     var visible = false, loopOn = false;
     function loop(time) {
-      if (!visible) { loopOn = false; return; }
+      if (!visible || document.hidden) { loopOn = false; return; }
       render(time);
       if (reduceMotion) { loopOn = false; return; }
       raf(loop);
     }
     function kick() {
-      if (loopOn || !visible) return;
+      if (loopOn || !visible || document.hidden) return;
       loopOn = true;
       raf(loop);
     }
 
+    document.addEventListener('visibilitychange', kick);
+    motionPreference.addEventListener('change', kick);
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (entries) {
         visible = entries[0].isIntersecting;
@@ -763,7 +719,7 @@
     // click a stop node to fly to it
     net.addEventListener("click", function (e) {
       var r = net.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
-      var best = -1, bd = 26 * 26;
+      var best = -1, bd = 38 * 38;
       screenStops.forEach(function (p, i) {
         var d = (p.x - x) * (p.x - x) + (p.y - y) * (p.y - y);
         if (d < bd) { bd = d; best = i; }
@@ -778,7 +734,7 @@
       raf(function () { scrollTick = false; readScroll(); if (reduceMotion) kick(); });
     }, { passive: true });
 
-    function relayout() { sizeNet(); readScroll(); if (reduceMotion) kick(); }
+    function relayout() { var previousWidth=W,previousHeight=H;sizeNet(); readScroll(); if(previousWidth&&(previousWidth!==W||previousHeight!==H))refreshParticles(); if (reduceMotion) kick(); }
     if ("ResizeObserver" in window) new ResizeObserver(function () { raf(relayout); }).observe(stage);
     else window.addEventListener("resize", relayout);
     relayout();
@@ -859,11 +815,12 @@
   (function () {
     var title=document.querySelector('.hero__title');
     if(!title||!Element.prototype.animate)return;
-    if(window.heroIntroBoot&&window.heroIntroBoot.expired)return;
     if(location.hash&&location.hash!=='#home')return;
+    if(window.heroIntroBoot){clearTimeout(window.heroIntroBoot.timer);window.heroIntroBoot.expired=false;}
     title.dataset.introState='pending';
     var original=title.innerHTML,animations=[],done=false,started=false,startScroll=scrollY;
-    var preference=matchMedia('(prefers-reduced-motion: reduce)');
+    var preference=matchMedia('(prefers-reduced-motion: reduce)'),introWidth=innerWidth,introHeight=innerHeight;
+    function onResize(){if(innerWidth!==introWidth||innerHeight!==introHeight)finish();}
     var canvas=null,context=null,frame=0,grains=[],landings=[],epoch=0;
     function finish(){
       if(done)return;done=true;cancelAnimationFrame(frame);animations.forEach(function(a){a.cancel();});
@@ -871,7 +828,7 @@
       document.documentElement.classList.remove('hero-title-pending');
       title.innerHTML=original;title.classList.remove('letter-assembly','cinematic-title');title.removeAttribute('aria-label');
       title.dataset.introState='ready';document.dispatchEvent(new CustomEvent('hero-title-ready'));
-      window.removeEventListener('resize',finish);window.removeEventListener('scroll',onScroll);
+      window.removeEventListener('resize',onResize);window.removeEventListener('scroll',onScroll);
       preference.removeEventListener('change',finish);document.removeEventListener('visibilitychange',onVisibility);document.removeEventListener('hero-intro-fallback',finish);
     }
     function onScroll(){if(started&&Math.abs(scrollY-startScroll)>12)finish();}
@@ -893,7 +850,7 @@
     }
     var fonts=document.fonts?document.fonts.ready:Promise.resolve();
     Promise.race([fonts,new Promise(function(resolve){setTimeout(resolve,120);})]).then(function(){
-      if(done)return;if(preference.matches||document.hidden||scrollY>innerHeight*.5||(window.heroIntroBoot&&window.heroIntroBoot.expired)){finish();return;}
+      if(done)return;if(preference.matches||document.hidden||scrollY>innerHeight*.5){finish();return;}
       title.setAttribute('aria-label',title.textContent.replace(/\s+/g,' ').trim());
       var letters=[];
       function split(node){Array.from(node.childNodes).forEach(function(child){
@@ -936,7 +893,7 @@
       frame=requestAnimationFrame(dust);
       setTimeout(finish,letters.length*cadence+duration+1500);
     }).catch(finish);
-    window.addEventListener('resize',finish);window.addEventListener('scroll',onScroll,{passive:true});
+    window.addEventListener('resize',onResize);window.addEventListener('scroll',onScroll,{passive:true});
     preference.addEventListener('change',finish);document.addEventListener('visibilitychange',onVisibility);document.addEventListener('hero-intro-fallback',finish);
   })();
 
@@ -1019,7 +976,7 @@
      where the pointer came in — which drifts outward, tints to the accent
      palette and fades. Same rasterizer as the journey panel. One box at a
      time; scrolling clears it. */
-  var PIX_BOXES = ".card, .badge-group, .certs--cards li, .contacts__box, .badge-more, .stats";
+  var PIX_BOXES = ".certs--cards li";
   var DUST_MAX = 420, DUST_COOLDOWN = 900;
   var PIX_TINTS = [[199, 120, 221], [97, 175, 239], [86, 182, 194], [255, 255, 255]];
   var pixLayer = null, pixCtx = null, pixRun = null;

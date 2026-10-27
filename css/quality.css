@@ -1,0 +1,25 @@
+/* A consistent interaction baseline, without changing the site's dark palette. */
+html { scrollbar-gutter:stable; }
+:root { --text-dim:#acb9ce; }
+button,a,input,select,textarea { -webkit-tap-highlight-color:#b49aff35; }
+:focus-visible { outline:3px solid #a8eee4; outline-offset:4px; }
+:is(.nav__link,.proj-filter,.proj-rail__btn,.pd__nav,.pd__close,.pd__back,.pd__zoom,.about-tabs button,.contact-topic,.cmdk__trigger) { min-height:44px; }
+.nav__link { display:inline-flex; align-items:center; }
+.pd__bar .pd__nav,.pd__bar .pd__close { width:44px; }
+.pd__figlabel,.pd__caption,.pd__series,.pd__aside-title,.pd__eyebrow { font-size:.75rem; }
+.pd__decisions,.pd__checks { overflow-wrap:anywhere; }
+.sgraph__hint { font-size:.75rem; letter-spacing:.02em; background:#0d121ce6; padding:7px 10px; border-radius:7px; }
+.pd[open] ~ .cursor-smoke { display:none; }
+body:has(.pd[open]) > .cursor-smoke { display:none; }
+/* Motion accents the work; cards and reading surfaces stay steady. */
+body.scroll-motion main .reveal .card:hover,body.scroll-motion main .reveal .skill-box:hover,
+body.scroll-motion main .reveal .badge-group:hover,main .kpi-grid .stat:hover { translate:none; }
+.hero-atmosphere { opacity:.55; }
+.pd__next-card,.card,.skill-box { transition-property:border-color,box-shadow,background-color; transition-duration:180ms; }
+@media(prefers-reduced-motion:reduce) {
+  html { scroll-behavior:auto; }
+  *,*::before,*::after { animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; scroll-behavior:auto!important; }
+  .scroll-component,.scroll-parallax { translate:none!important; rotate:none!important; scale:1!important; }
+}
+@media(max-width:600px) { .pd__back { width:44px; } .pd__pager { gap:6px; } .pd__bar { gap:6px; } }
+@media(forced-colors:active) { :focus-visible { outline:3px solid Highlight; } :is(button,select,input,textarea) { border:1px solid ButtonText; } }

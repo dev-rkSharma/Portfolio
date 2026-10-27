@@ -1187,3 +1187,11 @@ main { overflow-x: clip; }
 @keyframes portrait-aura { from { opacity: .65; scale: .96; } to { opacity: 1; scale: 1.04; } }
 @media(max-width:820px) { .hero__visual[data-hero-photo] .portrait-shell.portrait-3d { width: min(88%,390px); } }
 @media(prefers-reduced-motion:reduce) { .hero__visual[data-hero-photo] .portrait-shell::before { animation: none; } }
+
+/* KPI tiles sit directly on the page: no card background, border or lift. */
+main .stats.kpi-grid .stat,
+main .stats.kpi-grid .stat:hover { background: none; border: 0; border-radius: 0; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; translate: none; overflow: visible; }
+main .stats.kpi-grid .stat::before { display: none; }
+main .stats.kpi-grid { background: none; border: 0; border-radius: 0; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+main .stats.kpi-grid.fx-spot::before,
+main .stats.kpi-grid.fx-spot::after { display: none; }

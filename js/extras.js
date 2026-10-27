@@ -13,7 +13,9 @@
 (function () {
   "use strict";
 
-  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var reduceMotion = motionPreference.matches;
+  motionPreference.addEventListener('change', function () { reduceMotion = motionPreference.matches; });
   var raf = window.requestAnimationFrame;
 
   function $all(sel, root) {
@@ -63,9 +65,9 @@
       var lr = navList.getBoundingClientRect(), r = link.getBoundingClientRect();
       if (instant) pill.style.transition = "none";
       pill.style.opacity = "1";
-      pill.style.width = (r.width + 20).toFixed(1) + "px";
-      pill.style.height = (r.height + 10).toFixed(1) + "px";
-      pill.style.transform = "translate(" + (r.left - lr.left - 10).toFixed(1) + "px," + (r.top - lr.top - 5).toFixed(1) + "px)";
+      pill.style.width = r.width.toFixed(1) + "px";
+      pill.style.height = r.height.toFixed(1) + "px";
+      pill.style.transform = "translate(" + (r.left - lr.left).toFixed(1) + "px," + (r.top - lr.top).toFixed(1) + "px)";
       if (instant) { void pill.offsetWidth; pill.style.transition = ""; }
     };
 
@@ -121,6 +123,7 @@
       '      <p class="pd__series">Selected work <span aria-hidden="true">/</span> Project dossier</p>' +
       '      <p class="pd__eyebrow"><span class="pd__kind" data-pd-kind></span><span class="pd__state" data-pd-state hidden></span></p>' +
       '      <h2 class="pd__title" id="pd-title"></h2>' +
+      '      <p class="pd__premise" data-pd-premise hidden></p>' +
       '      <ul class="pd__tech card__tech" aria-label="Technologies"></ul>' +
       '      <div class="pd__signature"><span class="pd__signature-mark" aria-hidden="true">RK</span><span>Engineering portfolio<br><strong>Roushan Kumar</strong></span></div>' +
       '    </header>' +
@@ -157,16 +160,22 @@
     var diagram = dlg.querySelector(".pd__diagram");
     var zoomBtn = dlg.querySelector(".pd__zoom");
     var readBar = dlg.querySelector(".pd__read");
+    var edgeProgress=el('span','pd__reading-progress');edgeProgress.setAttribute('aria-hidden','true');dlg.querySelector('.pd__bar').appendChild(edgeProgress);
+    var seenSections=new WeakSet();
+    var chapterObserver=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(!entry.isIntersecting||seenSections.has(entry.target))return;seenSections.add(entry.target);if(!reduceMotion)entry.target.animate([{opacity:0,transform:'translateY(22px)'},{opacity:1,transform:'none'}],{duration:550,easing:'cubic-bezier(.16,1,.3,1)'});});},{root:scroller,threshold:.12});
     var markChapter = function () {
       var sections = $all('.pd__section', dlg), active = 0;
       var boundary = dlg.querySelector('.pd__bar').getBoundingClientRect().bottom + 145;
       if (dlg.open) sections.forEach(function(section, i) { if (section.getBoundingClientRect().top <= boundary) active = i; });
+      sections.forEach(function(section,i){section.classList.toggle('is-reading',i===active);});
+      edgeProgress.style.setProperty('--read-progress',String(scroller.scrollTop/Math.max(1,scroller.scrollHeight-scroller.clientHeight)));
       $all('.pd__jump', dlg).forEach(function(button, i) {
         if (i === active) button.setAttribute('aria-current', 'location');
         else button.removeAttribute('aria-current');
       });
     };
     var list = cards, index = 0, openedFrom = null, prevHash = "", swapping = false, afterClose = null;
+    var detailOpener = null;
 
     var slug = function (card) {
       if (card.id) return card.id;
@@ -216,6 +225,10 @@
     var render = function (card) {
       var group = GROUPS[card.dataset.group] || { label: "Project", crumb: "Project", conf: "" };
       var title = text(card, ".card__title");
+      var storyArt = card.querySelector('.card__media img');
+      var storyKey = storyArt && storyArt.getAttribute('src').match(/project-(\d+)/);
+      var story = window.PORTFOLIO_STORIES && storyKey && window.PORTFOLIO_STORIES[storyKey[1]];
+      dlg.dataset.storyTheme = story ? story.theme : 'default';
       var status = text(card, ".card__status");
       var state = status ? status.split("·").pop().trim() : "";
       var n = list.indexOf(card) + 1;
@@ -230,6 +243,9 @@
       stateEl.textContent = state;
       stateEl.hidden = !state;
       dlg.querySelector(".pd__title").textContent = title;
+      var premise = dlg.querySelector('[data-pd-premise]');
+      premise.hidden = !story; premise.textContent = story ? story.short : '';
+      dlg.querySelector('.pd__series').firstChild.textContent = story ? story.discipline + ' ' : 'Selected work ';
       dlg.querySelector(".pd__tech").innerHTML = (card.querySelector(".card__tech") || { innerHTML: "" }).innerHTML;
 
       var art = card.querySelector(".card__media img, .card__media svg");
@@ -243,7 +259,9 @@
 
       var html = "";
       var desc = card.querySelector(".card__desc");
-      if (desc) html += '<section class="pd__section"><h3 class="pd__h">Overview</h3><p class="pd__lead">' + desc.innerHTML + "</p></section>";
+      if (story) html += '<section class="pd__section"><h3 class="pd__h">Context</h3><p class="pd__lead">' + esc(story.context) + '</p></section>';
+      else if (desc) html += '<section class="pd__section"><h3 class="pd__h">Overview</h3><p class="pd__lead">' + desc.innerHTML + "</p></section>";
+      if (story) html += '<section class="pd__section"><h3 class="pd__h">Implementation choices</h3><ol class="pd__decisions">' + story.choices.map(function(choice) { return '<li><h4>' + esc(choice[0]) + '</h4><p>' + esc(choice[1]) + '</p></li>'; }).join('') + '</ol></section>';
       var contrib = card.querySelector(".card__contribution");
       if (contrib) {
         var parts = items(bodyOf(contrib));
@@ -253,6 +271,7 @@
       }
       var flow = card.querySelector(".card__workflow");
       if (flow) html += '<section class="pd__section pd__section--note"><h3 class="pd__h">Current workflow</h3><p class="pd__p">' + esc(bodyOf(flow)) + "</p></section>";
+      if (story) html += '<section class="pd__section pd__section--outcome"><h3 class="pd__h">' + (card.dataset.group === 'personal' ? 'Current build' : 'Delivered capability') + '</h3><p class="pd__p">' + esc(story.result) + '</p>' + (story.boundary ? '<p class="pd__evidence">' + esc(story.boundary) + '</p>' : '') + '</section>';
       var nda = card.querySelector(".card__nda");
       if (nda) html += '<p class="pd__nda">' + nda.innerHTML + "</p>";
       dlg.querySelector(".pd__main").innerHTML = html;
@@ -296,6 +315,7 @@
       dlg.querySelector("[data-pd-next]").disabled = list.length < 2;
       history.replaceState(null, "", "#project/" + slug(card));
       scroller.scrollTop = 0;
+      chapterObserver.disconnect();$all('.pd__section',dlg).forEach(function(section){chapterObserver.observe(section);});
       readBar.style.setProperty("--read", "0");
       markChapter();
     };
@@ -304,7 +324,7 @@
       if (reduceMotion || !page.animate) return;
       $all(".pd__hero > *, .pd__figure, .pd__layout", page).forEach(function (n, i) {
         n.animate([{ opacity: 0, transform: "translate3d(0,18px,0)" }, { opacity: 1, transform: "none" }],
-          { duration: 700, delay: 60 + i * 55, easing: "cubic-bezier(.16,1,.3,1)", fill: "backwards" });
+          { duration: 340, delay: i * 25, easing: "cubic-bezier(.16,1,.3,1)", fill: "backwards" });
       });
     };
 
@@ -315,16 +335,17 @@
       if (reduceMotion || !page.animate) { render(card); return; }
       swapping = true;
       var out = page.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translate3d(" + (-24 * dir) + "px,0,0)" }],
-        { duration: 200, easing: "cubic-bezier(.65,0,.35,1)", fill: "forwards" });
+        { duration: 140, easing: "cubic-bezier(.65,0,.35,1)", fill: "forwards" });
       out.onfinish = function () {
         render(card);
         out.cancel();
         page.animate([{ opacity: 0, transform: "translate3d(" + (32 * dir) + "px,0,0)" }, { opacity: 1, transform: "none" }],
-          { duration: 560, easing: "cubic-bezier(.16,1,.3,1)" }).onfinish = function () { swapping = false; };
+          { duration: 280, easing: "cubic-bezier(.16,1,.3,1)" }).onfinish = function () { swapping = false; };
       };
     };
 
-    var openCase = function (card) {
+    var openCase = function (card, opener) {
+      detailOpener = opener || null;
       // follow the rail's current filter, in rail order
       list = cards.filter(function (c) { return !c.hidden; });
       if (list.indexOf(card) < 0) list = cards;
@@ -337,7 +358,7 @@
         document.body.classList.add("is-locked");
         if (!reduceMotion && scroller.animate) {
           scroller.animate([{ opacity: 0, transform: "translate3d(0,32px,0) scale(.985)" }, { opacity: 1, transform: "none" }],
-            { duration: 620, easing: "cubic-bezier(.16,1,.3,1)" });
+            { duration: 300, easing: "cubic-bezier(.16,1,.3,1)" });
         }
         enter();
         dlg.querySelector(".pd__back").focus({ preventScroll: true });
@@ -354,7 +375,7 @@
       };
       if (reduceMotion || !scroller.animate) { done(); return; }
       scroller.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translate3d(0,24px,0) scale(.99)" }],
-        { duration: 260, easing: "cubic-bezier(.65,0,.35,1)", fill: "forwards" }).onfinish = function () {
+        { duration: 180, easing: "cubic-bezier(.65,0,.35,1)", fill: "forwards" }).onfinish = function () {
         done();
         scroller.getAnimations().forEach(function (a) { a.cancel(); });
       };
@@ -368,6 +389,7 @@
       history.replaceState(null, "", prevHash || location.pathname + location.search);
       // land back on the card you were reading last, wherever the pager left you
       var card = list[index] || openedFrom;
+      if (detailOpener && detailOpener.isConnected) { detailOpener.focus({ preventScroll: true }); return; }
       if (card) {
         card.scrollIntoView({ block: "nearest", inline: "start" });
         card.focus({ preventScroll: true });
@@ -418,6 +440,9 @@
     }, { passive: true });
 
     cards.forEach(function (card) {
+      var image = card.querySelector('.card__media img');
+      var key = image && image.getAttribute('src').match(/project-(\d+)/);
+      if (key) card.dataset.projectKey = key[1];
       card.classList.add("is-openable");
       card.setAttribute("tabindex", "0");
       card.setAttribute("role", "button");
@@ -432,6 +457,11 @@
         if (e.target !== card) return;
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCase(card); }
       });
+    });
+
+    document.addEventListener('portfolio:open-project', function(e) {
+      var card = cards.filter(function(c) { return c.dataset.projectKey === String(e.detail.key); })[0];
+      if (card) openCase(card, e.detail.opener);
     });
 
     // deep link: index.html#project/<slug> opens straight into the detail page
@@ -671,10 +701,11 @@
   var figure = document.querySelector("#skills .section-figure");
   var boxes = $all("#skills .skill-box");
   if (figure && boxes.length && document.createElement("canvas").getContext) {
+    var initializeGraph = function () {
     var wrap = el("div", "sgraph");
     wrap.setAttribute("aria-hidden", "true");
     wrap.innerHTML = '<canvas class="sgraph__canvas"></canvas>' +
-      '<p class="sgraph__hint">drag the nodes · hover a skill to see where it was used</p>';
+      '<p class="sgraph__hint">drag to move · tap a skill to explore its projects</p>';
     figure.appendChild(wrap);
     figure.classList.add("has-graph");
     var cv = wrap.querySelector("canvas"), g = cv.getContext("2d");
@@ -689,7 +720,7 @@
       var hub = addNode({ kind: "hub", label: head.textContent.trim(), hue: HUE[bi % HUE.length], r: 15 });
       $all("li", box).forEach(function (li) {
         var ti = window.TechIcons && window.Path2D && window.TechIcons.get(li.textContent);
-        var leaf = addNode({ kind: "leaf", label: li.textContent.trim(), hue: hub.hue, r: ti ? 10 : 5, chip: li,
+        var leaf = addNode({ kind: "leaf", label: li.textContent.trim(), hue: hub.hue, r: ti ? 8 : 5, chip: li,
                              icon: ti ? { brand: !!ti.brand, color: ti.color, paths: ti.d.map(function (d) { return new Path2D(d); }) } : null });
         byKey[leaf.label.toLowerCase()] = leaf;
         addLink(hub, leaf, 78);
@@ -709,14 +740,28 @@
           if (l === t || l.indexOf(t + " ") === 0 || t.indexOf(l + " ") === 0) addLink(proj, n, 150);
         });
       });
+      if (window.portfolioSkillMatches) nodes.forEach(function(n) {
+        if (n.kind === 'leaf' && window.portfolioSkillMatches(card,n.label) && (!proj.adj || proj.adj.indexOf(n) === -1)) addLink(proj,n,150);
+      });
       if (!proj.adj) { nodes.pop(); }   // no matching skills: leave it out
     });
 
+    // Tree: a "Skills" root -> category hubs -> skill leaves; projects hang off the skills they use.
+    var root = addNode({ kind: "root", label: "Skills", hue: "180,154,255", r: 12 });
+    nodes.forEach(function (n) {
+      if (n.kind === "hub") { n.parent = root; addLink(root, n, 0); }
+      if (n.kind === "leaf") n.parent = n.adj[0];
+    });
+    var treeHeight = function (w) {
+      var leaves = nodes.filter(function (n) { return n.kind === "leaf"; }).length;
+      var hubs = nodes.filter(function (n) { return n.kind === "hub"; }).length;
+      return Math.max(440, leaves * (w < 700 ? 15 : 18) + hubs * 14 + 74);
+    };
     var GW = 0, GH = 0;
     var sizeGraph = function () {
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
       var oldWidth = GW, oldHeight = GH;
-      GW = wrap.clientWidth; GH = GW < 700 ? 540 : Math.max(Math.min(GW * 0.62, 620), 440);
+      GW = wrap.clientWidth; GH = treeHeight(GW);
       if (oldWidth && oldHeight) nodes.forEach(function (n) {
         n.x *= GW / oldWidth; n.y *= GH / oldHeight;
       });
@@ -734,77 +779,57 @@
       });
     };
     measure();
-    // Mix all node types independently of their category and connections.
-    var slots = nodes.map(function (_, i) { return i; });
-    for (var si = slots.length - 1; si > 0; si--) {
-      var sj = Math.floor(Math.random() * (si + 1)), swap = slots[si];
-      slots[si] = slots[sj]; slots[sj] = swap;
-    }
-    var columns = Math.ceil(Math.sqrt(nodes.length * GW / GH));
-    var rows = Math.ceil(nodes.length / columns);
-    nodes.forEach(function (n, i) {
-      var slot = slots[i];
-      n.x = 28 + ((slot % columns + .5 + (Math.random() - .5) * .65) / columns) * (GW - 56);
-      n.y = 28 + ((Math.floor(slot / columns) + .5 + (Math.random() - .5) * .65) / rows) * (GH - 76);
+    // Left-to-right columns: root, categories, skills, projects. Each node
+    // springs toward its slot (tx, ty); dragging pulls a node's subtree along.
+    var layout = function () {
+      var narrow = GW < 700, col = narrow ? [0, .07, .6, .9] : [.05, .2, .43, .74];
+      var y = 24, leafGap = narrow ? 15 : 18;
+      root.hidden = narrow;
+      nodes.forEach(function (n) {
+        if (n.kind !== "hub") return;
+        var kids = n.adj.filter(function (m) { return m.kind === "leaf"; }), top = y;
+        kids.forEach(function (m) { m.tx = GW * col[2]; m.ty = y; y += leafGap; });
+        n.tx = Math.max(GW * col[1], n.r + 12); n.ty = (top + y - leafGap) / 2;
+        y += 14;
+      });
+      var hubs = nodes.filter(function (n) { return n.kind === "hub"; });
+      root.tx = GW * col[0] + 14; root.ty = hubs.reduce(function (t, h) { return t + h.ty; }, 0) / hubs.length;
+      // projects in the order of the skills they use, to keep crossings down
+      var projs = nodes.filter(function (n) { return n.kind === "proj"; });
+      projs.forEach(function (n) { n.avg = n.adj.reduce(function (t, m) { return t + m.ty; }, 0) / n.adj.length; });
+      projs.sort(function (a, b) { return a.avg - b.avg; });
+      projs.forEach(function (n, i) { n.tx = GW * col[3]; n.ty = GH * (.12 + .76 * (projs.length > 1 ? i / (projs.length - 1) : .5)); });
+    };
+    layout();
+    // the tree grows out of its root on first view
+    nodes.forEach(function (n) {
+      n.x = reduceMotion ? n.tx : root.tx + (n.tx - root.tx) * .15;
+      n.y = reduceMotion ? n.ty : root.ty + (n.ty - root.ty) * .15;
     });
 
-    var dragging = null, hover = null, energy = 1, running = false, inView = false;
+    var dragging = null, hover = null, selected = null, energy = 1, running = false, inView = false;
 
     var step = function () {
-      var i, j, a, b, dx, dy, d2, d, f;
-      for (i = 0; i < nodes.length; i++) {          // repulsion
-        a = nodes[i];
-        for (j = i + 1; j < nodes.length; j++) {
-          b = nodes[j];
-          dx = b.x - a.x; dy = b.y - a.y; d2 = dx * dx + dy * dy + 0.01;
-          // Main category nodes do not push or pull each other.
-          if (a.kind === "hub" && b.kind === "hub") continue;
-          if (d2 > 250000) continue;
-          f = (a.kind === "hub" || b.kind === "hub" ? 2600 : 1100) / d2;
-          d = Math.sqrt(d2);
-          a.vx -= dx / d * f; a.vy -= dy / d * f; b.vx += dx / d * f; b.vy += dy / d * f;
-        }
-      }
-      // Restore elastic motion between skills, their categories, and projects.
-      links.forEach(function (l) {
-        if (l.a.kind === "hub" && l.b.kind === "hub") return;
-        dx = l.b.x - l.a.x; dy = l.b.y - l.a.y; d = Math.sqrt(dx * dx + dy * dy) || 1;
-        f = (d - l.len) * 0.02;
-        l.a.vx += dx / d * f; l.a.vy += dy / d * f;
-        l.b.vx -= dx / d * f; l.b.vy -= dy / d * f;
-      });
-      // keep node+label boxes from overlapping (leaf labels are hidden on narrow screens)
-      var spill = 0, boxOf = function (n) {
-        var w = GW < 700 && n.kind === "leaf" ? 0 : n.lw + 6, flip = n.x + n.r + w > GW - 8;
-        return { l: flip ? n.x - n.r - w : n.x - n.r, r: flip ? n.x + n.r : n.x + n.r + w, t: n.y - Math.max(n.r, 8), b: n.y + Math.max(n.r, 8) };
-      };
-      for (i = 0; i < nodes.length; i++) {
-        a = nodes[i]; var ba = boxOf(a);
-        for (j = i + 1; j < nodes.length; j++) {
-          b = nodes[j]; var bb = boxOf(b);
-          var ox = Math.min(ba.r, bb.r) - Math.max(ba.l, bb.l), oy = Math.min(ba.b, bb.b) - Math.max(ba.t, bb.t);
-          if (ox <= 0 || oy <= 0) continue;
-          // separate along the cheaper axis — usually vertical, labels are wide
-          var push = ox < oy * 3 ? 0 : 1, sgn;
-          if (push) { sgn = b.y >= a.y ? 1 : -1; f = (oy + 2) * 0.25 * sgn; if (a !== dragging) a.y -= f; if (b !== dragging) b.y += f; }
-          else { sgn = b.x >= a.x ? 1 : -1; f = (ox + 2) * 0.25 * sgn; if (a !== dragging) a.x -= f; if (b !== dragging) b.x += f; }
-          spill += Math.abs(f);
-        }
-      }
-      energy = spill * 0.05;
+      energy = 0;
       nodes.forEach(function (n) {
-        // Keep the network inside its canvas, independently of other category nodes.
-        n.vx += (GW / 2 - n.x) * 0.0007; n.vy += (GH / 2 - n.y) * 0.0016;
         if (n === dragging) { n.vx = n.vy = 0; return; }
-        n.vx *= 0.82; n.vy *= 0.82;
-        n.x = Math.min(Math.max(n.x + n.vx, 24), GW - 24);
-        n.y = Math.min(Math.max(n.y + n.vy, 20), GH - 20);
-        energy += Math.abs(n.vx) + Math.abs(n.vy);
+        var tx = n.tx, ty = n.ty, follow;
+        // children follow their parent's displacement; projects follow their skills a little
+        if (n.parent) { tx += (n.parent.x - n.parent.tx) * .85; ty += (n.parent.y - n.parent.ty) * .85; }
+        else if (n.kind === "proj") {
+          follow = n.adj.reduce(function (t, m) { t.x += m.x - m.tx; t.y += m.y - m.ty; return t; }, { x: 0, y: 0 });
+          tx += follow.x / n.adj.length * .35; ty += follow.y / n.adj.length * .35;
+        }
+        n.vx = (n.vx + (tx - n.x) * .06) * .8;
+        n.vy = (n.vy + (ty - n.y) * .06) * .8;
+        n.x = Math.min(Math.max(n.x + n.vx, 12), GW - 12);
+        n.y = Math.min(Math.max(n.y + n.vy, 12), GH - 12);
+        energy += Math.abs(n.vx) + Math.abs(n.vy) + Math.abs(tx - n.x) * .02 + Math.abs(ty - n.y) * .02;
       });
     };
 
     var lit = function (n) {
-      if (!hover) return true;
+      if (!hover || hover.kind === "root") return true;
       if (n === hover) return true;
       if (hover.adj && hover.adj.indexOf(n) !== -1) return true;
       // a leaf's projects' other skills stay dim; a project's skills also light their hub
@@ -819,12 +844,15 @@
         g.strokeStyle = on ? "rgba(" + (l.a.kind === "proj" ? l.b.hue : l.a.hue) + ",0.85)" : "rgba(171,178,191," + (hover ? 0.06 : 0.16) + ")";
         g.lineWidth = on ? 1.6 : 1;
         if (l.a.kind === "proj") g.setLineDash([3, 4]);
-        g.beginPath(); g.moveTo(l.a.x, l.a.y); g.lineTo(l.b.x, l.b.y); g.stroke();
+        if (l.a.hidden) return;
+        var p0 = l.a.x < l.b.x ? l.a : l.b, p1 = p0 === l.a ? l.b : l.a, cx = (p0.x + p1.x) / 2;
+        g.beginPath(); g.moveTo(p0.x, p0.y); g.bezierCurveTo(cx, p0.y, cx, p1.y, p1.x, p1.y); g.stroke();
         g.setLineDash([]);
       });
       nodes.forEach(function (n) {
         var on = lit(n), al = on ? 1 : 0.22;
-        if (n.kind === "hub" || n === hover) {
+        if (n.hidden) return;
+        if (n.kind === "hub" || n.kind === "root" || n === hover) {
           var halo = g.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 3);
           halo.addColorStop(0, "rgba(" + n.hue + "," + (0.28 * al) + ")"); halo.addColorStop(1, "rgba(" + n.hue + ",0)");
           g.fillStyle = halo; g.beginPath(); g.arc(n.x, n.y, n.r * 3, 0, Math.PI * 2); g.fill();
@@ -853,7 +881,7 @@
           g.fill(); g.stroke();
         }
         // labels — on narrow screens leaf labels only show when highlighted
-        if (n.kind === "leaf" && GW < 700 && !(hover && on)) return;
+        if ((n.kind === "leaf" || n.kind === "proj") && GW < 700 && !(hover && on)) return;
         var big = n.kind !== "leaf";
         g.font = (big ? "600 12px" : "12px") + " 'IBM Plex Mono', monospace";
         g.textBaseline = "middle";
@@ -868,23 +896,24 @@
     };
 
     var loop = function () {
-      if (!inView) { running = false; return; }
+      if (!inView || document.hidden) { running = false; return; }
       step(); draw();
       if (energy > 0.15 || dragging) raf(loop); else running = false;
     };
     var wake = function () { energy = 1; if (!running && inView) { running = true; raf(loop); } };
 
-    if (reduceMotion) { for (var k = 0; k < 400; k++) step(); }
 
     var nodeAt = function (x, y) {
       var best = null, bd = 18 * 18;
       nodes.forEach(function (n) {
+        if (n.hidden) return;
         var dx = n.x - x, dy = n.y - y, d = dx * dx + dy * dy;
         if (d < Math.max(bd, n.r * n.r)) { bd = d; best = n; }
       });
       return best;
     };
     var setHover = function (n) {
+      n = n || selected;
       if (n === hover) return;
       hover = n;
       cv.style.cursor = n ? (dragging ? "grabbing" : "grab") : "default";
@@ -898,10 +927,17 @@
       draw();
     };
     var local = function (e) { var r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+    document.addEventListener('portfolio:skill-select', function(e) {
+      var label = (e.detail.label || '').toLowerCase();
+      selected = byKey[label] || nodes.filter(function(n) { return n.label.toLowerCase() === label; })[0] || null;
+      setHover(selected); draw();
+    });
+    var pressedAt = null;
 
     cv.addEventListener("pointerdown", function (e) {
       var p = local(e), n = nodeAt(p.x, p.y);
       if (!n) return;
+      pressedAt = { x: p.x, y: p.y, node: n };
       dragging = n; cv.setPointerCapture(e.pointerId); setHover(n); cv.style.cursor = "grabbing"; wake();
     });
     cv.addEventListener("pointermove", function (e) {
@@ -909,7 +945,16 @@
       if (dragging) { dragging.x = p.x; dragging.y = p.y; wake(); return; }
       setHover(nodeAt(p.x, p.y));
     });
-    var release = function () { if (dragging) { dragging = null; cv.style.cursor = hover ? "grab" : "default"; wake(); } };
+    var release = function (e) {
+      if (pressedAt && e.type === 'pointerup' && pressedAt.node.kind !== 'root') {
+        var p = local(e), n = pressedAt.node;
+        if (Math.hypot(p.x - pressedAt.x, p.y - pressedAt.y) < 6) {
+          document.dispatchEvent(new CustomEvent(n.card ? 'portfolio:open-project' : 'portfolio:skill-select', { detail: n.card ? { key: n.card.dataset.projectKey, opener: n.card } : { label: n.label } }));
+        }
+      }
+      pressedAt = null;
+      if (dragging) { dragging = null; cv.style.cursor = hover ? 'grab' : 'default'; wake(); }
+    };
     cv.addEventListener("pointerup", release);
     cv.addEventListener("pointercancel", release);
     cv.addEventListener("pointerleave", function () { if (!dragging) setHover(null); });
@@ -917,8 +962,22 @@
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (en) { inView = en[0].isIntersecting; if (inView) { draw(); wake(); } }).observe(wrap);
     } else { inView = true; wake(); }
-    window.addEventListener("resize", function () { sizeGraph(); wake(); draw(); });
+    window.addEventListener("resize", function () { sizeGraph(); layout(); wake(); draw(); });
+    document.addEventListener('visibilitychange', function() { if (!document.hidden) wake(); });
+    motionPreference.addEventListener('change', function() { draw(); wake(); });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { measure(); wake(); draw(); });
+    if (window.portfolioSelectedSkill) {
+      var savedSkill = window.portfolioSelectedSkill.toLowerCase();
+      selected = byKey[savedSkill] || nodes.filter(function(n) { return n.label.toLowerCase() === savedSkill; })[0] || null; setHover(selected);
+    }
     draw();
+    };
+    if ('IntersectionObserver' in window) {
+      var graphLoader = new IntersectionObserver(function(entries) {
+        if (!entries.some(function(entry) { return entry.isIntersecting; })) return;
+        graphLoader.disconnect(); initializeGraph();
+      }, { rootMargin: '200px' });
+      graphLoader.observe(figure);
+    } else initializeGraph();
   }
 })();

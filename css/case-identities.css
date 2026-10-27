@@ -1,0 +1,40 @@
+.pd__premise { max-width:42ch; margin-top:20px; font-size:1.0625rem; line-height:1.7; color:#c5cfe0; }
+.pd__premise[hidden] { display:none; }
+.pd__decisions { list-style:none; display:grid; gap:16px; padding:0; }
+.pd__decisions li { padding:22px 24px; border-left:2px solid var(--project-accent); border-radius:0 10px 10px 0; background:#111823; }
+.pd__decisions h4 { font-size:1rem; font-weight:500; color:#eef1f9; margin:0 0 8px; }
+.pd__decisions p { color:#c1cde0; font-size:.9375rem; line-height:1.8; max-width:62ch; }
+.pd__section--outcome { border:1px solid var(--project-accent); border-radius:14px; padding:28px 24px; background:linear-gradient(130deg,var(--project-tint),#0e1620); }
+.pd__evidence { color:#b7c6dc; font-size:.8125rem; line-height:1.8; margin-top:16px; padding-top:16px; border-top:1px solid #ffffff20; max-width:65ch; }
+.pd[data-story-theme=reporting] .pd__figure { border-top:3px solid #83dfd5; }
+.pd[data-story-theme=reporting] .pd__watermark { -webkit-text-stroke-color:#83dfd52a; }
+.pd[data-story-theme=agents] .pd__opening { grid-template-columns:1fr; gap:40px; background:radial-gradient(ellipse at 80% 20%,#a49aff12,transparent 65%); }
+.pd[data-story-theme=agents] .pd__hero { max-width:900px; }
+.pd[data-story-theme=agents] .pd__title { font-size:clamp(2.5rem,5vw,5rem); max-width:24ch; }
+.pd[data-story-theme=agents] .pd__watermark { right:0; top:-24px; font-size:240px; }
+.pd[data-story-theme=agents] .pd__figure { width:100%; border-radius:6px; }
+.pd[data-story-theme=agents] .pd__diagram { height:410px; background-image:radial-gradient(#a49aff28 1px,transparent 1px); background-size:20px 20px; }
+.pd[data-story-theme=operations] .pd__opening { grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); }
+.pd[data-story-theme=operations] .pd__figure { border-radius:4px; border-color:#b49aff5c; }
+.pd[data-story-theme=operations] .pd__figbar { border-radius:4px 4px 0 0; }
+.pd[data-story-theme=signals] .pd__opening { background:repeating-linear-gradient(0deg,transparent 0,transparent 63px,#75d9ed0a 63px,#75d9ed0a 64px); }
+.pd[data-story-theme=signals] .pd__figure { border-color:#75d9ed60; box-shadow:0 28px 60px -34px #75d9ed25; }
+.pd[data-story-theme=signals] .pd__title { letter-spacing:-.045em; }
+.pd[data-story-theme=governance] .pd__figure { border-radius:28px 4px 28px 4px; border-color:#daa1e85c; }
+.pd[data-story-theme=governance] .pd__watermark { -webkit-text-stroke-color:#daa1e82b; }
+.pd[data-story-theme=legal] .pd__title { font-family:Georgia,'Times New Roman',serif; font-size:clamp(2.5rem,4.5vw,4.6rem); letter-spacing:-.04em; font-weight:400; }
+.pd[data-story-theme=legal] .pd__figure { border-radius:3px; border-top:3px solid #e5bd8b; }
+.pd[data-story-theme=legal] .pd__figbar { border-radius:0; }
+.pd[data-story-theme=lab] .pd__state { color:#a9ecce; border-color:#82d6b070; background:#82d6b00c; }
+.pd[data-story-theme=lab] .pd__figure { border-style:dashed; border-color:#88d9bd80; }
+.pd[data-story-theme=lab] .pd__watermark { -webkit-text-stroke-color:#88d9bd28; }
+.pd[data-story-theme=geo] .pd__opening { background:radial-gradient(ellipse at 85% 40%,transparent 0 20%,#82d6b010 20.1% 20.3%,transparent 20.4% 31%,#82d6b00b 31.1% 31.3%,transparent 31.4%); }
+.pd[data-story-theme=geo] .pd__figure { border-radius:24px; border-color:#82d6b065; }
+@media(max-width:760px) {
+  .pd[data-story-theme] .pd__opening { grid-template-columns:1fr; }
+  .pd[data-story-theme=agents] .pd__title,.pd[data-story-theme=legal] .pd__title { font-size:clamp(2.25rem,8vw,3.5rem); }
+  .pd[data-story-theme=agents] .pd__diagram { height:300px; }
+  .pd[data-story-theme=agents] .pd__watermark { font-size:160px; }
+  .pd__decisions li { padding:18px; }
+  .pd__section--outcome { padding:20px 14px; }
+}

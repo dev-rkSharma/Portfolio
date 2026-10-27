@@ -11,6 +11,10 @@
   /* ---------- 1. Mobile menu ------------------------------------------- */
   var burger = document.getElementById("burger");
   var nav = document.getElementById("nav");
+  var mobileMenu=matchMedia('(max-width: 899px)');
+  var menuBackground=Array.prototype.slice.call(document.querySelectorAll('main,footer,.rail'));
+  function syncMenuAccess(){if(nav)nav.inert=mobileMenu.matches&&!isMenuOpen();}
+  syncMenuAccess();
 
   function setMenu(open) {
     if (!burger || !nav) return;
@@ -19,6 +23,9 @@
     burger.setAttribute("aria-expanded", String(open));
     burger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
     document.body.classList.toggle("is-locked", open);
+    menuBackground.forEach(function(node){node.inert=open;});
+    syncMenuAccess();
+    if(open){var focusMenu=function(){if(!isMenuOpen()||nav.contains(document.activeElement))return;var first=nav.querySelector('a');if(first)first.focus({preventScroll:true});};requestAnimationFrame(function(){requestAnimationFrame(focusMenu);});setTimeout(focusMenu,120);}
   }
 
   function isMenuOpen() {
@@ -32,11 +39,25 @@
 
     // close after tapping a nav link
     nav.addEventListener("click", function (e) {
-      if (e.target.closest("a")) setMenu(false);
+      var link=e.target.closest('a');if(!link||!isMenuOpen())return;
+      setMenu(false);
+      var href=link.getAttribute('href');
+      if(href&&href.charAt(0)==='#'){
+        var target=document.getElementById(href.slice(1));if(!target)return;
+        e.preventDefault();history.replaceState(null,'',href);
+        target.setAttribute('tabindex','-1');target.focus({preventScroll:true});
+        target.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
+        target.addEventListener('blur',function(){target.removeAttribute('tabindex');},{once:true});
+      }
     });
 
     // Escape closes
     document.addEventListener("keydown", function (e) {
+      if(e.key==='Tab'&&isMenuOpen()){
+        var items=Array.prototype.slice.call(nav.querySelectorAll('a,button')).concat(burger),first=items[0],last=items[items.length-1];
+        if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+        else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+      }
       if (e.key === "Escape" && isMenuOpen()) {
         setMenu(false);
         burger.focus();
@@ -46,6 +67,7 @@
     // if the viewport grows past the mobile breakpoint, drop the overlay state
     window.matchMedia("(min-width: 900px)").addEventListener("change", function (e) {
       if (e.matches) setMenu(false);
+      syncMenuAccess();
     });
   }
 

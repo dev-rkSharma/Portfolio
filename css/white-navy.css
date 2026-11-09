@@ -300,6 +300,13 @@ html.social-rail-pending .rail {
  animation:none!important; opacity:0; transform:translateY(-110vh); pointer-events:none;
 }
 html.social-rail-pending .avatar-loading-note { visibility:hidden; }
+body .footer.footer--studio .footer-wordmark { position:relative; transition:color .3s ease; }
+body .footer.footer--studio .footer-wordmark.is-dot-forming { color:transparent; -webkit-text-fill-color:transparent; }
+body .footer-name-dots { position:absolute; inset:-40px 0 auto; width:100%; height:calc(100% + 80px); pointer-events:none; transition:opacity .3s ease; }
+@media(prefers-reduced-motion:reduce) {
+ body .footer-name-dots { display:none; }
+ body .footer.footer--studio .footer-wordmark { transition:none; }
+}
 /* A navy footer gives white lettering comfortable contrast. */
 body .footer.footer--studio {
  --bg:#081b33; --white:#fff; --text:#e0e9f5; --accent:#fff;
@@ -313,6 +320,13 @@ body .footer.footer--studio :is(.footer-invite,.footer-columns,.footer-bottom) {
 body .footer.footer--studio :is(.footer__email,.footer-links a,.footer-top):hover { color:#fff; text-decoration:underline; text-underline-offset:4px; }
 body .footer.footer--studio svg { color:#fff; fill:currentColor; }
 body .footer.footer--studio .footer-wordmark { color:rgba(255,255,255,.45); -webkit-text-fill-color:rgba(255,255,255,.45); opacity:1; -webkit-text-stroke:0; }
+body .footer.footer--studio .footer-wordmark:not(.is-dot-forming) {
+ background-image:linear-gradient(#163c6a30 1px,transparent 1px),linear-gradient(90deg,#163c6a30 1px,transparent 1px),linear-gradient(#fff,#fff);
+ background-size:48px 48px,48px 48px,100% 100%;
+ background-attachment:fixed;
+ background-clip:text; -webkit-background-clip:text;
+ color:transparent; -webkit-text-fill-color:transparent;
+}
 /* Quiet tab motion: hover stays local; the underline follows selection. */
 @media(min-width:900px) {
  body .header .nav__list { padding-bottom:3px; }

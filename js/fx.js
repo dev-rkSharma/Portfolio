@@ -1120,7 +1120,7 @@
 
   /* ---------- 9. Magnetic buttons ---------------------------------------- */
   $all(".btn, .section-head__link, .cmdk-trigger, .rail__list a, .footer__socials a").forEach(function (node) {
-    var strength = node.classList.contains("btn") ? 0.3 : 0.4;
+    var strength = node.classList.contains("btn") ? 0.18 : 0.25;
     var pull = follower(function (x, y, settled) {
       node.style.transform = settled && !x && !y ? "" : "translate(" + x.toFixed(2) + "px," + y.toFixed(2) + "px)";
     }, 140);
@@ -1133,7 +1133,7 @@
     });
     node.addEventListener("pointermove", function (e) {
       var r = node.getBoundingClientRect();
-      pull((e.clientX - (r.left + r.width / 2)) * strength, (e.clientY - (r.top + r.height / 2)) * strength);
+      if(reduceMotion)return;pull(Math.max(-8,Math.min(8,(e.clientX - (r.left + r.width / 2)) * strength)),Math.max(-6,Math.min(6,(e.clientY - (r.top + r.height / 2)) * strength)));
     });
     node.addEventListener("pointerleave", function () { pull(0, 0); });
   });

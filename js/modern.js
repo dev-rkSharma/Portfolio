@@ -156,8 +156,8 @@
   var button = document.createElement('button');
   button.type = 'button';
   button.className = 'atmosphere-toggle';
-  button.textContent = 'Pause atmosphere';
-  button.setAttribute('aria-label', 'Pause atmosphere');
+  button.textContent = 'Pause background motion';
+  button.setAttribute('aria-label', 'Pause background motion');
   button.setAttribute('aria-pressed', 'false');
   hero.appendChild(button);
   var paused = false;
@@ -168,7 +168,8 @@
   button.addEventListener('click', function () {
     paused = !paused;
     button.setAttribute('aria-pressed', String(paused));
-    button.textContent = paused ? 'Resume atmosphere' : 'Pause atmosphere';
+    button.textContent = paused ? 'Resume background motion' : 'Pause background motion';
+    button.setAttribute('aria-label',button.textContent);
     sync();
   });
   if ('IntersectionObserver' in window) {
@@ -369,12 +370,12 @@
    return script('assets/character/human-data.js').then(function(){
     function decode(text){var raw=atob(text),bytes=new Uint8Array(raw.length);for(var i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);return bytes.buffer;}
     function embedded(text){return new Promise(function(resolve,reject){loader.parse(decode(text),'',resolve,reject);});}
-    return Promise.all([embedded(window.PORTFOLIO_HUMAN.model),embedded(window.PORTFOLIO_HUMAN.idle)]);
+    return embedded(window.PORTFOLIO_HUMAN.model).then(function(model){return [model];});
    });
   }
-  var models=location.protocol==='file:'?localModels():Promise.all([parse('assets/character/human.glb'),parse('assets/character/idle.glb')]).catch(localModels);
-  models.then(function(results){build(results[0],results[1]);}).catch(function(error){if(window.avatarLoadFailed)window.avatarLoadFailed();if(window.avatarLoadFailed)window.avatarLoadFailed();if(window.avatarLoadFailed)window.avatarLoadFailed();console.warn('Workstation unavailable:',error);});
-  function build(gltf,idle){
+  var models=location.protocol==='file:'?localModels():parse('assets/character/human-display.glb').then(function(model){return [model];}).catch(localModels);
+  models.then(function(results){build(results[0]);}).catch(function(error){if(window.avatarLoadFailed)window.avatarLoadFailed();console.warn('Workstation unavailable:',error);});
+  function build(gltf){
    var renderer;try{renderer=new T.WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});}catch(e){return;}
    renderer.setPixelRatio(Math.min(devicePixelRatio||1,innerWidth<900?1:1.5));renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1;
    renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
@@ -481,11 +482,12 @@
     var cos=T.MathUtils.clamp((lenA*lenA+dist*dist-lenB*lenB)/(2*lenA*dist),-1,1);
     var elbow=a.clone().addScaledVector(dir,lenA*cos).addScaledVector(bend,lenA*Math.sqrt(1-cos*cos));aimBone(upper,lower,elbow);aimBone(lower,hand,target);
    }
+   var reactionMode="wave";
    function workPose(time,helloAmount){helloAmount=helloAmount||0;resetPose();
-    if(head){head.rotation.x+=.16*(1-helloAmount);head.rotation.y+=.4*helloAmount;}
+    if(head){head.rotation.x+=.16*(1-helloAmount);head.rotation.y+=.4*helloAmount;if(mouse&&motion&&!motion.matches){head.rotation.y+=mouse.x*.22;head.rotation.x+=mouse.y*.12;}if(reactionMode==="nod")head.rotation.x+=Math.sin(time*9)*.17*helloAmount;}
     ['Left','Right'].forEach(function(side){var hip=person.getObjectByName(side+'UpLeg'),knee=person.getObjectByName(side+'Leg'),foot=person.getObjectByName(side+'Foot');if(!hip||!knee||!foot)return;var x=.65+(side==='Left'?.12:-.12);aimBone(hip,knee,new T.Vector3(x,.53,-.08));aimBone(knee,foot,new T.Vector3(x,.10,.12));});
     handIK('Left',new T.Vector3(.78,.905+Math.sin(time*7)*.003,.10));
-    var typing=new T.Vector3(.52,.905+Math.sin(time*8+1)*.003,.10),waving=new T.Vector3(.22+Math.sin(time*10)*.065,1.61,-.30);
+    var typing=new T.Vector3(.52,.905+Math.sin(time*8+1)*.003,.10),waving=new T.Vector3(.22+Math.sin(time*(reactionMode==="celebrate"?16:10))*(reactionMode==="celebrate"?.10:.065),1.61,-.30);
     handIK('Right',typing.lerp(waving,helloAmount||0));
     ['Left','Right'].forEach(function(side){var hand=person.getObjectByName(side+'Hand'),finger=person.getObjectByName(side+'HandMiddle1');if(!hand||!finger)return;var reach=hand.getWorldPosition(new T.Vector3()).add(new T.Vector3(0,-.025,.16));if(side==='Right')reach.lerp(hand.getWorldPosition(new T.Vector3()).add(new T.Vector3(Math.sin(time*10)*.05,.15,.03)),helloAmount);aimBone(hand,finger,reach);});
 
@@ -519,12 +521,21 @@
     [-1.43,1.43].forEach(function(x){[0,1.93].forEach(function(y){[-.7,1].forEach(function(z){var v=new T.Vector3(x,y,z).sub(target),depth=v.dot(direction);distance=Math.max(distance,depth+Math.abs(v.dot(right))/tanH,depth+Math.abs(v.dot(up))/tanV);});});});
     camera.position.copy(target).addScaledVector(direction,distance*1.08);camera.lookAt(target);camera.updateProjectionMatrix();still();}
    pause.addEventListener('click',function(){paused=!paused;pause.textContent=paused?'Play':'Pause';pause.setAttribute('aria-pressed',String(paused));sync();});
-   hello.addEventListener('click',function(){if(motion.matches)return;waveStart=time;waveEnd=time+4.45;paused=false;pause.textContent='Pause';pause.setAttribute('aria-pressed','false');sync();});
+   hello.addEventListener('click',function(){reactionMode='wave';greeting.textContent='Hi, I’m Roushan!';if(motion.matches)return;waveStart=time;waveEnd=time+4.45;paused=false;pause.textContent='Pause';pause.setAttribute('aria-pressed','false');sync();});
+   var surprise=document.createElement('button');surprise.type='button';surprise.textContent='Surprise me';surprise.className='avatar-surprise';controls.appendChild(surprise);
+   var reactions=[{mode:'nod',text:'Challenge accepted.'},{mode:'celebrate',text:'That idea deserves a high five!'},{mode:'wave',text:'Ready when you are. Let’s build.'}],reactionIndex=0,reactionTimer;
+   function react(){
+    var reaction=reactions[reactionIndex++%reactions.length];reactionMode=reaction.mode;greeting.textContent=reaction.text;stage.dataset.reaction=reaction.mode;
+    clearTimeout(reactionTimer);
+    if(motion.matches){greeting.hidden=false;reactionTimer=setTimeout(function(){greeting.hidden=true;},2500);return;}
+    waveStart=time;waveEnd=time+3.8;paused=false;pause.textContent='Pause';pause.setAttribute('aria-pressed','false');sync();
+   }
+   surprise.addEventListener('click',react);renderer.domElement.addEventListener('click',react);
    visual.addEventListener('pointermove',function(e){if(motion.matches||e.pointerType==='touch')return;var r=stage.getBoundingClientRect();mouse.x=Math.max(-.5,Math.min(.5,(e.clientX-r.left)/r.width-.5));mouse.y=Math.max(-.5,Math.min(.5,(e.clientY-r.top)/r.height-.5));},{passive:true});
    visual.addEventListener('pointerleave',function(){mouse.x=mouse.y=0;});
    new ResizeObserver(size).observe(stage);new IntersectionObserver(function(entries){visible=entries[0].isIntersecting;sync();}).observe(stage);
    motion.addEventListener('change',sync);document.addEventListener('visibilitychange',sync);
-   renderer.domElement.addEventListener('webglcontextlost',function(e){e.preventDefault();cancelAnimationFrame(frame);visual.classList.remove('has-character');stage.remove();if(window.avatarLoadFailed)window.avatarLoadFailed();if(window.avatarLoadFailed)window.avatarLoadFailed();if(window.avatarLoadFailed)window.avatarLoadFailed();});
+   renderer.domElement.addEventListener('webglcontextlost',function(e){e.preventDefault();cancelAnimationFrame(frame);visual.classList.remove('has-character');stage.remove();if(window.avatarLoadFailed)window.avatarLoadFailed();});
    stage.dataset.model='seated-workstation';size();sync();
    delete window.PORTFOLIO_HUMAN;
   }

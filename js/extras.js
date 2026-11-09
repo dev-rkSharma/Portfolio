@@ -261,9 +261,8 @@
 
       var html = "";
       var desc = card.querySelector(".card__desc");
-      if (story) html += '<section class="pd__section"><h3 class="pd__h">Context</h3><p class="pd__lead">' + esc(story.context) + '</p></section>';
+      if (story) html += '<section class="pd__section"><h3 class="pd__h">The problem &amp; context</h3><p class="pd__lead">' + esc(story.context) + '</p></section>';
       else if (desc) html += '<section class="pd__section"><h3 class="pd__h">Overview</h3><p class="pd__lead">' + desc.innerHTML + "</p></section>";
-      if (story) html += '<section class="pd__section"><h3 class="pd__h">Implementation choices</h3><ol class="pd__decisions">' + story.choices.map(function(choice) { return '<li><h4>' + esc(choice[0]) + '</h4><p>' + esc(choice[1]) + '</p></li>'; }).join('') + '</ol></section>';
       var contrib = card.querySelector(".card__contribution");
       if (contrib) {
         var parts = items(bodyOf(contrib));
@@ -271,6 +270,7 @@
           ? '<ul class="pd__checks">' + parts.map(function (p) { return "<li>" + esc(p) + "</li>"; }).join("") + "</ul>"
           : '<p class="pd__p">' + esc(bodyOf(contrib)) + "</p>") + "</section>";
       }
+      if (story) html += '<section class="pd__section"><h3 class="pd__h">Implementation choices</h3><ol class="pd__decisions">' + story.choices.map(function(choice) { return '<li><h4>' + esc(choice[0]) + '</h4><p>' + esc(choice[1]) + '</p></li>'; }).join('') + '</ol></section>';
       var flow = card.querySelector(".card__workflow");
       if (flow) html += '<section class="pd__section pd__section--note"><h3 class="pd__h">Current workflow</h3><p class="pd__p">' + esc(bodyOf(flow)) + "</p></section>";
       if (story) html += '<section class="pd__section pd__section--outcome"><h3 class="pd__h">' + (card.dataset.group === 'personal' ? 'Current build' : 'Delivered capability') + '</h3><p class="pd__p">' + esc(story.result) + '</p>' + (story.boundary ? '<p class="pd__evidence">' + esc(story.boundary) + '</p>' : '') + '</section>';

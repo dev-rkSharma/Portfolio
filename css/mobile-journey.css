@@ -1,0 +1,56 @@
+/* The existing desktop journey is unchanged; phones get a readable timeline. */
+@media screen and (max-width:899px) {
+ body #experience .j3d,body #experience .trip__tour { display:none!important; }
+ body #experience .trip { margin-bottom:28px; }
+ body #experience .trip__stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; width:100%; }
+ body #experience .trip__stats li { padding:12px 14px; border:1px solid #102b5020; border-radius:10px; background:#fff; color:#405a78; font-size:.8125rem; }
+ body #experience .trip__stats strong { color:#102b50; }
+ body #experience .roadmap {
+  position:relative!important; width:100%!important; height:auto!important;
+  margin:0!important; padding:0!important; overflow:visible!important;
+  clip-path:none!important; white-space:normal!important;
+  display:flex; flex-direction:column; gap:0;
+ }
+ body #experience .roadmap::before,body #experience :is(.roadmap__svg,.roadmap__traveler,.roadmap__odo) { display:none; }
+ body #experience .roadmap > .milestone {
+  display:block; position:relative; padding:30px 0 22px 26px;
+  margin:0; min-width:0; opacity:1; transform:none;
+ }
+ body #experience .roadmap > .milestone::before {
+  content:''; position:absolute; left:5px; top:34px; bottom:-34px;
+  width:1px; background:#163c6a35;
+ }
+ body #experience .roadmap > .milestone:last-child::before { bottom:24px; background:linear-gradient(#163c6a35,transparent); }
+ body #experience .roadmap .milestone__node {
+  position:absolute; top:35px; left:0; width:11px; height:11px;
+  margin:0; border:2px solid #163c6a; border-radius:50%;
+  background:#fff; box-shadow:0 0 0 4px #fff;
+ }
+ body #experience .roadmap .milestone__year {
+  position:absolute; top:-28px; left:24px; white-space:nowrap;
+  font:600 .8125rem/1.4 var(--mono); color:#163c6a;
+ }
+ body #experience .roadmap .milestone__card {
+  display:block; width:100%; padding:20px; border:1px solid #102b5026;
+  border-radius:14px; background:#fff; color:#294566;
+  box-shadow:0 6px 20px #102b5005; backdrop-filter:none;
+  opacity:1; translate:none; scale:none; filter:none; transform:none;
+ }
+ body #experience .roadmap .milestone__card::before,
+ body #experience .roadmap .milestone__card::after { display:none; }
+ body #experience .roadmap .milestone.is-now .milestone__card { border-color:#163c6a70; box-shadow:inset 3px 0 #163c6a,0 8px 24px #102b5008; }
+ body #experience .roadmap .milestone.is-now .milestone__node { background:#163c6a; }
+ body #experience .roadmap .milestone__meta { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:0 0 14px; }
+ body #experience .roadmap .milestone__step { display:none; }
+ body #experience .roadmap .milestone__tag { background:#163c6a08; border:0; border-radius:6px; padding:5px 8px; color:#294566; font-size:.6875rem; }
+ body #experience .roadmap .milestone__now { background:#163c6a; color:#fff; border-radius:6px; padding:5px 8px; font-size:.6875rem; }
+ body #experience .roadmap .milestone__title { color:#102b50; font-size:1.125rem; line-height:1.35; font-weight:600; letter-spacing:-.025em; }
+ body #experience .roadmap .milestone__org { color:#294566; font-size:.875rem; line-height:1.6; margin-top:9px; }
+ body #experience .roadmap .milestone__when { color:#405a78; font-size:.75rem; line-height:1.7; margin-top:4px; }
+ body #experience .roadmap :is(.milestone__text,.milestone__list li) { color:#294566; font-size:.875rem; line-height:1.8; }
+ body #experience .roadmap .milestone__list { gap:8px; }
+ body #experience .roadmap .milestone__list li::before { color:#163c6a; }
+ body #experience .roadmap .milestone__chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:16px; }
+ body #experience .roadmap .milestone__chips li { background:#fff; border:1px solid #102b5026; border-radius:6px; color:#294566; padding:4px 8px; font-size:.6875rem; }
+ body #experience .roadmap .btn { min-height:44px; margin-top:16px; }
+}

@@ -15,6 +15,7 @@
     ['7','6','1'].forEach(function(key,i){var card=cards.find(function(c){return c.dataset.projectKey===key;});if(!card)return;
       var story=stories[key],button=make('button','selected-work__card');button.type='button';button.style.setProperty('--work-accent',getComputedStyle(card).getPropertyValue('--project-accent'));
       button.append(make('span','selected-work__number','0'+(i+1)),make('span','selected-work__discipline',story.discipline),make('span','selected-work__name',story.short));
+      var outcome=make('span','selected-work__outcome');outcome.append(make('span','selected-work__outcome-label','What I built'),make('span','selected-work__outcome-copy',story.result));button.append(outcome);
       var foot=make('span','selected-work__action','Read the case study');var arrow=make('span','','↗');arrow.setAttribute('aria-hidden','true');foot.append(arrow);button.append(foot);
       button.setAttribute('aria-label','Read case study: '+title(card));button.addEventListener('click',function(){open(card,button);});grid.append(button);
     });selected.append(grid);rail.before(selected);

@@ -1,0 +1,50 @@
+/* Project discovery: a small architecture preview with depth and a scanning light. */
+body .selected-work__card { overflow:hidden; transform-style:preserve-3d; }
+body .project-peek { display:block; width:100%; aspect-ratio:2.7; position:relative; overflow:hidden; border:1px solid #102b5020; border-radius:9px; background:#fff; }
+body .project-peek img { width:100%; height:100%; object-fit:cover; object-position:center; transition:transform .6s cubic-bezier(.2,.8,.2,1); }
+body .project-peek::after { content:''; position:absolute; inset:0; background:linear-gradient(110deg,transparent 25%,#316bb522 48%,transparent 70%); transform:translateX(-130%); pointer-events:none; }
+body .selected-work__card:hover .project-peek::after,body .selected-work__card:focus-visible .project-peek::after { animation:project-scan 1s ease both; }
+body .selected-work__card:hover .project-peek img,body .selected-work__card:focus-visible .project-peek img { transform:scale(1.07); }
+body .selected-work__card .selected-work__name { transform:translateZ(12px); }
+body .selected-work__card .selected-work__action > span { transition:transform .3s ease; }
+body .selected-work__card:hover .selected-work__action > span { transform:translate(3px,-3px); }
+@keyframes project-scan { to { transform:translateX(130%); } }
+body .character-controls { flex-wrap:wrap; justify-content:flex-end; max-width:100%; }
+body .character-controls .avatar-surprise { background:#fff; color:#102b50; border-color:#102b5050; }
+body .hero__visual .character-controls .avatar-surprise { background:#fff; color:#102b50; -webkit-text-fill-color:#102b50; }
+body .hero__visual .character-controls .avatar-surprise:hover { background:#eaf0f7; color:#102b50; -webkit-text-fill-color:#102b50; }
+body .character-stage canvas { cursor:pointer; }
+body .character-greeting { z-index:5; max-width:240px; left:30%; top:25%; background:#fff; color:#102b50; border:1px solid #102b5030; box-shadow:0 10px 30px #102b5010; }
+@media(max-width:500px) { body .character-controls button { padding-inline:10px; font-size:10px; } body .character-greeting { left:18%; font-size:.8125rem; } }
+body .tactile-button { position:relative; overflow:hidden; isolation:isolate; }
+body .button-ripple { position:absolute; pointer-events:none; border-radius:50%; background:#163c6a; z-index:-1; }
+body .btn--primary .button-ripple,body .footer .button-ripple { background:#fff; }
+@media(prefers-reduced-motion:reduce) { body .tactile-button { transform:none!important; } body .button-ripple { display:none; } }
+body .section-head .chapter-connection { height:24px; background:none; overflow:visible; }
+body .chapter-connection svg { width:100%; height:24px; overflow:visible; }
+body .chapter-connection path { fill:none; stroke-width:1; vector-effect:non-scaling-stroke; }
+body .chapter-connection .connection-track { stroke:#163c6a22; }
+body .chapter-connection .connection-signal { stroke:#163c6a; stroke-dasharray:100; stroke-dashoffset:var(--connection-offset,100); opacity:.65; }
+body .chapter-connection circle { fill:#fff; stroke:#163c6a; stroke-width:1; vector-effect:non-scaling-stroke; transition:fill .35s ease,filter .35s ease; }
+body .chapter-in-view .chapter-connection circle { fill:#163c6a; filter:drop-shadow(0 0 3px #316bb570); }
+body .section.chapter-in-view:not(#experience):not(.hero) {
+ background-image:radial-gradient(ellipse at 95% 5%,#316bb506,transparent 55%),linear-gradient(#163c6a09 1px,transparent 1px),linear-gradient(90deg,#163c6a09 1px,transparent 1px);
+ background-size:auto,48px 48px,48px 48px;
+}
+@media(prefers-reduced-motion:reduce) { body .chapter-connection * { transition:none!important; filter:none!important; } }
+@media(max-width:700px) { body .selected-work__card .project-peek { grid-column:2; aspect-ratio:3; margin-block:3px; } }
+@media(prefers-reduced-motion:reduce) {
+ body .selected-work__card,body .selected-work__card * { animation:none!important; transition:none!important; transform:none!important; }
+}
+/* Keep the background-motion control legible and easy to tap. */
+body .atmosphere-toggle { min-height:44px; padding:10px 16px; background:#fff; border:1px solid #102b5040; color:#102b50; font-size:12px; box-shadow:0 4px 16px #102b500a; }
+body .atmosphere-toggle:hover { background:#eaf0f7; border-color:#163c6a; color:#102b50; }
+body .atmosphere-toggle::before { background:#163c6a; }
+body .atmosphere-toggle:focus-visible { outline:2px solid #163c6a; outline-offset:4px; }
+
+/* Surface the delivered capability before opening a case study. */
+body .selected-work__outcome { display:grid; gap:7px; align-self:start; }
+body .selected-work__outcome-label { color:#163c6a; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+body .selected-work__outcome-copy { color:#294566; font-size:14px; line-height:1.65; font-weight:400; }
+body .selected-work__card { height:auto; }
+@media(max-width:700px) { body .selected-work__outcome { grid-column:2; } body .selected-work__outcome-copy { font-size:13px; } }

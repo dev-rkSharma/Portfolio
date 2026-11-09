@@ -34,7 +34,7 @@
   function draw(now){
    if(finished)return;var elapsed=now-start;ctx.clearRect(0,0,w,h+80);
    points.forEach(function(p){var t=Math.max(0,Math.min(1,(elapsed-p.delay)/1050)),ease=1-Math.pow(1-t,3);
-    ctx.globalAlpha=Math.min(1,t*5)*.6;ctx.fillStyle='#fff';ctx.beginPath();
+    ctx.globalAlpha=Math.min(1,t*5)*.6;ctx.fillStyle=window.portfolioThemeSurface||'#fff';ctx.beginPath();
     ctx.arc(p.sx+(p.x-p.sx)*ease,p.sy+(p.y-p.sy)*ease,t<1?1.35:1.05,0,Math.PI*2);ctx.fill();
    });
    if(elapsed>=1850){finish();return;}frame=requestAnimationFrame(draw);

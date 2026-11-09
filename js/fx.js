@@ -859,7 +859,7 @@
       });
       context.clearRect(0,0,innerWidth,innerHeight);
       grains=grains.filter(function(p){var age=(now-p.start)/p.life;if(age>=1)return false;var seconds=(now-p.start)/1000;
-        context.globalAlpha=(1-age)*.95;context.fillStyle=p.color;
+        context.globalAlpha=(1-age)*.95;context.fillStyle=window.portfolioThemeAccent||p.color;
         var x=p.x+p.vx*seconds,y=p.y+p.vy*seconds+12*seconds*seconds;
         context.fillRect(x,y,p.size*(1-age*.5),p.size);return true;
       });context.globalAlpha=1;

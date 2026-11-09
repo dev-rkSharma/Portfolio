@@ -887,7 +887,7 @@
         var big = n.kind !== "leaf";
         g.font = (big ? "600 13px" : "13px") + " 'IBM Plex Mono', monospace";
         g.textBaseline = "middle";
-        g.fillStyle = "rgba(" + (n.kind === "leaf" ? "41,69,102" : "16,43,80") + "," + (on ? 1 : 0.78) + ")";
+        g.fillStyle = window.portfolioThemeInk || "#102b50";
         var label = labelText(n);
         // near the right edge the label goes on the node's left so it isn't clipped
         var flip = n.x + n.r + 6 + g.measureText(label).width > GW - 8;

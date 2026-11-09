@@ -5,7 +5,7 @@
     </pattern>
   </defs>
 
-  <rect width="600" height="340" fill="#111522" />
+  <rect width="600" height="340" fill="#ffffff" />
   <rect width="600" height="340" fill="url(#p5-dots)" opacity="0.12" />
   <rect x="0.5" y="0.5" width="599" height="339" fill="none" stroke="#35415A" />
 

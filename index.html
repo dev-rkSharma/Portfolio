@@ -51,8 +51,8 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 <title>Roushan Kumar | Palantir Foundry &amp; AI Engineer</title>
 <meta name="description" content="Explore Roushan Kumar’s Palantir Foundry and AIP projects, AI agents, ontology applications and data pipelines. Certified AI Engineer and application developer." />
 
-<meta name="theme-color" content="#282C33" />
-<meta name="color-scheme" content="dark" />
+<meta name="theme-color" content="#ffffff" />
+<meta name="color-scheme" content="light" />
 <meta name="robots" content="index, follow, max-image-preview:large" />
 <meta property="og:image:alt" content="Roushan Kumar — Palantir Foundry and AI Engineer portfolio" />
 <meta name="twitter:image:alt" content="Roushan Kumar — Palantir Foundry and AI Engineer portfolio" />
@@ -225,20 +225,59 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/style.css" />
-<link rel="stylesheet" href="css/fx.css" />
-<link rel="stylesheet" href="css/extras.css" />
-<link rel="stylesheet" href="css/modern.css?v=hero-start-20261025" />
-<link rel="stylesheet" href="css/hero-likeness.css" />
-<link rel="stylesheet" href="css/project-detail.css?v=dossier-20261026" />
-<link rel="stylesheet" href="css/case-identities.css?v=work-20261026" />
-<link rel="stylesheet" href="css/work-explorer.css?v=work-20261026" />
-<link rel="stylesheet" href="css/quality.css?v=work-20261026" />
-<link rel="stylesheet" href="css/refinements.css?v=nav-20261026" />
-<link rel="stylesheet" href="css/skills-badges.css?v=1" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/site.css?v=sig-20261027" />
+<link rel="stylesheet" href="css/white-navy.css?v=20261109" />
+<script id="avatar-loading-boot">
+(function(){
+ var root=document.documentElement;root.classList.add('avatar-pending','social-rail-pending');
+ window.socialRailSettled=false;
+ var railStarted=false,railFinished=false;
+ function railReady(){if(railFinished)return;railFinished=true;window.socialRailSettled=true;root.classList.remove('social-rail-pending');document.dispatchEvent(new CustomEvent('social-rail-ready'));}
+ function startRail(){
+  if(railStarted)return;railStarted=true;
+  var rail=document.querySelector('.rail');
+  root.classList.remove('social-rail-pending');
+  if(!rail||matchMedia('(max-width:899px),(prefers-reduced-motion:reduce)').matches){railReady();return;}
+  rail.addEventListener('animationend',function(event){if(event.animationName==='social-rail-drop')railReady();});
+  setTimeout(railReady,1500);
+ }
+ document.addEventListener('hero-title-ready',startRail,{once:true});
+ document.addEventListener('hero-intro-fallback',startRail,{once:true});
+ document.addEventListener('DOMContentLoaded',function(){var title=document.querySelector('.hero__title');if(!title||matchMedia('(prefers-reduced-motion:reduce)').matches||title.dataset.introState==='ready'||(location.hash&&location.hash!=='#home'))startRail();},{once:true});
+ setTimeout(startRail,15000);
+ window.avatarLoadFailed=function(){clearTimeout(window.avatarLoadingTimer);root.classList.remove('avatar-pending');root.classList.add('avatar-fallback');};
+ window.avatarLoadReady=function(){clearTimeout(window.avatarLoadingTimer);root.classList.remove('avatar-pending','avatar-fallback');root.classList.add('avatar-ready');};
+ window.avatarLoadingTimer=setTimeout(window.avatarLoadFailed,40000);
+})();
+</script>
 </head>
 <body>
+<svg aria-hidden="true" width="0" height="0" style="position:absolute;pointer-events:none"><defs><filter id="navy-duotone" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values=".199 .669 .067 0 .063 .176 .593 .060 0 .169 .147 .491 .049 0 .314 0 0 0 1 0"/></filter><filter id="navy-on-white" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="-.199 -.669 -.067 0 1 -.176 -.593 -.060 0 1 -.147 -.491 -.049 0 1 0 0 0 1 0"/></filter></defs></svg>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <a class="skip-link" href="#main">Skip to content</a>
 
@@ -335,7 +374,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
         </p>
         <div class="btn-row">
           <a class="btn btn--primary" href="#contacts">Get in touch</a>
-          <a class="btn" href="assets/Roushan-Kumar-Resume.pdf" download>Download R&eacute;sum&eacute;</a>
+          <a class="btn" href="assets/Roushan-Kumar-Resume.pdf" download>Download Resume</a>
         </div>
         <!-- live "now" line; js/extras.js keeps the IST clock ticking -->
         <p class="now">
@@ -347,6 +386,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
       </div>
 
       <div class="hero__visual">
+<p class="avatar-loading-note" role="status">Loading avatar…</p>
         <span class="decor decor--dots hero__dots-a" aria-hidden="true"></span>
         <span class="decor decor--dots hero__dots" aria-hidden="true"></span>
 
@@ -375,7 +415,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
   <!-- ========================= MARQUEE =========================
        Decorative ticker — every name here is already in #skills, so it's
        aria-hidden. The list is rendered twice so the -50% loop is seamless;
-       css/fx.css pauses it on hover and stops it under reduced motion. -->
+       css/site.css pauses it on hover and stops it under reduced motion. -->
   <div class="marquee" aria-hidden="true">
     <ul class="marquee__track">
       <li class="marquee__item">Palantir Foundry</li><li class="marquee__item">AIP Agents</li><li class="marquee__item">Ontology</li><li class="marquee__item">Pipeline Builder</li><li class="marquee__item">Workshop</li><li class="marquee__item">AI Analyst</li><li class="marquee__item">LLM Pipelines</li><li class="marquee__item">Quiver</li><li class="marquee__item">Python</li><li class="marquee__item">TypeScript</li><li class="marquee__item">SQL</li><li class="marquee__item">Data Governance</li><li class="marquee__item">Geospatial Analytics</li><li class="marquee__item">React</li>
@@ -414,7 +454,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
     <div class="container">
 
       <div class="section-head">
-        <h2 class="section-title"><span class="hash" aria-hidden="true">#</span>projects</h2>
+        <h2 class="section-title"><span class="hash" aria-hidden="true">#</span>Selected <em class="sig-em">work</em></h2>
         <span class="section-head__rule" aria-hidden="true"></span>
       </div>
       <p class="page-lede">All the Foundry &amp; AIP case studies I&rsquo;ve delivered, grouped by scope. Client work is NDA-safe by design &mdash; no client names, no proprietary data, implementation details available on request.</p>
@@ -580,7 +620,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
     <div class="container">
 
       <div class="section-head">
-        <h2 class="section-title"><span class="hash" aria-hidden="true">#</span>skills</h2>
+        <h2 class="section-title"><span class="hash" aria-hidden="true">#</span>Skills &amp; <em class="sig-em">craft</em></h2>
         <span class="section-head__rule" aria-hidden="true"></span>
       </div>
 
@@ -689,7 +729,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
     <div class="container">
 
       <div class="section-head">
-        <h2 class="section-title"><span class="hash" aria-hidden="true">#</span>experience</h2>
+        <h2 class="section-title"><span class="hash" aria-hidden="true">#</span>The <em class="sig-em">journey</em></h2>
         <span class="section-head__rule" aria-hidden="true"></span>
       </div>
 
@@ -808,7 +848,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 
   <!-- ========================= BADGES ========================= -->
   <section class="section" id="badges"><div class="container">
-<div class="section-head"><h2 class="section-title">Badges &amp; learning</h2><span class="section-head__rule" aria-hidden="true"></span></div>
+<div class="section-head"><h2 class="section-title">Badges &amp; <em class="sig-em">learning</em></h2><span class="section-head__rule" aria-hidden="true"></span></div>
 <p class="page-lede">Hands-on coursework across Foundry, AIP, and operational data. Explore each course completion through its original credential link.</p>
 <div class="badge-board" data-badge-board>
 <div class="badge-tracks" role="group" aria-label="Filter badges by track" hidden>
@@ -836,7 +876,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 
   <!-- ========================= ABOUT ========================= -->
   <section class="section" id="about-me"><div class="container">
-  <div class="section-head"><h2 class="section-title">About me</h2><span class="section-head__rule" aria-hidden="true"></span></div>
+  <div class="section-head"><h2 class="section-title">About <em class="sig-em">me</em></h2><span class="section-head__rule" aria-hidden="true"></span></div>
   <div class="about-lab">
     <div class="about-person"><div class="about__visual">
           <span class="decor decor--dots about__dots-a" aria-hidden="true"></span>
@@ -872,14 +912,14 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
           </p></div>
         <div class="about-panel" id="about-panel-tools"><h4>The tools I build with</h4><ul class="about-toolkit"><li>Ontology modeling</li><li>Pipeline Builder</li><li>Workshop</li><li>AIP agents</li><li>Python &amp; SQL</li><li>API integrations</li></ul><a class="about-panel__link" href="#skills">Explore my skills <span aria-hidden="true">&#8599;</span></a></div>
       </div>
-      <div class="btn-row"><a class="btn btn--primary" href="#contacts">Let&rsquo;s connect <span aria-hidden="true">&#8599;</span></a><a class="btn" href="assets/Roushan-Kumar-Resume.pdf" download>Download r&eacute;sum&eacute;</a></div>
+      <div class="btn-row"><a class="btn btn--primary" href="#contacts">Let&rsquo;s connect <span aria-hidden="true">&#8599;</span></a><a class="btn" href="assets/Roushan-Kumar-Resume.pdf" download>Download Resume</a></div>
     </div>
   </div>
 </div></section>
 
   <!-- ========================= CONTACTS ========================= -->
   <section class="section" id="contacts"><div class="container">
-  <div class="section-head"><h2 class="section-title">Contact me</h2><span class="section-head__rule" aria-hidden="true"></span></div>
+  <div class="section-head"><h2 class="section-title">Contact <em class="sig-em">me</em></h2><span class="section-head__rule" aria-hidden="true"></span></div>
   <div class="contact-studio">
     <div class="contact-intro"><p class="section-eyebrow">A good conversation is a start</p><h3 class="contact-intro__title">Let&rsquo;s build something <em>useful.</em></h3><p>Have a Foundry problem, a role, or a question? Tell me what you have in mind.</p><p class="contact-reply">Usually reply within a day or two</p>
       <details class="contact-availability"><summary>Availability &amp; working hours</summary><p>
@@ -913,7 +953,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
   <div class="footer-columns">
     <div class="footer__brand"><a class="logo" href="#home"><svg class="logo__mark" aria-hidden="true"><use href="#i-logo"/></svg><span class="logo__text">Roushan Kumar</span></a><p class="footer-description">Building useful applications and agentic AI on enterprise data with Palantir Foundry.</p><a class="footer__email" href="mailto:hey.roushan.k@gmail.com">hey.roushan.k@gmail.com</a><p class="footer-location">India &middot; IST / UTC+5:30</p></div>
     <nav class="footer-column" aria-label="Explore the portfolio"><h3 class="footer-column__title">Explore</h3><ul class="footer-links"><li><a href="#home">Home</a></li><li><a href="#about-me">About me</a></li><li><a href="#skills">Skills</a></li><li><a href="#experience">Experience</a></li></ul></nav>
-    <nav class="footer-column" aria-label="Explore my work"><h3 class="footer-column__title">My work</h3><ul class="footer-links"><li><a href="#projects">Project collection</a></li><li><a href="#finance-os">Finance OS <span aria-hidden="true">&#8599;</span></a></li><li><a href="#badges">Learning &amp; badges</a></li><li><a href="assets/Roushan-Kumar-Resume.pdf" download>Download r&eacute;sum&eacute; <span aria-hidden="true">&#8595;</span></a></li></ul></nav>
+    <nav class="footer-column" aria-label="Explore my work"><h3 class="footer-column__title">My work</h3><ul class="footer-links"><li><a href="#projects">Project collection</a></li><li><a href="#finance-os">Finance OS <span aria-hidden="true">&#8599;</span></a></li><li><a href="#badges">Learning &amp; badges</a></li><li><a href="assets/Roushan-Kumar-Resume.pdf" download>Download Resume <span aria-hidden="true">&#8595;</span></a></li></ul></nav>
     <div class="footer-column"><h3 class="footer-column__title">Connect</h3><ul class="footer-links"><li><a href="https://www.linkedin.com/in/roushan-kumar" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-linkedin"/></svg>LinkedIn <span aria-hidden="true">&#8599;</span></a></li><li><a href="https://github.com/dev-rkSharma" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-github"/></svg>GitHub <span aria-hidden="true">&#8599;</span></a></li><li><a href="#contacts"><svg aria-hidden="true"><use href="#i-email"/></svg>Start a conversation</a></li></ul></div>
   </div>
   <p class="footer-wordmark" aria-hidden="true">ROUSHAN KUMAR</p>
@@ -923,15 +963,17 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 <script src="js/main.js?v=nav-20261026" defer></script>
 <script src="js/icons.js" defer></script>
 <script src="js/experience-logos.js?v=mtas-linkedin-20261026" defer></script>
-<script src="js/fx.js?v=title-restored-20261026" defer></script>
+<script src="js/fx.js?v=smooth-20261027" defer></script>
 <script src="js/project-stories.js?v=work-20261026" defer></script>
-<script src="js/extras.js?v=nav-20261026" defer></script>
-<script src="js/modern.js?v=title-support-20261026" defer></script>
-<script src="js/hero-likeness.js?v=local-texture-fix-20261026" defer></script>
+<script src="js/extras.js?v=tree2-20261027" defer></script>
+<script src="js/modern.js?v=smooth-20261027" defer></script>
 <script src="js/rail.js" defer></script>
 <script src="js/connect.js" defer></script>
 <script src="js/work-explorer.js?v=work-20261026" defer></script>
 <script src="js/skills-badges.js?v=1" defer></script>
-<script src="js/cert-carousel.js?v=cert-gallery-20261026" defer></script>
+<script src="js/cert-carousel.js?v=smooth-20261027" defer></script>
+<script src="js/signature.js?v=2" defer></script>
+<script src="js/navy-interactions.js?v=20261109" defer></script>
+<script src="js/modern-nav.js?v=20261109" defer></script>
 </body>
 </html>

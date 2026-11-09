@@ -1,6 +1,6 @@
 /* ==========================================================================
    Portfolio — modern effects layer
-   Pairs with css/fx.css. Pure progressive enhancement, no dependencies:
+   Pairs with the "Effects" part of css/site.css. Pure progressive enhancement, no dependencies:
    with JS off, or under prefers-reduced-motion, the page is simply static.
    Pointer-driven effects (glow, ring, tilt, magnetic, spotlight) only run on
    devices with a fine, hovering pointer — never on touch.
@@ -357,7 +357,8 @@
        the next story. The settled story remains crisp on the particle canvas. */
     var MAX_DOTS = 80000;      // bounded ink sampling; no panel texture
     var morphing = false, shown = -1;
-    var dots = [], morphVersion = 0;
+    var dots = [], morphVersion = 0, storyCache=new Map(), settledImage=null, backdropAlpha=0;
+    var flightLimit=innerWidth<700?900:1600;
 
     var fx = track.querySelector(".j3d__fx");
     var fctx = fx.getContext("2d");
@@ -391,44 +392,44 @@
       fctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
+    function storyKey(){return shown+':'+stage.offsetWidth+':'+stage.offsetHeight+':'+panel.querySelector('.j3d__body').scrollTop;}
     function rasterize() {
-      var sb = stage.getBoundingClientRect();
-      return rasterizeBox(panel, sb.left, sb.top, { maxDots: MAX_DOTS, texture: false, inkOnly: true, step: 1, alphaThreshold: 100 }).map(function(p,i){p.a=1;p.size=1.15;return p;});
+      var key=storyKey(),cached=storyCache.get(key);if(cached)return cached.points;
+      var sb=stage.getBoundingClientRect();
+      var points=rasterizeBox(panel,sb.left,sb.top,{maxDots:MAX_DOTS,texture:false,inkOnly:true,step:1,alphaThreshold:100}).map(function(p){p.a=1;p.size=1.15;return p;});
+      if(storyCache.size>=6)storyCache.delete(storyCache.keys().next().value);
+      storyCache.set(key,{points:points,image:null});return points;
     }
-
+    function flightPoints(points){var stride=Math.max(1,Math.ceil(points.length/flightLimit));return points.filter(function(p,i){return i%stride===0;}).map(function(p){return Object.assign({},p);});}
     function drawDots() {
-      fctx.clearRect(0, 0, stage.offsetWidth, stage.offsetHeight);
-      // Spatial buckets keep short graph-like connections local and bounded.
-      // No glow or long lines across the settled letterforms.
-      var cell=morphing?14:2,buckets=Object.create(null);
-      fctx.lineWidth=morphing?.4:.25;
-      fctx.strokeStyle=morphing?'rgba(167,187,223,.17)':'rgba(211,226,248,.25)';
-      fctx.beginPath();
-      dots.forEach(function(d){
-        if(d.a<.15)return;
-        var gx=Math.floor(d.x/cell),gy=Math.floor(d.y/cell),links=0;
-        for(var yy=gy-1;yy<=gy&&links<2;yy++)for(var xx=gx-1;xx<=gx+1&&links<2;xx++){
-          var bucket=buckets[xx+','+yy];if(!bucket)continue;
-          for(var j=bucket.length-1;j>=Math.max(0,bucket.length-6)&&links<2;j--){
-            var n=bucket[j],dx=n.x-d.x,dy=n.y-d.y,dist=dx*dx+dy*dy;
-            if(dist>cell*cell||dist<.25)continue;
-            fctx.moveTo(d.x,d.y);fctx.lineTo(n.x,n.y);links++;
-          }
+      fctx.clearRect(0,0,stage.offsetWidth,stage.offsetHeight);
+      if(backdropAlpha>0&&settledImage){fctx.save();fctx.globalAlpha=backdropAlpha;fctx.drawImage(settledImage.image,settledImage.x,settledImage.y,settledImage.w,settledImage.h);fctx.restore();}
+      // A bounded stream connects nearby travellers; dense final ink is cached.
+      var cell=14,buckets=Object.create(null),linkBudget=700;
+      if(morphing){
+        fctx.lineWidth=.4;fctx.strokeStyle='rgba(167,187,223,.16)';fctx.beginPath();
+        for(var k=0;k<dots.length&&linkBudget>0;k++){
+          var d=dots[k];if(d.a<.15)continue;
+          var gx=Math.floor(d.x/cell),gy=Math.floor(d.y/cell),key=gx+','+gy,bucket=buckets[key];
+          if(bucket){for(var j=bucket.length-1;j>=Math.max(0,bucket.length-3);j--){var n=bucket[j],dx=n.x-d.x,dy=n.y-d.y,dist=dx*dx+dy*dy;if(dist<9||dist>cell*cell)continue;fctx.moveTo(d.x,d.y);fctx.lineTo(n.x,n.y);linkBudget--;break;}}
+          (buckets[key]||(buckets[key]=[])).push(d);
         }
-        var key=gx+','+gy;(buckets[key]||(buckets[key]=[])).push(d);
+        fctx.stroke();
+      }
+      // Batch circles by colour and opacity, instead of thousands of fills.
+      var batches=new Map();
+      dots.forEach(function(d){if(d.a<=.01)return;var r=Math.min(255,Math.round(d.r/16)*16),g=Math.min(255,Math.round(d.g/16)*16),b=Math.min(255,Math.round(d.b/16)*16),a=Math.max(.125,Math.round(d.a*8)/8),key=r+','+g+','+b+','+a;
+        var batch=batches.get(key);if(!batch){batch={path:new Path2D(),color:'rgba('+key+')'};batches.set(key,batch);}
+        var radius=(d.size||1.15)*.5;batch.path.moveTo(d.x+radius,d.y);batch.path.arc(d.x,d.y,radius,0,Math.PI*2);
       });
-      fctx.stroke();
-      dots.forEach(function(d){
-        if(d.a<=.01)return;
-        fctx.fillStyle='rgba('+(d.r|0)+','+(d.g|0)+','+(d.b|0)+','+d.a.toFixed(3)+')';
-        fctx.beginPath();fctx.arc(d.x,d.y,(d.size||1.15)*.5,0,Math.PI*2);fctx.fill();
-      });
+      batches.forEach(function(batch){fctx.fillStyle=batch.color;fctx.fill(batch.path);});
     }
 
     function animate(ms, step, done) {
       var t0 = performance.now(), version=morphVersion;
       (function frame(now) {
         if(version!==morphVersion)return;
+        if(document.hidden){morphVersion++;settle();return;}
         // rAF timestamps can precede performance.now() by a frame — clamp at 0
         var t = Math.min(Math.max((now - t0) / ms, 0), 1);
         step(t);
@@ -444,23 +445,40 @@
     function nodeOrigin(index) {
       return (screenStops && screenStops[index]) || {x:stage.offsetWidth*.29,y:stage.offsetHeight*.52};
     }
-    function settle() {
-      fillPanel(current);sizeFx();dots=rasterize();drawDots();
-      panel.style.opacity='0';fx.style.opacity='1';morphing=false;
+    function paintSettled(cached){
+      if(!cached.image){
+        var minX=Infinity,minY=Infinity,maxX=0,maxY=0;
+        cached.points.forEach(function(p){minX=Math.min(minX,p.x);minY=Math.min(minY,p.y);maxX=Math.max(maxX,p.x);maxY=Math.max(maxY,p.y);});
+        cached.x=Math.floor(Number.isFinite(minX)?minX:0)-1;cached.y=Math.floor(Number.isFinite(minY)?minY:0)-1;
+        var dpr=Math.min(devicePixelRatio||1,2),w=Math.max(1,Math.ceil((maxX-cached.x+2)*dpr)),h=Math.max(1,Math.ceil((maxY-cached.y+2)*dpr));
+        cached.image=document.createElement('canvas');cached.image.width=w;cached.image.height=h;cached.w=w/dpr;cached.h=h/dpr;
+        var ink=cached.image.getContext('2d'),pixels=ink.createImageData(w,h),data=pixels.data,diameter=Math.max(1,Math.round(dpr));
+        // Plot dense, connected subpixel ink once; frames only copy this bitmap.
+        cached.points.forEach(function(p){var x=Math.round((p.x-cached.x)*dpr),y=Math.round((p.y-cached.y)*dpr);for(var yy=0;yy<diameter;yy++)for(var xx=0;xx<diameter;xx++){var k=((y+yy)*w+x+xx)*4;if(k<0||k+3>=data.length)continue;data[k]=p.r;data[k+1]=p.g;data[k+2]=p.b;data[k+3]=255;}});
+        ink.putImageData(pixels,0,0);
+      }
+      fctx.drawImage(cached.image,cached.x,cached.y,cached.w,cached.h);
     }
+    function settle() {
+      if(shown!==current)fillPanel(current);sizeFx();backdropAlpha=0;morphing=false;
+      dots=rasterize();var cached=storyCache.get(storyKey());paintSettled(cached);
+      settledImage=cached;
+      panel.style.opacity='0';fx.style.opacity='1';
+    }
+
     function morphTo() {
       morphing=true;morphVersion++;sizeFx();
       panel.style.opacity='0';fx.style.opacity='1';
       // Existing dots return to their own graph point before the next
       // point emits the new story. There is no solid-card handoff.
       var oldOrigin=nodeOrigin(shown);
+      dots=flightPoints(dots);backdropAlpha=settledImage?1:0;
       dots.forEach(function(d){d.ox=d.x;d.oy=d.y;d.oa=d.a;});
       function emit() {
         fillPanel(current);
-        var targets=rasterize();
-        var stride=Math.max(1,Math.ceil(targets.length/5500));targets=targets.filter(function(t,i){return i%stride===0;});
+        backdropAlpha=0;var targets=flightPoints(rasterize());
         dots=targets.map(function(t,i){var source=nodeOrigin(shown);return {x:source.x,y:source.y,tx:t.x,ty:t.y,r:t.r,g:t.g,b:t.b,a:0,size:2.6,delay:(i%43)/43*.36,bend:Math.sin(i*2.4)*65};});
-        animate(1450,function(t){
+        animate(1100,function(t){
           var source=nodeOrigin(shown);
           dots.forEach(function(d){var local=clamp01((t-d.delay)/(1-d.delay)),e=easeInOut(local),u=1-e;
             d.x=source.x*u+d.tx*e;
@@ -471,7 +489,7 @@
         },function(){morphing=false;if(shown!==current)morphTo();else settle();});
       }
       if(!dots.length){emit();return;}
-      animate(340,function(t){var e=easeInOut(t);dots.forEach(function(d){d.x=d.ox+(oldOrigin.x-d.ox)*e;d.y=d.oy+(oldOrigin.y-d.oy)*e;d.a=d.oa*(1-e);});},emit);
+      animate(260,function(t){var e=easeInOut(t);backdropAlpha=1-e;dots.forEach(function(d){d.x=d.ox+(oldOrigin.x-d.ox)*e;d.y=d.oy+(oldOrigin.y-d.oy)*e;d.a=d.oa*(1-e);});},emit);
     }
     function showStop(i) {
       current=i;
@@ -481,7 +499,7 @@
     var refreshParticles=function(){if(current<0)return;morphVersion++;settle();};
     panel.querySelector('.j3d__body').addEventListener('scroll',refreshParticles,{passive:true});
     motionPreference.addEventListener('change',refreshParticles);
-    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){if(!morphing)refreshParticles();});
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){storyCache.clear();if(!morphing)refreshParticles();});
 
     pagerBtns.forEach(function (b) {
       b.addEventListener("click", function () { scrollToStop(Number(b.getAttribute("data-go"))); });
@@ -734,7 +752,7 @@
       raf(function () { scrollTick = false; readScroll(); if (reduceMotion) kick(); });
     }, { passive: true });
 
-    function relayout() { var previousWidth=W,previousHeight=H;sizeNet(); readScroll(); if(previousWidth&&(previousWidth!==W||previousHeight!==H))refreshParticles(); if (reduceMotion) kick(); }
+    function relayout() { var previousWidth=W,previousHeight=H;sizeNet(); readScroll(); if(previousWidth&&(previousWidth!==W||previousHeight!==H)){storyCache.clear();flightLimit=W<700?900:1600;refreshParticles();} if (reduceMotion) kick(); }
     if ("ResizeObserver" in window) new ResizeObserver(function () { raf(relayout); }).observe(stage);
     else window.addEventListener("resize", relayout);
     relayout();
@@ -837,11 +855,11 @@
       if(done)return;var elapsed=now-epoch;
       landings.forEach(function(landing){
         if(landing.emitted||elapsed<landing.time)return;landing.emitted=true;
-        landing.points.forEach(function(point){grains.push({x:point.x,y:point.y,start:now,life:650+Math.random()*450,vx:45+Math.random()*110,vy:-18-Math.random()*50,size:.65+Math.random()*1.1,color:landing.color});});
+        landing.points.forEach(function(point){grains.push({x:point.x,y:point.y,start:now,life:650+Math.random()*450,vx:45+Math.random()*110,vy:-18-Math.random()*50,size:1+Math.random()*1.4,color:landing.color});});
       });
       context.clearRect(0,0,innerWidth,innerHeight);
       grains=grains.filter(function(p){var age=(now-p.start)/p.life;if(age>=1)return false;var seconds=(now-p.start)/1000;
-        context.globalAlpha=(1-age)*.8;context.fillStyle=p.color;
+        context.globalAlpha=(1-age)*.95;context.fillStyle=p.color;
         var x=p.x+p.vx*seconds,y=p.y+p.vy*seconds+12*seconds*seconds;
         context.fillRect(x,y,p.size*(1-age*.5),p.size);return true;
       });context.globalAlpha=1;
@@ -887,7 +905,7 @@
         var pixels=ink.getImageData(0,0,mask.width,mask.height).data,candidates=[];
         for(var py=0;py<mask.height;py+=3)for(var px=0;px<mask.width;px+=3)if(pixels[(py*mask.width+px)*4+3]>90)candidates.push({x:rect.left+px,y:rect.top+py});
         for(var p=0;p<18&&candidates.length;p++)points.push(candidates[Math.floor(Math.random()*candidates.length)]);
-        landings.push({time:index*cadence+duration*.78,points:points,color:entry.accent?'#c5acf5':'#e4d8c3',emitted:false});
+        landings.push({time:index*cadence+duration*.78,points:points,color:entry.accent?'#245b98':'#102b50',emitted:false});
       });
       document.documentElement.classList.remove('hero-title-pending');
       frame=requestAnimationFrame(dust);

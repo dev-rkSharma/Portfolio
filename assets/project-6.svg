@@ -8,7 +8,7 @@
     </marker>
   </defs>
 
-  <rect width="600" height="340" fill="#111522" />
+  <rect width="600" height="340" fill="#ffffff" />
   <rect x="0" y="0" width="150" height="150" fill="url(#p6-dots)" opacity="0.14" />
   <rect x="0.5" y="0.5" width="599" height="339" fill="none" stroke="#35415A" />
 

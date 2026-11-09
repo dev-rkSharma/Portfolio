@@ -73,11 +73,13 @@
 
     document.body.classList.add("has-nav-pill");
     $all(".nav__link", navList).forEach(function (link) {
-      link.addEventListener("pointerenter", function () { hovering = link; movePill(link); });
+      link.addEventListener("pointerenter", function () { /* Hover stays local; selection owns the underline. */ });
       // main.js moves .is-active as you scroll — follow it unless hovering
       new MutationObserver(function () { if (!hovering) movePill(activeLink()); })
         .observe(link, { attributes: true, attributeFilter: ["class"] });
     });
+    navList.addEventListener("focusin", function(e){var link=e.target.closest(".nav__link");if(link){hovering=null;movePill(activeLink());}});
+    navList.addEventListener("focusout", function(e){if(!navList.contains(e.relatedTarget)){hovering=null;movePill(activeLink());}});
     navList.addEventListener("pointerleave", function () { hovering = null; movePill(activeLink()); });
     window.addEventListener("resize", function () { movePill(hovering || activeLink(), true); });
     desktop.addEventListener("change", function () { movePill(activeLink(), true); });
@@ -774,7 +776,7 @@
     var labelText = function (n) { return n.label.length > 30 ? n.label.slice(0, 29) + "…" : n.label; };
     var measure = function () {
       nodes.forEach(function (n) {
-        g.font = (n.kind !== "leaf" ? "600 12px" : "12px") + " 'IBM Plex Mono', monospace";
+        g.font = (n.kind !== "leaf" ? "600 13px" : "13px") + " 'IBM Plex Mono', monospace";
         n.lw = g.measureText(labelText(n)).width;
       });
     };
@@ -801,10 +803,10 @@
       projs.forEach(function (n, i) { n.tx = GW * col[3]; n.ty = GH * (.12 + .76 * (projs.length > 1 ? i / (projs.length - 1) : .5)); });
     };
     layout();
-    // the tree grows out of its root on first view
+    // the tree grows out of its root on first view — horizontally only, so rows never cross
     nodes.forEach(function (n) {
       n.x = reduceMotion ? n.tx : root.tx + (n.tx - root.tx) * .15;
-      n.y = reduceMotion ? n.ty : root.ty + (n.ty - root.ty) * .15;
+      n.y = n.ty;
     });
 
     var dragging = null, hover = null, selected = null, energy = 1, running = false, inView = false;
@@ -820,8 +822,8 @@
           follow = n.adj.reduce(function (t, m) { t.x += m.x - m.tx; t.y += m.y - m.ty; return t; }, { x: 0, y: 0 });
           tx += follow.x / n.adj.length * .35; ty += follow.y / n.adj.length * .35;
         }
-        n.vx = (n.vx + (tx - n.x) * .06) * .8;
-        n.vy = (n.vy + (ty - n.y) * .06) * .8;
+        n.vx = (n.vx + (tx - n.x) * .1) * .74;
+        n.vy = (n.vy + (ty - n.y) * .1) * .74;
         n.x = Math.min(Math.max(n.x + n.vx, 12), GW - 12);
         n.y = Math.min(Math.max(n.y + n.vy, 12), GH - 12);
         energy += Math.abs(n.vx) + Math.abs(n.vy) + Math.abs(tx - n.x) * .02 + Math.abs(ty - n.y) * .02;
@@ -841,7 +843,7 @@
       g.clearRect(0, 0, GW, GH);
       links.forEach(function (l) {
         var on = hover && lit(l.a) && lit(l.b) && (l.a === hover || l.b === hover || hover.kind === "proj");
-        g.strokeStyle = on ? "rgba(" + (l.a.kind === "proj" ? l.b.hue : l.a.hue) + ",0.85)" : "rgba(171,178,191," + (hover ? 0.06 : 0.16) + ")";
+        g.strokeStyle = on ? "rgba(" + (l.a.kind === "proj" ? l.b.hue : l.a.hue) + ",0.85)" : "rgba(171,178,191," + (hover ? 0.18 : 0.4) + ")";
         g.lineWidth = on ? 1.6 : 1;
         if (l.a.kind === "proj") g.setLineDash([3, 4]);
         if (l.a.hidden) return;
@@ -883,9 +885,9 @@
         // labels — on narrow screens leaf labels only show when highlighted
         if ((n.kind === "leaf" || n.kind === "proj") && GW < 700 && !(hover && on)) return;
         var big = n.kind !== "leaf";
-        g.font = (big ? "600 12px" : "12px") + " 'IBM Plex Mono', monospace";
+        g.font = (big ? "600 13px" : "13px") + " 'IBM Plex Mono', monospace";
         g.textBaseline = "middle";
-        g.fillStyle = "rgba(" + (n.kind === "leaf" ? "203,210,226" : "255,255,255") + "," + (on ? (n.kind === "leaf" ? 0.85 : 1) : 0.25) + ")";
+        g.fillStyle = "rgba(" + (n.kind === "leaf" ? "41,69,102" : "16,43,80") + "," + (on ? 1 : 0.78) + ")";
         var label = labelText(n);
         // near the right edge the label goes on the node's left so it isn't clipped
         var flip = n.x + n.r + 6 + g.measureText(label).width > GW - 8;

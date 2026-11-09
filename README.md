@@ -8,7 +8,7 @@ no npm install, no framework. Drops straight onto GitHub Pages.
 ```
 site/
 ├── index.html          all content lives here (look for "EDIT:" comments)
-├── css/style.css       design tokens at the top, then layout, then responsive
+├── css/site.css        the one stylesheet: design tokens at the top, then components in cascade order
 ├── js/main.js          mobile menu, active nav, scroll reveal, copy-to-clipboard
 └── assets/             images + favicon
 ```
@@ -99,7 +99,7 @@ Then: **repo → Settings → Pages → Source: `Deploy from a branch` → `main
 
 Live at `https://your-username.github.io/portfolio/`.
 
-> All asset paths are relative (`css/style.css`, not `/css/style.css`), so both
+> All asset paths are relative (`css/site.css`, not `/css/site.css`), so both
 > options work with no changes.
 
 ### Custom domain

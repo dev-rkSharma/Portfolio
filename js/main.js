@@ -102,6 +102,7 @@
       });
       var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
       if (atBottom) current = watched[watched.length - 1];
+      if(window.modernNavTarget){var selected=watched.find(function(section){return section.id===window.modernNavTarget;});if(selected)current=selected;}
       var link = current ? linkFor[current.id] : null;
       if (link === currentLink) return;
       currentLink = link;
@@ -129,7 +130,7 @@
      as a layer sitting above the content instead of floating in it.
      This is a *state*, not an animation: the border-colour transition it
      triggers is already neutralised by the prefers-reduced-motion block in
-     css/style.css, so the separation still appears for reduced-motion users —
+     css/site.css, so the separation still appears for reduced-motion users —
      it just appears instantly. */
   var header = document.querySelector(".header");
 

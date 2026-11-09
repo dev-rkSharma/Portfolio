@@ -327,19 +327,10 @@
     var siblings=Array.from(node.parentElement.children).filter(function(child){return child.matches(selector);});
     var index=Math.max(0,siblings.indexOf(node));
     var card=!node.matches('.section-head,.contacts__copy');
-    var side=Math.random()<.5?-1:1,small=innerWidth<900,rect=node.getBoundingClientRect();
-    var margin=30+Math.random()*50;
-    var x=card?(side<0?-rect.right-margin:innerWidth-rect.left+margin):0;
-    var y=card?18+Math.random()*40:32,angle=card?side*(small?2+Math.random()*2:3+Math.random()*4):0;
-    // Sample a damped spring so position, rotation and scale settle continuously.
-    // No intermediate easing boundaries or repeated bounces.
-    var frames=[];
-    for(var step=0;step<=60;step++){
-      var t=step/60,remaining=step===60?0:Math.exp(-8*t)*(Math.cos(6*t)+(8/6)*Math.sin(6*t));
-      frames.push({opacity:Math.min(1,t*7),translate:(x*remaining).toFixed(3)+'px '+(y*remaining).toFixed(3)+'px',rotate:(angle*remaining).toFixed(3)+'deg',scale:String(1-(card?.045:.02)*remaining),transform:card?'perspective(1100px) translateZ('+(-remaining*(small?100:220)).toFixed(3)+'px) rotateX('+(remaining*(small?8:14)).toFixed(3)+'deg) rotateY('+(-side*remaining*(small?12:24)).toFixed(3)+'deg)':'none',offset:t});
-    }
+    var small=innerWidth<900;
+    var frames=[{opacity:0,transform:'translate3d(0,'+(small?18:28)+'px,0) scale(.985)'},{opacity:1,transform:'translate3d(0,0,0) scale(1)'}];
     node.classList.add('is-arriving');
-    var animation=node.animate(frames,{duration:card?(small?1050:1250)+Math.random()*140:750,delay:card?Math.min(index,3)*45+Math.random()*40:0,easing:'linear',fill:'backwards'});
+    var animation=node.animate(frames,{duration:small?460:600,delay:Math.min(index,3)*40,easing:'cubic-bezier(.2,.75,.25,1)',fill:'backwards'});
     animations.set(node,animation);
     animation.onfinish=function(){animations.delete(node);node.classList.remove('is-arriving');};
   }
@@ -360,14 +351,14 @@
  // Load the optional scene after the page, only while its hero is nearby.
  var requested=false,ready=false,near=false;
  function loadScene(){
-  if(requested||!ready||!near||document.hidden)return;
+  if(requested||!ready||!near||document.hidden||window.socialRailSettled===false)return;
   requested=true;
-  Promise.resolve().then(function(){if(!window.THREE)return script('js/vendor/three.min.js');}).then(function(){return script('js/vendor/GLTFLoader.js');}).then(init).catch(function(){/* The portrait remains visible on failure. */});
+  Promise.resolve().then(function(){if(!window.THREE)return script('js/vendor/three.min.js');}).then(function(){return script('js/vendor/GLTFLoader.js');}).then(init).catch(function(){if(window.avatarLoadFailed)window.avatarLoadFailed();});
  }
  var loadObserver=new IntersectionObserver(function(entries){near=entries[0].isIntersecting;loadScene();},{rootMargin:'100px'});loadObserver.observe(visual);
- function afterLoad(){setTimeout(function(){var idle=window.requestIdleCallback||function(fn){setTimeout(fn,0);};idle(function(){ready=true;loadScene();},{timeout:2000});},1400);}
+ function afterLoad(){setTimeout(function(){var idle=window.requestIdleCallback||function(fn){setTimeout(fn,0);};idle(function(){ready=true;loadScene();},{timeout:500});},0);}
  if(document.readyState!=='loading')afterLoad();else document.addEventListener('DOMContentLoaded',afterLoad,{once:true});
- document.addEventListener('visibilitychange',loadScene);
+ document.addEventListener('visibilitychange',loadScene);document.addEventListener('social-rail-ready',loadScene);
 
  function init(){
   var T=window.THREE,loader=new T.GLTFLoader();
@@ -382,18 +373,18 @@
    });
   }
   var models=location.protocol==='file:'?localModels():Promise.all([parse('assets/character/human.glb'),parse('assets/character/idle.glb')]).catch(localModels);
-  models.then(function(results){build(results[0],results[1]);}).catch(function(error){console.warn('Workstation unavailable:',error);});
+  models.then(function(results){build(results[0],results[1]);}).catch(function(error){if(window.avatarLoadFailed)window.avatarLoadFailed();if(window.avatarLoadFailed)window.avatarLoadFailed();if(window.avatarLoadFailed)window.avatarLoadFailed();console.warn('Workstation unavailable:',error);});
   function build(gltf,idle){
    var renderer;try{renderer=new T.WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});}catch(e){return;}
    renderer.setPixelRatio(Math.min(devicePixelRatio||1,innerWidth<900?1:1.5));renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1;
    renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
    var stage=document.createElement('div');stage.className='character-stage human-character';stage.appendChild(renderer.domElement);
    renderer.domElement.setAttribute('role','img');renderer.domElement.setAttribute('aria-label','Developer seated in an office chair at an aligned dual-monitor workstation, waving hello and returning to work');
-   var label=document.createElement('a');label.className='character-label';label.textContent='Avatar by Ready Player Me';label.href='https://github.com/readyplayerme/visage';label.target='_blank';label.rel='noopener';stage.appendChild(label);
+   var label=document.createElement('a');label.className='character-label';label.textContent='Avatar by Ready Player Me';label.href='https://github.com/readyplayerme/visage';label.target='_blank';label.rel='noopener';
    var controls=document.createElement('div');controls.className='character-controls';
    var hello=document.createElement('button');hello.type='button';hello.textContent='Say hi again';
    var pause=document.createElement('button');pause.type='button';pause.textContent='Pause';pause.setAttribute('aria-pressed','false');
-   var greeting=document.createElement('span');greeting.className='character-greeting';greeting.textContent='Hi, I?m Roushan!';greeting.setAttribute('role','status');greeting.hidden=true;stage.appendChild(greeting);controls.append(hello,pause);stage.appendChild(controls);visual.prepend(stage);visual.classList.add('has-character');
+   var greeting=document.createElement('span');greeting.className='character-greeting';greeting.textContent='Hi, I’m Roushan!';greeting.setAttribute('role','status');greeting.hidden=true;stage.appendChild(greeting);controls.append(hello,pause);stage.appendChild(controls);visual.prepend(stage);visual.classList.add('has-character');if(window.avatarLoadReady)window.avatarLoadReady();
    var scene=new T.Scene(),camera=new T.PerspectiveCamera(32,1,.1,100);
    camera.position.set(3,2.35,4.8);camera.lookAt(0,.95,0);
    scene.add(new T.HemisphereLight(0xe8edff,0x293044,.85));
@@ -533,7 +524,7 @@
    visual.addEventListener('pointerleave',function(){mouse.x=mouse.y=0;});
    new ResizeObserver(size).observe(stage);new IntersectionObserver(function(entries){visible=entries[0].isIntersecting;sync();}).observe(stage);
    motion.addEventListener('change',sync);document.addEventListener('visibilitychange',sync);
-   renderer.domElement.addEventListener('webglcontextlost',function(e){e.preventDefault();cancelAnimationFrame(frame);visual.classList.remove('has-character');stage.remove();});
+   renderer.domElement.addEventListener('webglcontextlost',function(e){e.preventDefault();cancelAnimationFrame(frame);visual.classList.remove('has-character');stage.remove();if(window.avatarLoadFailed)window.avatarLoadFailed();if(window.avatarLoadFailed)window.avatarLoadFailed();if(window.avatarLoadFailed)window.avatarLoadFailed();});
    stage.dataset.model='seated-workstation';size();sync();
    delete window.PORTFOLIO_HUMAN;
   }

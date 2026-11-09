@@ -596,7 +596,7 @@
     date: { desc: "local time in India", run: function () {
       return [new Date().toLocaleString("en-GB", { timeZone: "Asia/Kolkata", dateStyle: "full", timeStyle: "short" }) + " IST"];
     } },
-    theme: { desc: "change the theme", run: function () { return ["dark. it's always dark here."]; } },
+    theme: { desc: "list or apply palettes: theme list", run: function (args) { return window.portfolioThemeCommand ? window.portfolioThemeCommand(args) : ["Themes are loading. Try again."]; } },
     clear: { desc: "clear the screen", run: function () { termOut.innerHTML = ""; return []; } },
     exit: { desc: "close the terminal", run: function () { window.setTimeout(closeTerm, 120); return []; } },
     sudo: { hidden: true, desc: "", run: function (args) {

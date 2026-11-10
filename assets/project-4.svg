@@ -34,11 +34,8 @@
     <path d="M138 220 C 200 220, 220 190, 262 172" />
   </g>
 
-  <!-- pipeline node: echoes the site's logo mark -->
-  <g transform="translate(262,150)">
-    <rect x="0.5" y="0.5" width="42" height="42" fill="none" stroke="#B49AFF" />
-    <rect x="26" y="26" width="45" height="45" fill="#B49AFF" />
-  </g>
+  <!-- Pipeline Builder: actual application artwork -->
+<image data-product-icon="pipeline" x="262" y="150" width="70" height="70" preserveAspectRatio="xMidYMid meet" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD4AAAA+CAIAAAD8oz8TAAADEElEQVR4nOWZXUhTYRjH/+fZyalzgrbSHIohmjRzgeLIlPIqoshAKCLysssg6MaLrqwru4kg6LLoopsgoiio2I0kCRZGlsoUZSy/lnNu7vN8hAi6ze1thp5z3vpdHZ7/znl/vDx7zznvERbXwuATArcQuIXALQRuIXALgVsI/6p6UlE2jxOyDCMhMrIHX4f7PeOplev2mjuu0zAGQq67aVJR7C+ebq+/PHXGXmLN8+rV5mJoP+v7KHsvjUSC78LL+Q/QVWbrKD0AjRsGiSSCq4C6VbFYdjqAO+AHsBf2Iiv0TCMaS6uQkDjZCRJ2NIY74NdcPZruDUBRP/u8vkgkz6s3V9n3W/P9Y+yqejZ+RSJjoVCePx6bGHdYrV1HGsHjLWksFBqf8/F6N33v+6l1w1QWmOcT8Yzio9bO6nIb46yK50+gCSIj6z9/8fXoiKxuLY7tdQ1sby0RGVl3S1t3SxuMCoFbCNxC4BYCt4gwBvdHP32Y821OpCrg0uH6qw3HjK7uDQfvTk1kFIe+fblS30SCoLN6/+wPRlq29RaZBsPbKLO+jiQJa6kPpAJK//DIaQh1SZbp+6SSTKZVSyyGUFcCAUa6HItnegMIr8VlyWwSdVZ/OOVhpOeKs08ww5vvdZ3ALaI2wyz09DLSGf/iq8GP2+uKquq/rrOptR286Wp3T6bttF1udfGxrvdd6On7f3qdwC0EbiFwi8jI3s563ninUzYE4Ko4xH6GNor67dHhWUlKrTxbmu+y11ZZ9mobcdfUM7w3eLzqXwzMFwpZOi2mKqUm7TpQZMdCymbveuMUFcbkJCDE1OxvB1LKtydd1adm1JVgWqW4aOV4CxUU5DpjKRKF7upxSUKGN4BIVFaVBf9i1lNUVfX6l6C7ulnMHsVmZtwrrPcGzSANxhhwOLlUH3A4exudmjaMlOPbdE9N3Q1neZ5Xb7ZVYs8QcwYm060THfeGBlOL1xxNZ+uPwuBfqzeQZFk0mTaO45KU67+rC8SON70Za45eELiFwC0EbiFwC4FbCNxC4BbSW+Dv+Q0Jr/FaPVS+5QAAAABJRU5ErkJggg=="/>
 
   <!-- arrow from pipeline to workshop output -->
   <path class="data-path" d="M334 178 L 388 164" stroke="#B49AFF" stroke-width="1.5" opacity="0.85" marker-end="url(#p4-arrow)" fill="none" />

@@ -1,0 +1,16 @@
+{
+  "aip": "https://raw.githubusercontent.com/palantir/blueprint/develop/resources/icons/16px/cube.svg",
+  "pipeline": "https://raw.githubusercontent.com/palantir/blueprint/develop/resources/icons/16px/flows.svg",
+  "workshop": "https://raw.githubusercontent.com/palantir/blueprint/develop/resources/icons/16px/widget.svg",
+  "ontology": "https://raw.githubusercontent.com/palantir/blueprint/develop/resources/icons/16px/graph.svg",
+  "quiver": "https://raw.githubusercontent.com/palantir/blueprint/develop/resources/icons/16px/chart.svg",
+  "analyst": "https://raw.githubusercontent.com/palantir/blueprint/develop/resources/icons/16px/predictive-analysis.svg",
+  "pilot": "https://raw.githubusercontent.com/palantir/blueprint/develop/resources/icons/16px/rocket.svg",
+  "home": "https://raw.githubusercontent.com/palantir/blueprint/develop/resources/icons/16px/home.svg",
+  "projects": "https://raw.githubusercontent.com/palantir/blueprint/develop/resources/icons/16px/projects.svg",
+  "skills": "https://raw.githubusercontent.com/palantir/blueprint/develop/resources/icons/16px/code.svg",
+  "experience": "https://raw.githubusercontent.com/palantir/blueprint/develop/resources/icons/16px/timeline-events.svg",
+  "badges": "https://raw.githubusercontent.com/palantir/blueprint/develop/resources/icons/16px/badge.svg",
+  "about": "https://raw.githubusercontent.com/palantir/blueprint/develop/resources/icons/16px/person.svg",
+  "contacts": "https://raw.githubusercontent.com/palantir/blueprint/develop/resources/icons/16px/envelope.svg"
+}

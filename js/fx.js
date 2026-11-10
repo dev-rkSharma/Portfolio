@@ -838,7 +838,7 @@
     title.dataset.introState='pending';
     var original=title.innerHTML,animations=[],done=false,started=false,startScroll=scrollY;
     var preference=matchMedia('(prefers-reduced-motion: reduce)'),introWidth=innerWidth,introHeight=innerHeight;
-    function onResize(){if(innerWidth!==introWidth||innerHeight!==introHeight)finish();}
+    function onResize(){if(Math.abs(innerWidth-introWidth)>1)finish();}
     var canvas=null,context=null,frame=0,grains=[],landings=[],epoch=0;
     function finish(){
       if(done)return;done=true;cancelAnimationFrame(frame);animations.forEach(function(a){a.cancel();});
@@ -863,11 +863,11 @@
         var x=p.x+p.vx*seconds,y=p.y+p.vy*seconds+12*seconds*seconds;
         context.fillRect(x,y,p.size*(1-age*.5),p.size);return true;
       });context.globalAlpha=1;
-      if(landings.every(function(l){return l.emitted;})&&!grains.length){finish();return;}
+      if(landings.every(function(l){return l.emitted;})&&!grains.length){frame=0;return;}
       frame=requestAnimationFrame(dust);
     }
     var fonts=document.fonts?document.fonts.ready:Promise.resolve();
-    Promise.race([fonts,new Promise(function(resolve){setTimeout(resolve,120);})]).then(function(){
+    Promise.race([fonts,new Promise(function(resolve){setTimeout(resolve,1000);})]).then(function(){
       if(done)return;if(preference.matches||document.hidden||scrollY>innerHeight*.5){finish();return;}
       title.setAttribute('aria-label',title.textContent.replace(/\s+/g,' ').trim());
       var letters=[];
@@ -884,21 +884,18 @@
       var dpr=Math.min(devicePixelRatio||1,1.5);canvas.width=Math.round(innerWidth*dpr);canvas.height=Math.round(innerHeight*dpr);
       context=canvas.getContext('2d');if(!context){finish();return;}context.scale(dpr,dpr);document.body.appendChild(canvas);
       var mask=document.createElement('canvas'),ink=mask.getContext('2d');
-      var cadence=innerWidth<900?65:75,duration=780;
+      var cadence=Math.min(42,2600/Math.max(1,letters.length-1)),duration=680;
       startScroll=scrollY;started=true;epoch=performance.now();
       letters.forEach(function(letter,index){
         var entry=positions[index],rect=entry.rect,side=index%4,x=0,y=0;
         if(side===0)x=-rect.right-35;else if(side===1)x=innerWidth-rect.left+35;
         else if(side===2)y=-rect.bottom-35;else y=innerHeight-rect.top+35;
         if(side<2)y=-80;else x=(index%2?1:-1)*85;
-        var tilt=(side%2?1:-1)*28;
+        x=Math.max(-65,Math.min(65,x));y=Math.max(-45,Math.min(45,y));var tilt=(side%2?1:-1)*9;
         var animation=letter.animate([
-          {opacity:0,transform:'translate3d('+x+'px,'+y+'px,-250px) rotateY('+tilt+'deg) rotateZ('+(tilt*.4)+'deg) scale(1.25)',offset:0,easing:'cubic-bezier(.45,0,.8,.4)'},
-          {opacity:1,transform:'translate3d('+(x*.025)+'px,-18px,18px) rotateY(4deg) scale(1.02)',offset:.58,easing:'cubic-bezier(.5,0,.9,.65)'},
-          {opacity:1,transform:'translate3d(0,3px,0) scale(1.055,.91)',offset:.78,easing:'cubic-bezier(.2,.7,.3,1)'},
-          {opacity:1,transform:'translate3d(0,-1px,0) scale(.995,1.015)',offset:.9},
-          {opacity:1,transform:'translate3d(0,0,0) scale(1)',offset:1}
-        ],{duration:duration,delay:index*cadence,easing:'linear',fill:'backwards'});animations.push(animation);
+          {opacity:0,transform:'translate3d('+x+'px,'+y+'px,-30px) rotateY('+tilt+'deg) scale(.98)'},
+          {opacity:1,transform:'translate3d(0,0,0) rotateY(0deg) scale(1)'}
+        ],{duration:duration,delay:index*cadence,easing:'cubic-bezier(.22,1,.36,1)',fill:'both'});animations.push(animation);
         // Sample the actual glyph silhouette; only a small, bounded dust cloud is live.
         var points=[];mask.width=Math.max(1,Math.ceil(rect.width));mask.height=Math.max(1,Math.ceil(rect.height));
         ink.font=entry.font;ink.textBaseline='middle';ink.fillStyle='#fff';ink.fillText(letter.textContent,0,mask.height*.5);
@@ -909,7 +906,8 @@
       });
       document.documentElement.classList.remove('hero-title-pending');
       frame=requestAnimationFrame(dust);
-      setTimeout(finish,letters.length*cadence+duration+1500);
+      Promise.all(animations.map(function(a){return a.finished;})).then(function(){if(!done)setTimeout(finish,220);}).catch(function(){});
+      setTimeout(finish,letters.length*cadence+duration+2200);
     }).catch(finish);
     window.addEventListener('resize',onResize);window.addEventListener('scroll',onScroll,{passive:true});
     preference.addEventListener('change',finish);document.addEventListener('visibilitychange',onVisibility);document.addEventListener('hero-intro-fallback',finish);

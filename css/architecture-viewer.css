@@ -1,0 +1,22 @@
+body .architecture-viewer { width:calc(100vw - 32px); max-width:1800px; height:calc(100dvh - 32px); max-height:none; padding:0; margin:auto; border:1px solid var(--border,#102b5030); border-radius:16px; background:var(--theme-surface,#fff); color:var(--theme-ink,#102b50); box-shadow:0 30px 100px #0005; overflow:hidden; }
+body .architecture-viewer[open] { display:flex; flex-direction:column; }
+body .architecture-viewer::backdrop { background:#030c19c9; backdrop-filter:blur(8px); }
+body .architecture-toolbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:16px 22px; border-bottom:1px solid var(--border,#102b5030); flex-shrink:0; }
+body .architecture-toolbar h2 { font-size:18px; margin:0; color:var(--theme-ink,#102b50); }
+body .architecture-project { font-size:12px; margin:4px 0 0; color:var(--theme-ink,#294566); }
+body .architecture-actions { display:flex; align-items:center; gap:8px; }
+body .architecture-actions button { min-width:44px; min-height:44px; padding:8px 12px; background:var(--theme-surface,#fff); color:var(--theme-ink,#102b50); border:1px solid var(--border,#102b5030); border-radius:8px; font:inherit; font-size:14px; cursor:pointer; }
+body .architecture-actions button:disabled { opacity:.4; cursor:default; }
+body .architecture-actions button:focus-visible,body .architecture-canvas:focus-visible { outline:2px solid var(--theme-accent,#163c6a); outline-offset:-3px; }
+body .architecture-scale { min-width:46px; text-align:center; color:var(--theme-ink,#102b50); font:12px var(--mono,monospace); }
+body .architecture-canvas { flex:1; min-height:0; overflow:auto; overscroll-behavior:contain; cursor:grab; touch-action:pan-x pan-y; background:var(--theme-surface,#f4f7fb); }
+body .architecture-canvas.is-dragging { cursor:grabbing; user-select:none; }
+body .architecture-stage { display:grid; place-items:center; padding:20px; box-sizing:border-box; }
+body .architecture-sheet { flex:none; }
+body .architecture-sheet :is(img,svg) { display:block; width:100%; height:auto; max-width:none; max-height:none; user-select:none; pointer-events:none; filter:none; }
+body .architecture-hint { margin:0; flex-shrink:0; padding:10px 20px; border-top:1px solid var(--border,#102b5030); color:var(--theme-ink,#294566); font-size:12px; }
+@media(max-width:600px) { body .architecture-viewer { width:100vw; height:100dvh; border:0; border-radius:0; } body .architecture-toolbar { padding:12px; } body .architecture-actions { gap:5px; width:100%; justify-content:flex-end; } body .architecture-project { max-width:90vw; } body .architecture-hint { font-size:11px; padding:10px 12px; } }
+
+/* Expand icon button keeps a comfortable tap target. */
+body .pd .pd__zoom { display:inline-grid; place-items:center; width:44px; height:44px; padding:0; }
+body .pd .pd__zoom svg { width:20px; height:20px; fill:none; stroke:currentColor; }

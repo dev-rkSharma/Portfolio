@@ -3,7 +3,7 @@
  var motion=matchMedia('(prefers-reduced-motion:reduce)'),fine=matchMedia('(hover:hover) and (pointer:fine)');
  document.querySelectorAll('.selected-work__card').forEach(function(card,index){
   var preview=document.createElement('span');preview.className='project-peek';preview.setAttribute('aria-hidden','true');
-  var img=document.createElement('img');img.src='assets/project-'+['7','6','1'][index]+'.svg';img.alt='';img.loading='lazy';img.width=600;img.height=340;preview.appendChild(img);
+  var img=document.createElement('img');img.src='assets/project-'+['7','6','1'][index]+'.svg?v=icons-20261110b';img.alt='';img.loading='lazy';img.width=600;img.height=340;preview.appendChild(img);
   card.insertBefore(preview,card.querySelector('.selected-work__action'));
   var frame=0,tx=0,ty=0,x=0,y=0;
   function draw(){frame=0;if(motion.matches||!fine.matches){card.style.transform='';return;}x+=(tx-x)*.18;y+=(ty-y)*.18;

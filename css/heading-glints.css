@@ -1,0 +1,10 @@
+body .section-title .section-heading-icon { display:inline-block; width:clamp(24px,3vw,34px); height:clamp(24px,3vw,34px); margin-right:12px; vertical-align:-.06em; color:var(--theme-accent,#163c6a); }
+body .glint-card { position:relative; }
+body .card-border-blade { position:absolute; inset:0; border-radius:inherit; padding:2px; pointer-events:none; z-index:4; background:linear-gradient(135deg,transparent 35%,var(--theme-accent,#163c6a) 46%,#fff 50%,var(--theme-accent,#163c6a) 54%,transparent 65%); background-size:300% 300%; -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); -webkit-mask-composite:xor; mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); mask-composite:exclude; animation:card-blade-pass 1.35s cubic-bezier(.45,0,.25,1) both; }
+@keyframes card-blade-pass { 0% { background-position:100% 100%; opacity:0; } 15% { opacity:1; } 80% { opacity:1; } 100% { background-position:0 0; opacity:0; } }
+@media(prefers-reduced-motion:reduce) { body .card-border-blade { display:none; animation:none; } }
+/* Product artwork keeps its original colors on readable themed surfaces. */
+body #skills .skill-box { background:var(--theme-surface,#fff); border-color:var(--border,#102b5030); }
+body #skills .skill-box__head { color:var(--theme-ink,#102b50); }
+body #skills .skill-box__body { display:flex; flex-wrap:wrap; gap:8px; }
+body #skills .skill-box__body li { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; background:var(--theme-surface,#fff); border:1px solid var(--border,#102b5030); color:var(--theme-ink,#102b50); }

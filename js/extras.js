@@ -517,6 +517,12 @@
     ]
   };
 
+  // Keep terminal summaries sourced from the visible portfolio.
+  T.certs = Array.from(document.querySelectorAll('.cert-preview__title')).map(function(n){return n.textContent.trim();});
+  T.projects = Array.from(document.querySelectorAll('#projects .card')).map(function(card){var title=card.querySelector('.card__title');return title ? title.textContent.trim() + (card.dataset.group==='personal' ? ' (personal / in progress)' : '') : '';}).filter(Boolean);
+  var terminalSkillGroups=['foundry','agentic-ai','data-eng','code','analytics','governance','languages'];
+  document.querySelectorAll('#skills .skill-box').forEach(function(group,i){var values=Array.from(group.querySelectorAll('.skill-box__body li')).map(function(n){return n.textContent.trim();});if(terminalSkillGroups[i]&&values.length)T.skills[terminalSkillGroups[i]]=values;});
+
   var term = null, termOut, termIn, termHistory = [], termHistIdx = 0, termOpener = null;
 
   function link(href, label, external) {
@@ -565,7 +571,7 @@
     },
     certs: {
       desc: "Palantir certifications",
-      run: function () { return T.certs.map(function (c) { return '<span class="t-ok">✓</span> ' + esc(c); }); }
+      run: function () { return [T.certs.length + " certifications"].concat(T.certs.map(function (c) { return '<span class="t-ok">✓</span> ' + esc(c); })); }
     },
     contact: {
       desc: "how to reach me",
@@ -723,7 +729,7 @@
       $all("li", box).forEach(function (li) {
         var ti = window.TechIcons && window.Path2D && window.TechIcons.get(li.textContent);
         var leaf = addNode({ kind: "leaf", label: li.textContent.trim(), hue: hub.hue, r: ti ? 8 : 5, chip: li,
-                             icon: ti ? { brand: !!ti.brand, color: ti.color, paths: ti.d.map(function (d) { return new Path2D(d); }) } : null });
+                             icon: ti ? { brand: !!ti.brand, official: !!ti.official, image:ti.image, size:ti.size||24, color: ti.color, paths: ti.d.map(function (d) { return new Path2D(d); }) } : null });
         byKey[leaf.label.toLowerCase()] = leaf;
         addLink(hub, leaf, 78);
       });
@@ -873,9 +879,10 @@
           g.save();
           g.globalAlpha = al;
           g.translate(n.x - n.r * 0.68, n.y - n.r * 0.68);
-          g.scale(n.r * 1.36 / 24, n.r * 1.36 / 24);
+          g.scale(n.r * 1.36 / n.icon.size, n.r * 1.36 / n.icon.size);
+          if(n.icon.image&&n.icon.image.complete&&n.icon.image.naturalWidth)g.drawImage(n.icon.image,0,0,n.icon.size,n.icon.size);
           n.icon.paths.forEach(function (p2) {
-            if (n.icon.brand) { g.fillStyle = n.icon.color; g.fill(p2); }
+            if (n.icon.brand) { g.fillStyle = n.icon.official ? (window.portfolioThemeAccent||"#163c6a") : n.icon.color; g.fill(p2); }
             else { g.strokeStyle = "rgb(" + n.hue + ")"; g.lineWidth = 2; g.lineCap = "round"; g.lineJoin = "round"; g.stroke(p2); }
           });
           g.restore();

@@ -4,6 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+<script id="reload-from-top">
+(function(){var entry=performance.getEntriesByType('navigation')[0];if(!entry||entry.type!=='reload')return;history.scrollRestoration='manual';if(location.hash)history.replaceState(history.state,'',location.pathname+location.search);function top(){window.scrollTo({top:0,left:0,behavior:'instant'});}top();document.addEventListener('DOMContentLoaded',top,{once:true});window.addEventListener('pageshow',function(){top();requestAnimationFrame(top);},{once:true});})();
+</script>
 <!-- Establish the hero's starting state before any page content paints. -->
 <script>
 (function(){
@@ -255,6 +258,9 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 <link rel="stylesheet" href="css/creative-upgrades.css?v=20261109" />
 <link rel="stylesheet" href="css/project-system.css?v=20261109" />
 <script src="js/terminal-themes.js?v=20261110"></script>
+<link rel="stylesheet" href="css/scroll-polish.css?v=20261110" />
+<link rel="stylesheet" href="css/heading-glints.css?v=20261110" />
+<link rel="stylesheet" href="css/architecture-viewer.css?v=20261110" />
 </head>
 <body>
 <svg aria-hidden="true" width="0" height="0" style="position:absolute;pointer-events:none"><defs><filter id="navy-duotone" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values=".199 .669 .067 0 .063 .176 .593 .060 0 .169 .147 .491 .049 0 .314 0 0 0 1 0"/></filter><filter id="navy-on-white" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="-.199 -.669 -.067 0 1 -.176 -.593 -.060 0 1 -.147 -.491 -.049 0 1 0 0 0 1 0"/></filter></defs></svg>
@@ -382,7 +388,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
           <a class="btn btn--primary" href="#contacts">Get in touch</a>
           <a class="btn" href="assets/Roushan-Kumar-Resume.pdf" download>Download Resume</a>
         </div>
-        <!-- live "now" line; js/extras.js keeps the IST clock ticking -->
+        <!-- live "now" line; js/extras.js?v=icons-20261110b keeps the IST clock ticking -->
         <p class="now">
           <span class="now__label">Now</span>
           <span>Palantir Applied Engineer <strong>@ Vanyar</strong></span>
@@ -483,7 +489,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
           <div class="proj-rail__track">
 <article class="card" data-group="case">
           <div class="card__media">
-            <img decoding="async" src="assets/project-7.svg" alt="Source data and uploaded PDFs flow through a pipeline into an ontology, feeding a dashboard with charts, a map and AI suggestions, and an admin report whose AI-drafted sections are approved by a human before publishing" loading="lazy" width="600" height="340" />
+            <img decoding="async" src="assets/project-7.svg?v=icons-20261110b" alt="Source data and uploaded PDFs flow through a pipeline into an ontology, feeding a dashboard with charts, a map and AI suggestions, and an admin report whose AI-drafted sections are approved by a human before publishing" loading="lazy" width="600" height="340" />
           </div>
           <ul class="card__tech">
             <li>AIP</li>
@@ -501,7 +507,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 
 <article class="card" data-group="case">
           <div class="card__media">
-            <img decoding="async" src="assets/project-6.svg" alt="A request reaching an agent hub, which calls an LLM, Ontology and AI Analyst tools, converging into a decision output" loading="lazy" width="600" height="340" />
+            <img decoding="async" src="assets/project-6.svg?v=icons-20261110b" alt="A request reaching an agent hub, which calls an LLM, Ontology and AI Analyst tools, converging into a decision output" loading="lazy" width="600" height="340" />
           </div>
           <ul class="card__tech">
             <li>AIP</li>
@@ -517,7 +523,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 
 <article class="card" data-group="case">
           <div class="card__media">
-            <img decoding="async" src="assets/project-1.svg" alt="Operational reporting automation" loading="lazy" width="600" height="340" />
+            <img decoding="async" src="assets/project-1.svg?v=icons-20261110b" alt="Operational reporting automation" loading="lazy" width="600" height="340" />
           </div>
           <ul class="card__tech">
             <li>Ontology</li>
@@ -533,7 +539,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 
 <article class="card" data-group="case">
           <div class="card__media">
-            <img decoding="async" src="assets/project-2.svg" alt="Timeseries analytics dashboards" loading="lazy" width="600" height="340" />
+            <img decoding="async" src="assets/project-2.svg?v=icons-20261110b" alt="Timeseries analytics dashboards" loading="lazy" width="600" height="340" />
           </div>
           <ul class="card__tech">
             <li>Quiver</li>
@@ -549,7 +555,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 
 <article class="card" data-group="case">
           <div class="card__media">
-            <img decoding="async" src="assets/project-3.svg" alt="Governance and process mining workflows" loading="lazy" width="600" height="340" />
+            <img decoding="async" src="assets/project-3.svg?v=icons-20261110b" alt="Governance and process mining workflows" loading="lazy" width="600" height="340" />
           </div>
           <ul class="card__tech">
             <li>AIP</li>
@@ -565,7 +571,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 
 <article class="card" data-group="case">
           <div class="card__media">
-            <img decoding="async" src="assets/project-4.svg" alt="Law firm automation pipelines and workshop reporting" loading="lazy" width="600" height="340" />
+            <img decoding="async" src="assets/project-4.svg?v=icons-20261110b" alt="Law firm automation pipelines and workshop reporting" loading="lazy" width="600" height="340" />
           </div>
           <ul class="card__tech">
             <li>Pipeline Builder</li>
@@ -580,7 +586,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
         </article>
 
 <article class="card" data-group="personal" id="finance-os">
-          <div class="card__media"><img decoding="async" src="assets/project-8.svg" alt="Finance OS architecture: expenses, income and debt connect through a Foundry Ontology to charts and an AI analyst, with updates based on information supplied by the user" loading="lazy" width="600" height="340" /></div>
+          <div class="card__media"><img decoding="async" src="assets/project-8.svg?v=icons-20261110b" alt="Finance OS architecture: expenses, income and debt connect through a Foundry Ontology to charts and an AI analyst, with updates based on information supplied by the user" loading="lazy" width="600" height="340" /></div>
           <ul class="card__tech"><li>Ontology</li><li>AIP Logic</li><li>Automations</li><li>AI Analyst</li></ul>
           <div class="card__body">
             <p class="card__status">Personal project &middot; In progress</p>
@@ -593,7 +599,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 
 <article class="card" data-group="additional">
           <div class="card__media">
-            <img decoding="async" src="assets/project-5.svg" alt="Dynamic geospatial markers on a map visualization" loading="lazy" width="600" height="340" />
+            <img decoding="async" src="assets/project-5.svg?v=icons-20261110b" alt="Dynamic geospatial markers on a map visualization" loading="lazy" width="600" height="340" />
           </div>
           <ul class="card__tech">
             <li>Ontology</li>
@@ -635,7 +641,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
            field, accent on the active stage): sources -> pipeline -> ontology ->
            surfaces. It says something, so it gets alt text, not aria-hidden. -->
       <figure class="section-figure">
-        <img decoding="async" src="assets/skills-diagram.svg" width="600" height="340" loading="lazy"
+        <img decoding="async" src="assets/skills-diagram.svg?v=icons-20261110b" width="600" height="340" loading="lazy"
              alt="Source systems feed a governed pipeline, which loads an ontology at the centre; the ontology in turn powers a Workshop application and a timeseries dashboard.">
       </figure>
 
@@ -845,7 +851,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 
       <!-- ---------- certifications ---------- -->
       <h3 class="subhead stack-lg"><span class="hash" aria-hidden="true">#</span>certifications</h3>
-      <ul class="certs certs--cards" tabindex="0" aria-label="Certificates ? scroll horizontally to explore"><li><a class="cert-preview" href="https://verify.skilljar.com/c/pby6viwbnyed" target="_blank" rel="noopener"><span class="cert-preview__image"><img decoding="async" src="assets/certificates/pby6viwbnyed.webp" alt="AI Engineer Certification certificate issued to Roushan Kumar" loading="lazy" width="1000" height="707" /></span><span class="cert-preview__body"><span class="cert-preview__issuer">Palantir Technologies</span><span class="cert-preview__title">AI Engineer Certification</span><span class="cert-preview__action">Open certificate<span aria-hidden="true">&#8599;</span></span></span></a></li>
+      <ul class="certs certs--cards" tabindex="0" aria-label="Certificates — scroll horizontally to explore"><li><a class="cert-preview" href="https://verify.skilljar.com/c/pby6viwbnyed" target="_blank" rel="noopener"><span class="cert-preview__image"><img decoding="async" src="assets/certificates/pby6viwbnyed.webp" alt="AI Engineer Certification certificate issued to Roushan Kumar" loading="lazy" width="1000" height="707" /></span><span class="cert-preview__body"><span class="cert-preview__issuer">Palantir Technologies</span><span class="cert-preview__title">AI Engineer Certification</span><span class="cert-preview__action">Open certificate<span aria-hidden="true">&#8599;</span></span></span></a></li>
 <li><a class="cert-preview" href="https://verify.skilljar.com/c/iqjrtpi248z9" target="_blank" rel="noopener"><span class="cert-preview__image"><img decoding="async" src="assets/certificates/iqjrtpi248z9.webp" alt="Certified Palantir Foundry Application Developer Professional certificate issued to Roushan Kumar" loading="lazy" width="1000" height="707" /></span><span class="cert-preview__body"><span class="cert-preview__issuer">Palantir Technologies</span><span class="cert-preview__title">Certified Palantir Foundry Application Developer Professional</span><span class="cert-preview__action">Open certificate<span aria-hidden="true">&#8599;</span></span></span></a></li>
 <li><a class="cert-preview" href="https://verify.skilljar.com/c/zka2jmnxfj8r" target="_blank" rel="noopener"><span class="cert-preview__image"><img decoding="async" src="assets/certificates/zka2jmnxfj8r.webp" alt="Certified Palantir Foundry Aware certificate issued to Roushan Kumar" loading="lazy" width="1000" height="707" /></span><span class="cert-preview__body"><span class="cert-preview__issuer">Palantir Technologies</span><span class="cert-preview__title">Certified Palantir Foundry Aware</span><span class="cert-preview__action">Open certificate<span aria-hidden="true">&#8599;</span></span></span></a></li>
 <li><a class="cert-preview" href="https://verify.skilljar.com/c/p792rr4y8it7" target="_blank" rel="noopener"><span class="cert-preview__image"><img decoding="async" src="assets/certificates/p792rr4y8it7.webp" alt="Certified Palantir Foundry Data Engineer certificate issued to Roushan Kumar" loading="lazy" width="1000" height="707" /></span><span class="cert-preview__body"><span class="cert-preview__issuer">Palantir Technologies</span><span class="cert-preview__title">Certified Palantir Foundry Data Engineer</span><span class="cert-preview__action">Open certificate<span aria-hidden="true">&#8599;</span></span></span></a></li></ul>
@@ -877,7 +883,7 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 <li data-track="foundations"><a class="badge-tile" href="https://verify.skilljar.com/c/sgfaqg9tbnt7" target="_blank" rel="noopener"><span class="badge-tile__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-tile__track">Platform foundations</span><span class="badge-tile__name">Scoping Use Cases for Foundry &amp; AIP</span><span class="badge-tile__meta"><time datetime="2025-01">Jan 2025</time> &middot; View credential</span></span><span class="badge-tile__arrow" aria-hidden="true">&#8599;</span></a></li>
 <li data-track="foundations"><a class="badge-tile" href="https://verify.skilljar.com/c/a5dv4q37an6g" target="_blank" rel="noopener"><span class="badge-tile__seal"><svg viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m12 2 8 4v9l-8 6-8-6V6z"/><path d="m8 11 3 3 5-6M7 18l-1 7 6-3 6 3-1-7"/></svg></span><span><span class="badge-tile__track">Platform foundations</span><span class="badge-tile__name">Introduction to Foundry &amp; AIP for Enterprise Organizations</span><span class="badge-tile__meta"><time datetime="2025-01">Jan 2025</time> &middot; View credential</span></span><span class="badge-tile__arrow" aria-hidden="true">&#8599;</span></a></li>
 </ul></div>
-<p class="badge-footnote">These badges represent course completions. View my three professional and foundational <a href="#experience">Foundry certifications</a> in Experience.</p>
+<p class="badge-footnote">These badges represent course completions. View my four professional and foundational <a href="#experience">Foundry certifications</a> in Experience.</p>
 </div></section>
 
   <!-- ========================= ABOUT ========================= -->
@@ -967,11 +973,12 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 </div></footer>
 
 <script src="js/main.js?v=nav-20261026" defer></script>
-<script src="js/icons.js" defer></script>
+<script src="js/official-icons.js?v=icons-20261110b" defer></script>
+<script src="js/icons.js?v=icons-20261110b" defer></script>
 <script src="js/experience-logos.js?v=mtas-linkedin-20261026" defer></script>
 <script src="js/fx.js?v=smooth-20261027" defer></script>
 <script src="js/project-stories.js?v=work-20261026" defer></script>
-<script src="js/extras.js?v=tree2-20261027" defer></script>
+<script src="js/extras.js?v=icons-20261110b" defer></script>
 <script src="js/modern.js?v=smooth-20261027" defer></script>
 <script src="js/rail.js" defer></script>
 <script src="js/connect.js" defer></script>
@@ -984,5 +991,9 @@ html.hero-intro-enabled .hero__visual { animation:none !important; }
 <script src="js/footer-name.js?v=20261109" defer></script>
 <script src="js/creative-upgrades.js?v=20261109" defer></script>
 <script src="js/project-system.js?v=20261109" defer></script>
+<script src="js/scroll-polish.js?v=20261110" defer></script>
+<script src="js/nav-highlight.js?v=20261110" defer></script>
+<script src="js/heading-glints.js?v=20261110" defer></script>
+<script src="js/architecture-viewer.js?v=20261110" defer></script>
 </body>
 </html>
